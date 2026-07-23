@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "skill": "dsa-design",
+  "automated": true,
+  "execution": {
+    "mode": "codex-cli",
+    "runner": "scripts/run_behavior_evals.rb",
+    "description": "The runner executes each prompt with an authenticated Codex CLI and evaluates deterministic output assertions."
+  },
+  "cases": [
+    {
+      "id": "prose-edit-no-trigger",
+      "category": "negative-trigger",
+      "prompt": "把设置页按钮文案从“保存”改成“保存更改”，不要改动其他行为。",
+      "expected": {
+        "trigger_skill": false,
+        "pause_for_user_choice": false,
+        "must": [
+          "Perform only the requested copy change."
+        ],
+        "must_not": [
+          "Emit a DSA choice block.",
+          "Ask the user to choose a data structure or algorithm."
+        ],
+        "assertions": {
+          "required_regex": [
+            "保存更改"
+          ],
+          "forbidden_regex": [
+            "(?:DSA|数据结构|算法|复杂度)",
+            "(?:数据结构|算法).*方案"
+          ]
+        }
+      }
+    },
+    {
+      "id": "simple-crud-no-forced-dsa",
+      "category": "negative-trigger",
+      "prompt": "给现有的内存用户列表补一个按唯一 ID 删除用户的方法；数据量很小，没有新的性能或持久化要求。",
+      "expected": {
+        "trigger_skill": false,
+        "pause_for_user_choice": false,
+        "must": [
+          "Use the existing representation unless repository evidence requires a change.",
+          "Keep any incidental complexity note brief when it is useful."
+        ],
+        "must_not": [
+          "Force a multi-option DSA comparison.",
+          "Pause only to ask the user to select an internal implementation detail."
+        ],
+        "assertions": {
+          "required_regex": [
+            "(?:保持|复用|现有).*列表"
+          ],
+          "forbidden_regex": [
+            "DSA\\s*选择",
+            "方案[一二三1-3]"
+          ]
+        }
+      }
+    },
+    {
+      "id": "top-k-material-decision",
+      "category": "positive-trigger",
+      "prompt": "设计一个接口，从持续增长的千万级事件流中返回最近一小时得分最高的 100 条记录。写入远多于读取，内存有明确上限；先给方案，不要替我做重大取舍。",
+      "expected": {
+        "trigger_skill": true,
+        "pause_for_user_choice": true,
+        "must": [
+          "State workload assumptions and resource bounds.",
+          "Compare two or three viable Top-K designs with time, memory, I/O, and maintenance tradeoffs.",
+          "Recommend one design and identify when another becomes better.",
+          "Wait before implementation because the user retained the material decision."
+        ],
+        "must_not": [
+          "Implement before the user selects a materially different design.",
+          "Recommend an unbounded structure without addressing the memory limit."
+        ],
+        "assertions": {
+          "required_regex": [
+            "Top\\s*-?\\s*(?:K|100)",
+            "精确",
+            "(?:近似|Space-Saving|Count-Min|外部|持久化|数据库|磁盘)",
+            "(?:需要|请).*决定|选择.*语义"
+          ],
+          "forbidden_regex": [
+            "```(?:bash|sh|zsh|python|ruby|javascript|typescript|java|kotlin|swift|go|rust|c|cpp|csharp|sql)(?:\\s|\\n)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "delegated-choice-no-pause",
+      "category": "positive-trigger",
+      "prompt": "为千万级事件流设计最近一小时按得分返回 Top-100 记录的查询。请你依据这些约束选择最合适的方案；内部数据结构和算法由你决定。先给最终设计与验证计划，不写代码，也不要让我二次选择。",
+      "expected": {
+        "trigger_skill": true,
+        "pause_for_user_choice": false,
+        "must": [
+          "Make the delegated choice from the supplied constraints.",
+          "Briefly record the selected design, rationale, and key complexity.",
+          "Provide a concrete validation plan without asking the user to select among internal designs."
+        ],
+        "must_not": [
+          "Pause merely to ask the user to choose among viable internal designs.",
+          "Treat delegated authority as absent."
+        ],
+        "assertions": {
+          "required_regex": [
+            "(?:Space-Saving|Count-Min|环形桶|最小堆)",
+            "O\\("
+          ],
+          "forbidden_regex": [
+            "(?:需要|请)你.*(?:决定|选择)",
+            "等待.*(?:决定|选择)",
+            "方案[一二三1-3]"
+          ]
+        }
+      }
+    }
+  ]
+}
