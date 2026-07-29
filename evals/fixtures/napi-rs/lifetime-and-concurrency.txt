@@ -1,0 +1,3 @@
+不要阻塞 JavaScript 主线程。使用官方文档中适合该任务的 AsyncTask、async fn 或 ThreadsafeFunction；后台工作只接收拥有所有权的 Rust 数据（owned Buffer 副本或已转换的数据）。
+
+不要把 Node-API 句柄、借用的 JavaScript 值或其生命周期之外的数据跨线程发送或保存。测试应覆盖取消、回调失败和最终 Node 导入；每个声称支持的目标还需要干净环境的运行时导入测试。

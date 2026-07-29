@@ -1,0 +1,1 @@
+本地清单只是路由，不能单独证明当前覆盖。运行 `node scripts/verify-official-docs-coverage.mjs --check`，让它比较官方 `llms.txt` 与 `sitemap.xml`；只有检查通过后，才能说本地清单仍覆盖当前官方页面。
