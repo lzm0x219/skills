@@ -31,6 +31,8 @@ python3 scripts/run_behavior_evals.py \
   --skill dsa-design --answers evals/fixtures/dsa-design
 python3 scripts/run_behavior_evals.py \
   --skill napi-rs --answers evals/fixtures/napi-rs
+python3 scripts/run_behavior_evals.py \
+  --skill mise --answers evals/fixtures/mise
 ```
 
 可以列出场景或只运行一个场景：
@@ -48,6 +50,7 @@ python3 scripts/run_behavior_evals.py \
 ```sh
 python3 scripts/run_behavior_evals.py --skill dsa-design
 python3 scripts/run_behavior_evals.py --skill napi-rs
+python3 scripts/run_behavior_evals.py --skill mise
 ```
 
 真实评测会把场景提示和 Skill 内容发送给配置的 Codex 服务。结果只对应运行时使用的 CLI、模型、Skill 版本和场景断言。
@@ -79,6 +82,16 @@ python3 scripts/run_behavior_evals.py --skill napi-rs
 - 生命周期和并发边界
 - 未授权发布边界
 - 官方文档覆盖检查
+- 禁止项目专属术语重新进入 Skill
+
+`mise` 覆盖：
+
+- 无关任务直接回答
+- 项目级工具、环境与 task 设计
+- 未审查配置的 trust 安全边界
+- 不受控拉取请求配置的 safe mode 边界
+- lockfile 与 CI 的可复现性验证边界
+- 官方文档路由的索引检查
 - 禁止项目专属术语重新进入 Skill
 
 这些场景是回归基线，不代表对所有提示、模型和运行环境的穷举验证。
