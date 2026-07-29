@@ -11,12 +11,20 @@
 
 不确定要不要用时，先看下面的边界。显式调用最稳妥；是否隐式匹配由 Codex 和当前模型决定，因此这里不承诺“装上就一定自动触发”。
 
+### Engineering
+
 | Skill | 适合 | 不适合 | 显式调用 |
 | --- | --- | --- | --- |
 | [`dsa-design`](skills/engineering/dsa-design/SKILL.md) | 数据结构或算法选择会实质影响正确性、性能、资源上限、接口或维护成本 | 纯文案改动，以及没有实质 DSA 取舍的常规 CRUD | `$dsa-design` |
-| [`napi-rs`](skills/framework/napi-rs/SKILL.md) | 使用 napi-rs 接入、设计、实现、调试、测试、构建或发布 Rust Node-API addon | 与 Rust、Node-API 或 napi-rs 无关的任务 | `$napi-rs` |
 
-`napi-rs` 遇到精确 API、命令行参数、目标支持或发布流程时，会先回到当前官方文档，而不是把写进 Skill 时的知识当成永久事实。
+### Framework
+
+| Skill | 适合 | 不适合 | 显式调用 |
+| --- | --- | --- | --- |
+| [`napi-rs`](skills/framework/napi-rs/SKILL.md) | 使用 napi-rs 接入、设计、实现、调试、测试、构建或发布 Rust Node-API addon | 与 Rust、Node-API 或 napi-rs 无关的任务 | `$napi-rs` |
+| [`mise`](skills/framework/mise/SKILL.md) | 使用 mise 管理项目工具、环境变量、任务、锁文件、CI 或 IDE 集成 | 与项目开发环境、工具版本、环境变量或 task 无关的任务 | `$mise` |
+
+`napi-rs` 与 `mise` 遇到精确 API、命令行参数、目标支持、后端或发布流程时，会先回到当前官方文档，而不是把写进 Skill 时的知识当成永久事实。
 
 ## 安装并开始使用
 
@@ -39,7 +47,7 @@ npx skills add lzm0x219/skills \
   --skill napi-rs --agent codex --global
 ```
 
-把 `napi-rs` 替换为 `dsa-design` 即可安装另一个 Skill。安装后可以分别检查项目级和全局状态：
+把 `napi-rs` 替换为 `dsa-design` 或 `mise` 即可安装另一个 Skill。安装后可以分别检查项目级和全局状态：
 
 ```sh
 npx skills list --agent codex
@@ -52,6 +60,7 @@ npx skills list --global --agent codex
 
 ```text
 $napi-rs 评审这个 addon 的异步、生命周期和发布边界，先不要修改代码。
+$mise 为这个项目设计可复现的工具、环境变量和 test task，先不要修改文件。
 ```
 
 ## 了解仓库结构
@@ -62,7 +71,9 @@ $napi-rs 评审这个 addon 的异步、生命周期和发布边界，先不要�
 .
 ├── skills/
 │   ├── engineering/dsa-design/
-│   └── framework/napi-rs/
+│   └── framework/
+│       ├── mise/
+│       └── napi-rs/
 ├── evals/
 │   ├── fixtures/
 │   └── *.behavior.json
@@ -94,9 +105,9 @@ $napi-rs 评审这个 addon 的异步、生命周期和发布边界，先不要�
 | 仓库静态验证 | frontmatter、路径、链接、Codex 元数据、行为契约和源码断言符合仓库规则 | Skill 在真实模型中一定给出正确答案 |
 | 固定回答回归 | 行为评测执行器和正则断言能稳定识别已知输出 | 当前模型已经通过这些场景 |
 | 真实 Codex 评测 | 当前 CLI、模型和 Skill 对指定场景的最终可见输出满足断言 | 模型内部一定加载或没有加载某个 Skill |
-| napi-rs 文档覆盖检查 | 本地清单与检查时的官方索引一致，且链接可访问 | 未来版本或未运行平台仍然有效 |
+| napi-rs/mise 文档清单检查 | 本地路由与检查时的官方索引一致，且链接可访问 | 未来版本或未运行平台仍然有效 |
 
-GitHub Actions 运行静态验证、执行器单元测试和固定回答回归。默认 CI 不调用模型，也不访问 napi-rs 官方网站。
+GitHub Actions 运行静态验证、执行器单元测试和固定回答回归。默认 CI 不调用模型，也不访问 napi-rs 或 mise 官方网站。
 
 ## 运行本地检查
 
@@ -109,6 +120,8 @@ python3 scripts/run_behavior_evals.py \
   --skill dsa-design --answers evals/fixtures/dsa-design
 python3 scripts/run_behavior_evals.py \
   --skill napi-rs --answers evals/fixtures/napi-rs
+python3 scripts/run_behavior_evals.py \
+  --skill mise --answers evals/fixtures/mise
 ```
 
 真实行为评测需要已认证的 Codex CLI，并会把评测提示和 Skill 内容发送给配置的 Codex 服务：
@@ -116,12 +129,15 @@ python3 scripts/run_behavior_evals.py \
 ```sh
 python3 scripts/run_behavior_evals.py --skill dsa-design
 python3 scripts/run_behavior_evals.py --skill napi-rs
+python3 scripts/run_behavior_evals.py --skill mise
 ```
 
 刷新或发布 `napi-rs` 官方文档清单前，再运行联网检查：
 
 ```sh
 node skills/framework/napi-rs/scripts/verify-official-docs-coverage.mjs \
+  --check --verify-links
+node skills/framework/mise/scripts/verify-official-docs-inventory.mjs \
   --check --verify-links
 ```
 

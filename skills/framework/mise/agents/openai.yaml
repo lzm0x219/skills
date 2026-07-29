@@ -1,0 +1,6 @@
+interface:
+  display_name: "mise 开发环境管理"
+  short_description: "使用 mise 管理项目工具、环境变量、任务与可复现开发环境"
+  default_prompt: "使用 $mise 设计、配置、验证或排查项目的 mise 开发环境。"
+policy:
+  allow_implicit_invocation: true

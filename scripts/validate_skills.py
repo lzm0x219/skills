@@ -71,6 +71,32 @@ REQUIRED_CASES_BY_SKILL = {
             "invocation": "explicit",
         },
     },
+    "mise": {
+        "out-of-scope-direct-answer": {
+            "category": "out-of-scope",
+            "invocation": "implicit",
+        },
+        "project-config-design": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "untrusted-config": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+        "reproducible-ci": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "untrusted-ci-config": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+        "coverage-verification": {
+            "category": "documentation-integrity",
+            "invocation": "explicit",
+        },
+    },
 }
 MARKDOWN_LINK_PATTERN = re.compile(
     r"""!?\[[^\]]*\]\(\s*(<[^>]+>|[^\s)]+)"""
