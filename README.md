@@ -11,9 +11,16 @@
 
 不确定要不要用时，先看下面的边界。显式调用最稳妥；是否隐式匹配由 Codex 和当前模型决定，因此这里不承诺“装上就一定自动触发”。
 
+### Engineering
+
 | Skill | 适合 | 不适合 | 显式调用 |
 | --- | --- | --- | --- |
 | [`dsa-design`](skills/engineering/dsa-design/SKILL.md) | 数据结构或算法选择会实质影响正确性、性能、资源上限、接口或维护成本 | 纯文案改动，以及没有实质 DSA 取舍的常规 CRUD | `$dsa-design` |
+
+### Framework
+
+| Skill | 适合 | 不适合 | 显式调用 |
+| --- | --- | --- | --- |
 | [`napi-rs`](skills/framework/napi-rs/SKILL.md) | 使用 napi-rs 接入、设计、实现、调试、测试、构建或发布 Rust Node-API addon | 与 Rust、Node-API 或 napi-rs 无关的任务 | `$napi-rs` |
 | [`mise`](skills/framework/mise/SKILL.md) | 使用 mise 管理项目工具、环境变量、任务、锁文件、CI 或 IDE 集成 | 与项目开发环境、工具版本、环境变量或 task 无关的任务 | `$mise` |
 
