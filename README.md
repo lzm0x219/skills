@@ -13,19 +13,19 @@ When you are unsure whether to use a skill, start with the boundaries below. Exp
 
 ### Engineering
 
-**[`dsa-design`](skills/engineering/dsa-design/SKILL.md)** · `$dsa-design`
+**[`dsa-design`](skills/development/engineering/dsa-design/SKILL.md)** · `$dsa-design`
 
 - **Good for:** data structure or algorithm choices that materially affect correctness, performance, resource bounds, interfaces, or maintenance cost
 - **Not for:** pure copy edits, and routine CRUD with no material DSA trade-off
 
 ### Framework
 
-**[`napi-rs`](skills/framework/napi-rs/SKILL.md)** · `$napi-rs`
+**[`napi-rs`](skills/development/framework/napi-rs/SKILL.md)** · `$napi-rs`
 
 - **Good for:** adopting, designing, implementing, debugging, testing, building, or publishing Rust Node-API addons with napi-rs
 - **Not for:** tasks unrelated to Rust, Node-API, or napi-rs
 
-**[`mise`](skills/framework/mise/SKILL.md)** · `$mise`
+**[`mise`](skills/development/tools/mise/SKILL.md)** · `$mise`
 
 - **Good for:** managing project tools, environment variables, tasks, lockfiles, CI, or IDE integration with mise
 - **Not for:** tasks unrelated to the project development environment, tool versions, environment variables, or tasks
