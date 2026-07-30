@@ -13,16 +13,22 @@ When you are unsure whether to use a skill, start with the boundaries below. Exp
 
 ### Engineering
 
-| Skill | Good for | Not for | Explicit call |
-| --- | --- | --- | --- |
-| [`dsa-design`](skills/engineering/dsa-design/SKILL.md) | Data structure or algorithm choices that materially affect correctness, performance, resource bounds, interfaces, or maintenance cost | Pure copy edits, and routine CRUD with no material DSA trade-off | `$dsa-design` |
+**[`dsa-design`](skills/engineering/dsa-design/SKILL.md)** · `$dsa-design`
+
+- **Good for:** data structure or algorithm choices that materially affect correctness, performance, resource bounds, interfaces, or maintenance cost
+- **Not for:** pure copy edits, and routine CRUD with no material DSA trade-off
 
 ### Framework
 
-| Skill | Good for | Not for | Explicit call |
-| --- | --- | --- | --- |
-| [`napi-rs`](skills/framework/napi-rs/SKILL.md) | Adopting, designing, implementing, debugging, testing, building, or publishing Rust Node-API addons with napi-rs | Tasks unrelated to Rust, Node-API, or napi-rs | `$napi-rs` |
-| [`mise`](skills/framework/mise/SKILL.md) | Managing project tools, environment variables, tasks, lockfiles, CI, or IDE integration with mise | Tasks unrelated to the project development environment, tool versions, environment variables, or tasks | `$mise` |
+**[`napi-rs`](skills/framework/napi-rs/SKILL.md)** · `$napi-rs`
+
+- **Good for:** adopting, designing, implementing, debugging, testing, building, or publishing Rust Node-API addons with napi-rs
+- **Not for:** tasks unrelated to Rust, Node-API, or napi-rs
+
+**[`mise`](skills/framework/mise/SKILL.md)** · `$mise`
+
+- **Good for:** managing project tools, environment variables, tasks, lockfiles, CI, or IDE integration with mise
+- **Not for:** tasks unrelated to the project development environment, tool versions, environment variables, or tasks
 
 When `napi-rs` and `mise` need exact APIs, CLI flags, target support, backends, or release flows, they return to the current official docs instead of treating skill-time knowledge as permanent fact.
 
