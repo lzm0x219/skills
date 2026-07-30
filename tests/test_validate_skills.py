@@ -14,6 +14,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
+NAPI_RS_SKILL = Path("skills/development/framework/napi-rs")
 
 
 class ValidateSkillsTest(unittest.TestCase):
@@ -25,9 +26,7 @@ class ValidateSkillsTest(unittest.TestCase):
     def test_source_assertions_cover_bundled_text_resources(self) -> None:
         for filename in ("extra.rs", "extra.cjs", "extra.bash", "executable"):
             with self.subTest(filename=filename), self.copied_repo() as repo:
-                resource_path = (
-                    repo / "skills" / "framework" / "napi-rs" / filename
-                )
+                resource_path = repo / NAPI_RS_SKILL / filename
                 resource_path.write_text("Only supports the repolex repository.\n", encoding="utf-8")
 
                 completed = self.run_validator(repo)
@@ -54,7 +53,7 @@ class ValidateSkillsTest(unittest.TestCase):
 
     def test_frontmatter_must_be_a_mapping(self) -> None:
         with self.copied_repo() as repo:
-            skill_path = repo / "skills" / "framework" / "napi-rs" / "SKILL.md"
+            skill_path = repo / NAPI_RS_SKILL / "SKILL.md"
             source = skill_path.read_text(encoding="utf-8")
             skill_path.write_text(
                 re.sub(
@@ -135,7 +134,7 @@ class ValidateSkillsTest(unittest.TestCase):
 
     def test_source_assertions_reject_a_project_specific_napi_skill(self) -> None:
         with self.copied_repo() as repo:
-            skill_path = repo / "skills" / "framework" / "napi-rs" / "SKILL.md"
+            skill_path = repo / NAPI_RS_SKILL / "SKILL.md"
             source = skill_path.read_text(encoding="utf-8")
             skill_path.write_text(
                 source.replace(
@@ -167,9 +166,7 @@ class ValidateSkillsTest(unittest.TestCase):
 
         for rule, (source, replacement) in mutations.items():
             with self.subTest(rule=rule), self.copied_repo() as repo:
-                skill_path = (
-                    repo / "skills" / "framework" / "napi-rs" / "SKILL.md"
-                )
+                skill_path = repo / NAPI_RS_SKILL / "SKILL.md"
                 skill_path.write_text(
                     skill_path.read_text(encoding="utf-8").replace(
                         source,
