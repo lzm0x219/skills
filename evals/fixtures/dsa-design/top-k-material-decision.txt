@@ -1,7 +1,7 @@
-Top-K 有两个可行方向。
+There are two viable directions for Top-K.
 
-方案一是精确滑动窗口：按时间桶保存记录，每桶维护容量 100 的最小堆，写入为 O(log 100)，查询合并有效桶。内存有明确上限，但需要处理迟到事件、桶轮转和并列得分；若依赖数据库或磁盘外部状态，I/O 与运维成本更高。
+Option 1 is an exact sliding window: store records in time buckets, maintain a min-heap of capacity 100 per bucket, and merge active buckets on query. Writes are O(log 100). Memory has a clear upper bound, but late events, bucket rotation, and score ties need handling; if it depends on a database or disk-backed external state, I/O and operations cost are higher.
 
-方案二是 Space-Saving 近似摘要：写入和内存更稳定，实现复杂度较低，但结果允许误差。若产品必须返回精确记录，推荐精确方案；如果可接受可量化误差且吞吐优先，近似方案会更合适。
+Option 2 is a Space-Saving approximate sketch: writes and memory are more stable and implementation complexity is lower, but results allow error. If the product must return exact records, recommend the exact option; if quantifiable error is acceptable and throughput comes first, the approximate option is better.
 
-在继续实现前，需要你决定结果语义是否允许近似误差。
+Before continuing to implementation, you need to decide whether the result semantics allow approximation error.

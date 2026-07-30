@@ -1,30 +1,30 @@
-# 行为评测如何工作
+# How behavior evaluation works
 
-本仓库的行为评测检查 Skill 对代表性请求的最终可见回答。它补充静态验证，但不声称能够观测模型内部是否加载了某个 Skill。
+Behavior evaluation in this repository checks a skill's final visible answer to representative requests. It complements static validation, but it does not claim to observe whether a model loaded a skill internally.
 
-## 契约和固定回答
+## Contracts and fixed answers
 
-每个 `evals/<skill-name>.behavior.json` 都是一份机器可读契约，包含：
+Each `evals/<skill-name>.behavior.json` is a machine-readable contract that contains:
 
-- Skill 源码必须保留或禁止出现的正则
-- 必需场景的标识、类别和调用方式
-- 发送给模型的用户请求
-- 最终回答必须匹配或不得匹配的正则
+- Regexes that skill source must keep or must not contain
+- Identifiers, categories, and invocation modes for required scenarios
+- The user request sent to the model
+- Regexes that the final answer must match or must not match
 
-`evals/fixtures/<skill-name>/<case-id>.txt` 保存离线回归使用的固定回答。固定回答只证明评测执行器和断言能够处理已知输出，不证明当前模型仍会产生相同回答。
+`evals/fixtures/<skill-name>/<case-id>.txt` stores fixed answers for offline regression. Fixed answers only prove that the evaluation runner and assertions can handle known output. They do not prove that the current model still produces the same answer.
 
-## 显式和隐式场景
+## Explicit and implicit scenarios
 
-每个场景通过 `invocation` 声明调用方式：
+Each scenario declares its invocation mode with `invocation`:
 
-- `explicit`：提示中显式调用隔离后的 `$skill-name-working-tree-eval`
-- `implicit`：提示中不注入 `$skill-name`，只提交普通用户请求
+- `explicit`: the prompt explicitly calls the isolated `$skill-name-working-tree-eval`
+- `implicit`: the prompt does not inject `$skill-name` and only submits a normal user request
 
-两种方式都只检查最终可见输出。`implicit` 场景可以验证无关请求没有出现 Skill 术语，但不能证明 Skill 在模型内部一定未被加载。
+Both modes only inspect the final visible output. An `implicit` scenario can verify that unrelated requests do not surface skill terminology, but it cannot prove that the skill was never loaded inside the model.
 
-## 运行离线评测
+## Run offline evaluations
 
-使用 `--answers` 读取固定回答，不调用模型，也不需要凭据：
+Use `--answers` to read fixed answers without calling a model or needing credentials:
 
 ```sh
 python3 scripts/run_behavior_evals.py \
@@ -35,7 +35,7 @@ python3 scripts/run_behavior_evals.py \
   --skill mise --answers evals/fixtures/mise
 ```
 
-可以列出场景或只运行一个场景：
+List scenarios or run only one:
 
 ```sh
 python3 scripts/run_behavior_evals.py --skill napi-rs --list
@@ -43,9 +43,9 @@ python3 scripts/run_behavior_evals.py \
   --skill napi-rs --case generic-binding-design
 ```
 
-## 运行真实模型评测
+## Run live model evaluations
 
-省略 `--answers` 后，执行器使用已认证的 Codex CLI：
+Omit `--answers` to make the runner use an authenticated Codex CLI:
 
 ```sh
 python3 scripts/run_behavior_evals.py --skill dsa-design
@@ -53,45 +53,45 @@ python3 scripts/run_behavior_evals.py --skill napi-rs
 python3 scripts/run_behavior_evals.py --skill mise
 ```
 
-真实评测会把场景提示和 Skill 内容发送给配置的 Codex 服务。结果只对应运行时使用的 CLI、模型、Skill 版本和场景断言。
+Live evaluation sends scenario prompts and skill content to the configured Codex service. Results only apply to the CLI, model, skill version, and scenario assertions used at runtime.
 
-## 隔离已安装的同名 Skill
+## Isolate installed skills with the same name
 
-真实评测先把工作树中的目标 Skill 复制到临时工作区，并改成唯一评测名称。子进程同时使用临时 `CODEX_HOME` 和 `HOME`，因此不会继承以下用户级 Skill：
+Live evaluation first copies the target skill from the working tree into a temporary workspace and renames it to a unique evaluation name. The subprocess also uses temporary `CODEX_HOME` and `HOME` values, so it does not inherit these user-level skills:
 
 - `$CODEX_HOME/skills`
 - `$HOME/.agents/skills`
 
-如果原 `CODEX_HOME` 包含 `auth.json`，执行器只把该文件复制到临时目录，并把权限设为仅当前用户可读写。临时工作区、用户目录和认证副本会在执行器退出时删除。
+If the original `CODEX_HOME` contains `auth.json`, the runner copies only that file into the temporary directory and sets permissions so only the current user can read and write it. The temporary workspace, user home, and auth copy are deleted when the runner exits.
 
-评测会话使用只读 sandbox 和 `--ephemeral`。这些设置减少文件副作用和会话残留，但不替代对提示、Skill 脚本和外部服务权限的审查。
+Evaluation sessions use a read-only sandbox and `--ephemeral`. Those settings reduce file side effects and session residue, but they do not replace review of prompts, skill scripts, and external-service permissions.
 
-## 当前覆盖的行为
+## Behaviors currently covered
 
-`dsa-design` 覆盖：
+`dsa-design` covers:
 
-- 纯文案请求不产生 DSA 输出
-- 常规 CRUD 不强制多方案比较
-- 重大 Top-K 决策比较方案，并在未获授权时等待选择
-- 用户已委托选择时不因方案选择暂停
+- Pure prose requests do not produce DSA output
+- Routine CRUD does not force multi-option comparison
+- Material Top-K decisions compare options and wait for a choice when unauthorized
+- Delegated user choices do not pause for option selection
 
-`napi-rs` 覆盖：
+`napi-rs` covers:
 
-- 无关任务直接回答
-- 通用绑定设计
-- 生命周期和并发边界
-- 未授权发布边界
-- 官方文档覆盖检查
-- 禁止项目专属术语重新进入 Skill
+- Unrelated tasks are answered directly
+- Generic binding design
+- Lifetime and concurrency boundaries
+- Unauthorized release boundaries
+- Official documentation coverage checks
+- Project-specific terminology is forbidden from re-entering the skill
 
-`mise` 覆盖：
+`mise` covers:
 
-- 无关任务直接回答
-- 项目级工具、环境与 task 设计
-- 未审查配置的 trust 安全边界
-- 不受控拉取请求配置的 safe mode 边界
-- lockfile 与 CI 的可复现性验证边界
-- 官方文档路由的索引检查
-- 禁止项目专属术语重新进入 Skill
+- Unrelated tasks are answered directly
+- Project-level tool, environment, and task design
+- Trust safety boundaries for unreviewed config
+- Safe-mode boundaries for uncontrolled pull-request config
+- Lockfile and CI reproducibility verification boundaries
+- Official documentation routing index checks
+- Project-specific terminology is forbidden from re-entering the skill
 
-这些场景是回归基线，不代表对所有提示、模型和运行环境的穷举验证。
+These scenarios are a regression baseline, not exhaustive verification across all prompts, models, and runtimes.

@@ -1,1 +1,1 @@
-本地清单只是路由，不能单独证明当前覆盖。运行 `node scripts/verify-official-docs-coverage.mjs --check`，让它比较官方 `llms.txt` 与 `sitemap.xml`；只有检查通过后，才能说本地清单仍覆盖当前官方页面。
+The local inventory is only routing and cannot alone prove current coverage. Run `node scripts/verify-official-docs-coverage.mjs --check` so it compares against the official `llms.txt` and `sitemap.xml`; only after the check passes can you say the local inventory still covers the current official pages.

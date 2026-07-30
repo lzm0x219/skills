@@ -28,7 +28,7 @@ class ValidateSkillsTest(unittest.TestCase):
                 resource_path = (
                     repo / "skills" / "framework" / "napi-rs" / filename
                 )
-                resource_path.write_text("仅支持 repolex 仓库。\n", encoding="utf-8")
+                resource_path.write_text("Only supports the repolex repository.\n", encoding="utf-8")
 
                 completed = self.run_validator(repo)
 
@@ -138,7 +138,11 @@ class ValidateSkillsTest(unittest.TestCase):
             skill_path = repo / "skills" / "framework" / "napi-rs" / "SKILL.md"
             source = skill_path.read_text(encoding="utf-8")
             skill_path.write_text(
-                source.replace("不要假定某个仓库", "仅支持 repolex 仓库", 1),
+                source.replace(
+                    "Do not assume a specific repository",
+                    "Only supports the repolex repository",
+                    1,
+                ),
                 encoding="utf-8",
             )
 
@@ -151,11 +155,14 @@ class ValidateSkillsTest(unittest.TestCase):
 
     def test_source_assertions_lock_napi_safety_rules(self) -> None:
         mutations = {
-            "官方文档路由": (
-                "涉及 CLI、Cargo feature、目标平台、WASI、发布或迁移时，始终以当前官方页面为准；",
+            "official-docs routing": (
+                "When CLI, Cargo features, target platforms, WASI, publishing, or migration are involved, always treat the current official pages as authoritative.",
                 "",
             ),
-            "发布授权边界": ("没有用户的明确授权，不运行它们。", ""),
+            "publish authorization boundary": (
+                "Do not run them without the user's explicit authorization.",
+                "",
+            ),
         }
 
         for rule, (source, replacement) in mutations.items():

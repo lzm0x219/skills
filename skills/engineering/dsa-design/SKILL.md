@@ -1,147 +1,147 @@
 ---
 name: dsa-design
-description: 当软件设计、实现、评审或性能与资源问题包含实质的数据结构或算法选择时使用。根据真实的数据形态、操作模式、规模、约束、语言与运行时，从简单基线出发比较复杂度与取舍并给出推荐。可隐式触发于 CRUD、索引、缓存、排序、依赖、并发或资源上限等会影响正确性、性能或资源消耗的决策；不要用于纯文案、格式、文档编辑，或不涉及实质 DSA 选择的机械修改。
+description: Use when software design, implementation, review, or performance and resource questions include a material data structure or algorithm choice. Starting from a simple baseline, compare complexity and trade-offs against the real data shape, operation patterns, scale, constraints, language, and runtime, then recommend. May trigger implicitly for CRUD, indexing, caching, sorting, dependencies, concurrency, or resource bounds that affect correctness, performance, or resource use; do not use for pure prose, formatting, documentation edits, or mechanical changes with no material DSA choice.
 ---
 
-# DSA 设计
+# DSA Design
 
-让数据结构与算法适配当前需求。不要为想象中的未来需求进行优化。
+Fit data structures and algorithms to the current need. Do not optimize for imagined future requirements.
 
-## 先执行适用性门禁
+## Run the applicability gate first
 
-在分析或套用输出格式前，先判断请求是否包含会实质影响正确性、复杂度、性能或资源消耗的数据表示、索引、遍历、排序、调度、依赖或算法选择。显式提及或要求使用本 Skill 只表示需要执行这项检查，不证明请求存在实质 DSA 决策。
+Before analysis or applying the output format, decide whether the request includes a data representation, index, traversal, sort, schedule, dependency, or algorithm choice that materially affects correctness, complexity, performance, or resource use. Explicit mention of or a request to use this skill only means this check is required; it does not prove the request has a material DSA decision.
 
-不满足门禁时立即停止本 Skill 的其余流程：
+If the gate fails, stop the rest of this skill immediately:
 
-- 对纯文案、格式或文档编辑，直接完成请求；不要提及本 Skill、DSA、数据结构、算法或复杂度，也不要输出理由块。
-- 对现有表示已经确定、固定小规模、没有新增性能或资源约束的标准 CRUD，复用现有表示直接处理。仅在有助于实现审查时用普通行文简述复杂度；不要输出“DSA 选择”、候选方案或选择问题。
+- For pure prose, formatting, or documentation edits, complete the request directly. Do not mention this skill, DSA, data structures, algorithms, or complexity, and do not emit a rationale block.
+- For standard CRUD where the existing representation is already fixed, the scale is small and fixed, and there are no new performance or resource constraints, reuse the existing representation. Briefly note complexity in ordinary prose only when it helps implementation review. Do not emit a "DSA choice", candidate options, or selection questions.
 
-只有确认存在实质 DSA 取舍时，才继续执行后续步骤。
+Continue only after you confirm a material DSA trade-off exists.
 
-## 建立决策上下文
+## Establish decision context
 
-提出设计前，检查用户需求、适用的仓库指令、现有代码、配置、依赖、数据模型和运行时。能够从环境中查明的事实直接查明，不要询问用户。
+Before proposing a design, inspect the user need, applicable repository instructions, existing code, configuration, dependencies, data model, and runtime. Discover facts available in the environment; do not ask the user for them.
 
-确定：
+Determine:
 
-- 领域规则与不变量；
-- 数据形态、基数和可信的增长预期；
-- 读取、写入、更新、删除、遍历、排序、分组、范围、优先级、依赖和关系操作；
-- 操作频率与读写比例；
-- 正确性、延迟、吞吐量、内存、持久化、并发、确定性、可解释性和可回放要求；
-- 数据库查询次数、磁盘 I/O、网络往返、序列化、锁竞争、缓存失效和数据迁移成本；
-- 输入是否不可信，以及最坏情况退化、CPU 或内存耗尽、哈希碰撞和缓存污染风险；
-- 语言、运行时、标准库、数据库和项目现有能力。
+- Domain rules and invariants;
+- Data shape, cardinality, and credible growth expectations;
+- Read, write, update, delete, traverse, sort, group, range, priority, dependency, and relationship operations;
+- Operation frequency and read/write ratio;
+- Correctness, latency, throughput, memory, durability, concurrency, determinism, explainability, and replay requirements;
+- Database query counts, disk I/O, network round trips, serialization, lock contention, cache invalidation, and data migration cost;
+- Whether inputs are untrusted, plus risks of worst-case degradation, CPU or memory exhaustion, hash collisions, and cache pollution;
+- Language, runtime, standard library, database, and existing project capabilities.
 
-只有缺失事实会实质改变方案选择时，才提出一个简短问题。其他情况下使用保守且明确可见的假设继续。
+Ask one short question only when a missing fact would materially change the choice. Otherwise continue with conservative, clearly stated assumptions.
 
-## 从最简单的基线开始
+## Start from the simplest baseline
 
-先选择能够满足当前约束的最简单表示和算法。优先考虑数组、映射、集合、元组、线性扫描、标准库集合和数据库原生索引，再考虑专用结构。
+First choose the simplest representation and algorithm that satisfies current constraints. Prefer arrays, maps, sets, tuples, linear scans, standard-library collections, and database-native indexes before specialized structures.
 
-除非图、堆、树、Trie、位集、缓存、动态规划、增量计算、自定义实现或第三方依赖能够比基线更好地解决真实约束，否则不要引入它们。
+Do not introduce graphs, heaps, trees, tries, bitsets, caches, dynamic programming, incremental computation, custom implementations, or third-party dependencies unless they solve a real constraint better than the baseline.
 
-当操作模式无法直接确定候选集时，读取 [selection-framework.md](references/selection-framework.md)。
+When the operation pattern does not immediately determine candidates, read [selection-framework.md](references/selection-framework.md).
 
-## 产出可行选项
+## Produce viable options
 
-对于重要决策，提供两到三个非支配的可行方案。不要为了凑数而添加方案。
+For material decisions, provide two or three non-dominated viable options. Do not pad the list.
 
-对每个方案说明：
+For each option, state:
 
-- 数据表示与算法；
-- 关键操作的复杂度，包括适用的平均、最坏或摊还复杂度；
-- 内存、常数、I/O、网络和同步成本；
-- 不变量与失败模式；
-- 实现、维护和迁移成本；
-- 面对不可信或对抗性输入时的最坏行为与资源上限；
-- 与当前语言、运行时、数据库和项目的兼容性；
-- 该方案在什么条件下会成为更优选择。
+- Data representation and algorithm;
+- Complexity of key operations, including average, worst-case, or amortized complexity where relevant;
+- Memory, constant factors, I/O, network, and synchronization costs;
+- Invariants and failure modes;
+- Implementation, maintenance, and migration cost;
+- Worst-case behavior and resource bounds under untrusted or adversarial input;
+- Compatibility with the current language, runtime, database, and project;
+- Conditions under which that option becomes the better choice.
 
-对于简单决策，只需简要说明选择的结构或算法、主要理由和关键复杂度。除非用户明确要求更多细节，否则保持在这三项内，不附加完整代码。
+For simple decisions, briefly state the chosen structure or algorithm, the main reason, and the key complexity. Stay within those three items unless the user asks for more detail, and do not attach full code.
 
-需要判断某项决策属于简单还是重要时，读取 [worked-examples.md](references/worked-examples.md)。
+When judging whether a decision is simple or material, read [worked-examples.md](references/worked-examples.md).
 
-## 给出推荐
+## Make a recommendation
 
-按照以下优先级推荐一个方案：
+Recommend one option with this priority order:
 
-1. 保持正确性和领域不变量。
-2. 对不可信输入保持可接受的最坏行为和有界资源消耗。
-3. 满足当前延迟、吞吐量、规模、内存、I/O 和网络约束。
-4. 在满足约束的方案中选择最简单、最易维护的设计。
-5. 只有存在已测量的瓶颈或明确可信的增长预期时，才接受额外复杂度。
-6. 渐进复杂度相近时，再比较常数成本、局部性、内存分配、并发、可解释性和运行时行为。
+1. Preserve correctness and domain invariants.
+2. Keep acceptable worst-case behavior and bounded resource use for untrusted input.
+3. Satisfy current latency, throughput, scale, memory, I/O, and network constraints.
+4. Among options that meet the constraints, choose the simplest, most maintainable design.
+5. Accept extra complexity only when there is a measured bottleneck or a clearly credible growth expectation.
+6. When asymptotic complexity is similar, compare constant costs, locality, allocation, concurrency, explainability, and runtime behavior.
 
-说明推荐方案为什么适合当前需求，以及其他方案在什么条件下会反超。
+Explain why the recommended option fits the current need, and under what conditions another option would overtake it.
 
-## 控制重大决策
+## Control material decisions
 
-只有同时满足以下条件时，才在实现前等待用户选择：
+Wait for the user to choose before implementing only when all of the following hold:
 
-- 用户没有明确授权代理作出该决定；
-- 候选方案会实质改变公开接口、不可逆的持久化或迁移方式、关键依赖或产品语义。
+- The user has not clearly authorized the agent to make that decision;
+- The candidates would materially change a public interface, irreversible persistence or migration, a critical dependency, or product semantics.
 
-用户已委托选择，或该选择属于内部实现细节且可逆时，说明假设和推荐后继续。只有原始请求已经授权实现时才修改代码或文件。
+If the user has delegated the choice, or the choice is an internal implementation detail and reversible, state the assumptions and recommendation and continue. Modify code or files only when the original request already authorized implementation.
 
-尊重用户选择。如果用户选择无法保持正确性或满足明确约束，在继续前说明冲突。
+Respect the user's choice. If that choice cannot preserve correctness or meet explicit constraints, explain the conflict before continuing.
 
-## 实现与验证
+## Implement and verify
 
-只有用户明确要求编写或修改代码时才实现。用户只要求设计、方案、比较或评审时，不要输出可执行实现；确有必要时，只提供伪代码、类型签名或接口草图。
+Implement only when the user explicitly asks for code to be written or changed. If the user only asked for design, options, comparison, or review, do not emit an executable implementation; when necessary, provide only pseudocode, type signatures, or interface sketches.
 
-不要把“不要修改文件”理解为已经授权在回复中编写完整实现。可行时，将选定的数据结构封装在小而稳定的模块接口之后。
+Do not treat "do not modify files" as authorization to write a full implementation in the reply. When feasible, encapsulate the chosen data structure behind a small, stable module interface.
 
-对非简单算法给出足以审查的正确性论证：
+For non-trivial algorithms, give a correctness argument sufficient for review:
 
-- 明确前置条件和后置条件；
-- 说明循环、递归、状态或数据结构不变量；
-- 说明算法为什么终止；
-- 对贪心算法说明局部选择为何不会破坏全局最优；
-- 对动态规划说明状态、转移、初始条件和计算顺序；
-- 对图算法说明节点、边、方向、权重和可达性语义。
+- State preconditions and postconditions;
+- State loop, recursion, state, or data-structure invariants;
+- Explain why the algorithm terminates;
+- For greedy algorithms, explain why local choices do not break global optimality;
+- For dynamic programming, state state, transition, base cases, and computation order;
+- For graph algorithms, state node, edge, direction, weight, and reachability semantics.
 
-验证：
+Verify:
 
-- 可观察行为和领域不变量；
-- 适用的空值、最小值、最大值、重复、缺失、循环、溢出和无效输入；
-- 面对不可信、极端和对抗性输入时的时间、内存和缓存行为；
-- 复杂度声明是否符合实际实现；
-- 数据库查询次数、I/O、网络往返、锁竞争和缓存失效是否符合成本模型；
-- 只有性能影响了方案选择时，才使用具有代表性的负载和基线方案验证性能。
+- Observable behavior and domain invariants;
+- Applicable empty, minimum, maximum, duplicate, missing, cycle, overflow, and invalid-input cases;
+- Time, memory, and cache behavior under untrusted, extreme, and adversarial input;
+- Whether complexity claims match the actual implementation;
+- Whether database query counts, I/O, network round trips, lock contention, and cache invalidation match the cost model;
+- Performance only when it affected the choice, using representative load and a baseline option.
 
-如果证据否定了原推荐，重新打开决策，不要为原方案辩护。
+If evidence overturns the original recommendation, reopen the decision instead of defending the original option.
 
-## 选择性记录持久决策
+## Record durable decisions selectively
 
-普通选择保留在实现或当前设计说明中。只有选择难以撤销、确实经过取舍，而且未来维护者缺少上下文会感到意外时，才建议创建 ADR 或项目设计文档。
+Keep ordinary choices in the implementation or current design notes. Suggest creating an ADR or project design document only when the choice is hard to reverse, truly involved trade-offs, and would surprise future maintainers without context.
 
-## 与其他 skills 协作
+## Collaborate with other skills
 
-可用且与任务直接相关时，使用 `domain-modeling` 确定领域术语与不变量，使用 `codebase-design` 塑造模块接口与接缝，使用 `prototype` 回答必须运行才能确定的设计问题，使用 `tdd` 实现并验证行为。不可用时直接完成当前任务，不得编造能力或结果。不要在本 skill 中复制这些完整流程。
+When available and directly relevant to the task, use `domain-modeling` for domain terms and invariants, `codebase-design` for module interfaces and seams, `prototype` for design questions that must be run to decide, and `tdd` to implement and verify behavior. When they are unavailable, complete the current task directly; do not invent capabilities or results. Do not copy those full workflows into this skill.
 
-## 输出格式
+## Output format
 
-存在实质 DSA 选择时，简单决策使用：
-
-```text
-DSA 选择：<数据结构或算法>
-理由：<为什么足以满足当前需求>
-复杂度：<关键操作>
-```
-
-重要决策使用：
+When a material DSA choice exists, use this for simple decisions:
 
 ```text
-当前需求与假设
-核心操作与约束
-两到三个可行方案
-方案比较与取舍
-推荐方案及理由
-其他方案反超推荐项的条件
-需要用户决定的事项（仅在存在时）
-正确性论证
-不变量、边界情况、资源风险与验证计划
+DSA choice: <data structure or algorithm>
+Reason: <why this is enough for the current need>
+Complexity: <key operations>
 ```
 
-不存在实质 DSA 选择时，不使用上述格式；直接按用户请求输出。不得让输出模板覆盖最前面的适用性门禁。
+For material decisions:
+
+```text
+Current needs and assumptions
+Core operations and constraints
+Two or three viable options
+Option comparison and trade-offs
+Recommendation and rationale
+Conditions under which another option overtakes the recommendation
+Items needing a user decision (only if any)
+Correctness argument
+Invariants, edge cases, resource risks, and verification plan
+```
+
+When there is no material DSA choice, do not use the formats above; answer the user request directly. Never let the output template override the applicability gate at the top.

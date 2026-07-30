@@ -1,1 +1,1 @@
-我会只把设置页按钮文案从“保存”替换为“保存更改”，保留原有点击处理、状态、标识和其他行为不变。
+I will only replace the settings-page button copy from "Save" with "Save changes", keeping the existing click handling, state, identifiers, and other behavior unchanged.

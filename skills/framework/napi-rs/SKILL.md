@@ -1,53 +1,53 @@
 ---
 name: napi-rs
-description: "使用 napi-rs 构建、修改、调试、测试、打包或评审 Rust Node-API addon。适用于接入或迁移、#[napi] 导出、Rust/JavaScript 类型转换、class、函数、错误、buffer、生命周期、异步与线程、CLI、打包、交叉编译、WebAssembly、兼容性、测试、发布与故障排查。涉及版本 API、CLI 参数、目标支持或发布行为时，先查当前 napi-rs 官方文档。"
+description: "Build, modify, debug, test, package, or review Rust Node-API addons with napi-rs. Use for adoption or migration, #[napi] exports, Rust/JavaScript type conversion, classes, functions, errors, buffers, lifetimes, async and threads, CLI, packaging, cross-compilation, WebAssembly, compatibility, testing, publishing, and troubleshooting. When versioned APIs, CLI flags, target support, or publish behavior are involved, consult current official napi-rs documentation first."
 ---
 
-# napi-rs 通用工作流
+# napi-rs general workflow
 
-使用当前项目的语言、包管理器和构建约定完成 Rust Node-API addon 工作；不要假定某个仓库、crate 名称、领域模型、测试数据或发布平台。请求与 Rust、Node-API 或 napi-rs 无关时，直接完成原任务，不要输出本 Skill 的流程或术语。
+Complete Rust Node-API addon work using the current project's language, package manager, and build conventions. Do not assume a specific repository, crate name, domain model, test data, or release platform. When the request is unrelated to Rust, Node-API, or napi-rs, complete the original task directly and do not emit this skill's process or terminology.
 
-## 先确定边界
+## Establish boundaries first
 
-1. 检查现有 Rust crate、Node 包、构建脚本、支持矩阵和用户授权。不要因为使用本 Skill 而擅自脚手架、迁移、发布或修改公共 API。
-2. 先定义 JavaScript 合约：导出名称、参数和返回值、同步或异步语义、错误形状、生成的 `.d.ts`、模块加载方式和兼容承诺。
-3. 如果项目已有独立核心 crate，将 Node-API 代码保持为薄适配层；不要把业务规则、I/O 策略或领域模型复制进绑定层。独立 addon 不必为了套用该模式额外拆 crate。
+1. Inspect existing Rust crates, Node packages, build scripts, support matrix, and user authorization. Do not scaffold, migrate, publish, or change public APIs merely because this skill is in use.
+2. Define the JavaScript contract first: export names, parameters and return values, sync or async semantics, error shape, generated `.d.ts`, module loading, and compatibility commitments.
+3. If the project already has an independent core crate, keep Node-API code as a thin adapter layer. Do not copy business rules, I/O policy, or domain models into the binding layer. An independent addon does not need an extra crate split just to follow that pattern.
 
-## 使用当前官方文档
+## Use current official documentation
 
-1. 对不熟悉或版本敏感的任务，先读 [官方文档清单](references/official-documentation-inventory.md)，再打开触及能力的官方页面。
-2. 涉及 CLI、Cargo feature、目标平台、WASI、发布或迁移时，始终以当前官方页面为准；不要从本 Skill 推断精确参数、版本或支持矩阵。
-3. 仅在刷新清单或声称本地资料仍全覆盖时，运行 `node scripts/verify-official-docs-coverage.mjs --check`；发布前或文档刷新时再加 `--verify-links`。
+1. For unfamiliar or version-sensitive tasks, first read the [official documentation inventory](references/official-documentation-inventory.md), then open the official pages for the capabilities you touch.
+2. When CLI, Cargo features, target platforms, WASI, publishing, or migration are involved, always treat the current official pages as authoritative. Do not infer exact flags, versions, or support matrices from this skill.
+3. Run `node scripts/verify-official-docs-coverage.mjs --check` only when refreshing the inventory or claiming that local material still fully covers the official site; add `--verify-links` before publishing or after documentation refreshes.
 
-| 工作内容 | 优先查阅的官方主题 |
+| Work | Prefer these official topics |
 | --- | --- |
-| 接入已有项目、创建包、使用 `napi` CLI | Introduction、CLI |
-| `#[napi]`、函数、class、enum、类型声明、错误 | Exports and JavaScript API |
-| 值转换、`Env`、`this`、引用、buffer、Promise、生命周期 | Values, conversion, and lifetime management |
-| `async fn`、`AsyncTask`、线程回调、Tokio | Async and concurrency |
-| Cargo feature、预编译产物、交叉编译、WASI | Build, targets, and WebAssembly |
-| 运行时加载、bundler、测试、崩溃或平台故障 | Quality, integrations, and troubleshooting |
-| 版本、制品、npm 发布或 v2/v3 迁移 | Release, migration, and historical context |
+| Adopt an existing project, create a package, use the `napi` CLI | Introduction, CLI |
+| `#[napi]`, functions, classes, enums, type declarations, errors | Exports and JavaScript API |
+| Value conversion, `Env`, `this`, references, buffers, Promise, lifetimes | Values, conversion, and lifetime management |
+| `async fn`, `AsyncTask`, thread callbacks, Tokio | Async and concurrency |
+| Cargo features, prebuilt artifacts, cross-compilation, WASI | Build, targets, and WebAssembly |
+| Runtime loading, bundlers, testing, crashes, or platform failures | Quality, integrations, and troubleshooting |
+| Versions, artifacts, npm publish, or v2/v3 migration | Release, migration, and historical context |
 
-按实际触及的能力组合阅读页面。例如，异步导出 `TypedArray` 时，同时阅读 async、typed array、lifetime、error handling 与 export/type conversion 页面。
+Read pages according to the capabilities you actually touch. For example, when exporting an async `TypedArray`, also read the async, typed array, lifetime, error handling, and export/type conversion pages.
 
-## 保持边界安全
+## Keep boundaries safe
 
-- 在 JavaScript 边界验证输入、路径、选项组合和资源上限；保持导出名、`.d.ts`、loader 与 `package.json` 一致。
-- 将可预期错误映射为稳定、可操作且机器可读的 JavaScript 错误；默认不要暴露凭据、绝对路径或原始内部错误。
-- 仅在其 `Env` 与生命周期内使用 Node-API 句柄和借用的 JavaScript 值。不要将它们保存到长期 Rust 状态，也不要跨 worker 或线程发送。
-- 不要在 JavaScript 主线程执行耗时的 CPU、文件系统、网络或外部进程工作。按当前官方指导选择 `async fn`、`AsyncTask` 或 `ThreadsafeFunction`，并只把拥有所有权的 Rust 数据交给后台工作。
-- 除非公共合约另有规定，不要在绑定层改变核心层提供的确定性顺序、精度或错误分类。
+- Validate inputs, paths, option combinations, and resource bounds at the JavaScript boundary. Keep export names, `.d.ts`, loaders, and `package.json` consistent.
+- Map expected errors to stable, actionable, machine-readable JavaScript errors. By default do not expose credentials, absolute paths, or raw internal errors.
+- Use Node-API handles and borrowed JavaScript values only within their `Env` and lifetime. Do not store them in long-lived Rust state or send them across workers or threads.
+- Do not perform expensive CPU, filesystem, network, or external-process work on the JavaScript main thread. Choose `async fn`, `AsyncTask`, or `ThreadsafeFunction` according to current official guidance, and hand only owned Rust data to background work.
+- Unless the public contract says otherwise, do not change the deterministic order, precision, or error classification provided by the core layer inside the binding layer.
 
-## 实现与验证
+## Implement and verify
 
-1. 在项目配置的 Rust 命令存在时，运行格式化、Clippy 和 Rust 测试；不要凭空要求某种 workspace 结构。
-2. 用项目配置的 napi CLI 或当前官方文档中的命令构建产物。以 Node 集成测试从最终包导入 addon，覆盖至少一个成功路径、一个无效输入或预期错误路径，以及所有新异步行为。
-3. 只有同时具备生成的制品和干净环境中的实际导入测试，才声称支持某个 Node.js、OS、CPU、libc、运行时或 WASI 组合。Node-API ABI 兼容本身不足以证明可用。
-4. 将跨平台、loader、bundler 或性能结论与实际测试矩阵区分开；未跑的组合保持为未验证。
-5. 将 `napi pre-publish`、`napi prepublish`、npm publish、GitHub release 和制品上传视为外部副作用。没有用户的明确授权，不运行它们。
+1. When the project has configured Rust commands, run formatting, Clippy, and Rust tests. Do not invent a workspace structure that is not present.
+2. Build artifacts with the project's configured napi CLI or the commands from current official docs. Import the addon from the final package with Node integration tests covering at least one success path, one invalid input or expected error path, and every new async behavior.
+3. Claim support for a Node.js, OS, CPU, libc, runtime, or WASI combination only when you have both a generated artifact and a real import test in a clean environment. Node-API ABI compatibility alone is not enough.
+4. Separate cross-platform, loader, bundler, or performance conclusions from the actual test matrix. Keep unrun combinations as unverified.
+5. Treat `napi pre-publish`, `napi prepublish`, npm publish, GitHub releases, and artifact uploads as external side effects. Do not run them without the user's explicit authorization.
 
-## 本地资源
+## Local resources
 
-- [官方文档清单](references/official-documentation-inventory.md)：当前官方 Docs/Blog 的能力路由和范围说明。
-- [覆盖验证器](scripts/verify-official-docs-coverage.mjs)：比对本地清单与官方 `llms.txt`/sitemap，并可验证链接可达性。
+- [Official documentation inventory](references/official-documentation-inventory.md): capability routing and scope notes for current official Docs/Blog pages.
+- [Coverage verifier](scripts/verify-official-docs-coverage.mjs): compares the local inventory with the official `llms.txt`/sitemap and can verify link reachability.

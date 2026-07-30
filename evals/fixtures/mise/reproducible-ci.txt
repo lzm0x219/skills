@@ -1,3 +1,3 @@
-先确认 CI 使用项目级 `mise.toml`，并在受控平台上生成、审查和提交 `mise.lock`。用 `mise lock` 固定工具解析的版本与校验信息；不要把 lockfile 当成已验证的构建结果。
+First confirm CI uses project-level `mise.toml`, and generate, review, and commit `mise.lock` on controlled platforms. Use `mise lock` to pin resolved tool versions and verification data; do not treat the lockfile as a verified build result.
 
-在 CI 设计中使用当前官方文档的方式加载 mise 环境，再实际运行 build 命令和项目测试。只有这些命令在目标 CI 环境成功，才能声明构建可复现；本轮不生成或修改工作流文件。
+In the CI design, load the mise environment the way current official docs describe, then actually run the build command and project tests. Only when those commands succeed in the target CI environment can the build be called reproducible; this round does not generate or modify workflow files.

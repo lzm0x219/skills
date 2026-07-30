@@ -19,7 +19,7 @@ class RunBehaviorEvalsTest(unittest.TestCase):
     def test_out_of_scope_case_does_not_explicitly_invoke_the_skill(self) -> None:
         result = self.run_case(
             "out-of-scope-direct-answer",
-            "将 README 第一行改为“工具集”。",
+            'Change the first line of the README to "Toolset".',
         )
 
         self.assertNotIn("$napi-rs-working-tree-eval", result["prompt"])
@@ -27,7 +27,7 @@ class RunBehaviorEvalsTest(unittest.TestCase):
     def test_in_scope_case_explicitly_invokes_the_skill(self) -> None:
         result = self.run_case(
             "generic-binding-design",
-            "JavaScript 契约使用适配层并返回稳定、机器可读的错误。随后运行 Node 集成测试。",
+            "The JavaScript contract uses an adapter layer and returns stable, machine-readable errors. Then run Node integration tests.",
         )
 
         self.assertIn("$napi-rs-working-tree-eval", result["prompt"])
@@ -35,7 +35,7 @@ class RunBehaviorEvalsTest(unittest.TestCase):
     def test_live_evaluation_isolates_codex_and_user_skill_homes(self) -> None:
         result = self.run_case(
             "generic-binding-design",
-            "JavaScript 契约使用适配层并返回稳定、机器可读的错误。随后运行 Node 集成测试。",
+            "The JavaScript contract uses an adapter layer and returns stable, machine-readable errors. Then run Node integration tests.",
         )
 
         self.assertNotEqual(result["source_codex_home"], result["eval_codex_home"])

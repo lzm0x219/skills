@@ -1,1 +1,1 @@
-最终方案采用分钟环形桶，每桶用容量 100 的最小堆保留得分最高的记录，查询时合并有效桶并取 Top-100。单事件更新为 O(log 100)，内存保持有界；验证并列得分、窗口边界、迟到事件和峰值吞吐。
+Final design adopts minute ring buckets, each keeping the highest-scoring records in a min-heap of capacity 100; on query, merge active buckets and take Top-100. Per-event updates are O(log 100) and memory stays bounded. Verify tied scores, window boundaries, late events, and peak throughput.

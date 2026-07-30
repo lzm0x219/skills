@@ -1,1 +1,1 @@
-保持现有列表，按唯一 ID 线性查找并删除首个匹配用户。数据量很小，无需新增索引；时间复杂度为 O(n)。
+Keep the existing list, linearly search by unique ID, and delete the first matching user. The data set is small, so no new index is needed; time complexity is O(n).

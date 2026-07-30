@@ -1,71 +1,102 @@
 # Skills
 
 [![Validation](https://badges.ws/github/workflow/lzm0x219/skills/validate.yml?style=flat-square&label=validation&labelColor=111827&icon=githubactions&iconColor=white)](https://github.com/lzm0x219/skills/actions/workflows/validate.yml)
-[![Target: Codex](https://badges.ws/badge/target-Codex-10A37F?style=flat-square&labelColor=111827&icon=openai&iconColor=white)](#兼容性和限制)
 [![Format: Agent Skills](https://badges.ws/badge/format-Agent%20Skills-7C3AED?style=flat-square&labelColor=111827&icon=markdown&iconColor=white)](https://agentskills.io/specification)
-[![License: Apache-2.0](https://badges.ws/github/l/lzm0x219/skills?style=flat-square&labelColor=111827&color=0EA5E9&icon=apache&iconColor=white)](LICENSE)
+[![Install: npx skills](https://badges.ws/badge/install-npx%20skills-0EA5E9?style=flat-square&labelColor=111827&icon=npm&iconColor=white)](#install-and-start-using)
+[![License: Apache-2.0](https://badges.ws/github/l/lzm0x219/skills?style=flat-square&labelColor=111827&color=111827&icon=apache&iconColor=white)](LICENSE)
 
-这里的每一个 Skill，都源自我实际遇到的问题，也会随着新的需求不断增加。
+Each skill here comes from a problem I actually hit, and the set grows as new needs appear. Skills follow the open [Agent Skills](https://agentskills.io/specification) format, so any compatible agent can load the same `SKILL.md`.
 
-## 选择合适的 Skill
+## Choose the right skill
 
-不确定要不要用时，先看下面的边界。显式调用最稳妥；是否隐式匹配由 Codex 和当前模型决定，因此这里不承诺“装上就一定自动触发”。
+When you are unsure whether to use a skill, start with the boundaries below. Explicit invocation is the most reliable path. Implicit matching depends on the agent and model, so this repo does not promise that installation alone guarantees automatic triggers.
 
 ### Engineering
 
-| Skill | 适合 | 不适合 | 显式调用 |
+| Skill | Good for | Not for | Explicit call |
 | --- | --- | --- | --- |
-| [`dsa-design`](skills/engineering/dsa-design/SKILL.md) | 数据结构或算法选择会实质影响正确性、性能、资源上限、接口或维护成本 | 纯文案改动，以及没有实质 DSA 取舍的常规 CRUD | `$dsa-design` |
+| [`dsa-design`](skills/engineering/dsa-design/SKILL.md) | Data structure or algorithm choices that materially affect correctness, performance, resource bounds, interfaces, or maintenance cost | Pure copy edits, and routine CRUD with no material DSA trade-off | `$dsa-design` |
 
 ### Framework
 
-| Skill | 适合 | 不适合 | 显式调用 |
+| Skill | Good for | Not for | Explicit call |
 | --- | --- | --- | --- |
-| [`napi-rs`](skills/framework/napi-rs/SKILL.md) | 使用 napi-rs 接入、设计、实现、调试、测试、构建或发布 Rust Node-API addon | 与 Rust、Node-API 或 napi-rs 无关的任务 | `$napi-rs` |
-| [`mise`](skills/framework/mise/SKILL.md) | 使用 mise 管理项目工具、环境变量、任务、锁文件、CI 或 IDE 集成 | 与项目开发环境、工具版本、环境变量或 task 无关的任务 | `$mise` |
+| [`napi-rs`](skills/framework/napi-rs/SKILL.md) | Adopting, designing, implementing, debugging, testing, building, or publishing Rust Node-API addons with napi-rs | Tasks unrelated to Rust, Node-API, or napi-rs | `$napi-rs` |
+| [`mise`](skills/framework/mise/SKILL.md) | Managing project tools, environment variables, tasks, lockfiles, CI, or IDE integration with mise | Tasks unrelated to the project development environment, tool versions, environment variables, or tasks | `$mise` |
 
-`napi-rs` 与 `mise` 遇到精确 API、命令行参数、目标支持、后端或发布流程时，会先回到当前官方文档，而不是把写进 Skill 时的知识当成永久事实。
+When `napi-rs` and `mise` need exact APIs, CLI flags, target support, backends, or release flows, they return to the current official docs instead of treating skill-time knowledge as permanent fact.
 
-## 安装并开始使用
+## Install and start using
 
-推荐使用 [Vercel Labs Skills CLI](https://github.com/vercel-labs/skills) 来发现和安装仓库中的 Skill。先查看可用清单，不修改当前项目：
+Prefer the [Vercel Labs Skills CLI](https://github.com/vercel-labs/skills) to discover and install skills. It places skills into the directories your agents already read (Claude Code, Codex, Cursor, OpenCode, and many others). List available skills first without changing the project:
 
 ```sh
 npx skills add lzm0x219/skills --list
 ```
 
-默认安装到当前项目，并只为 Codex 安装选定的 Skill：
+### Install into the current project
+
+Install one skill for every agent the CLI detects:
 
 ```sh
-npx skills add lzm0x219/skills --skill napi-rs --agent codex
+npx skills add lzm0x219/skills --skill napi-rs --agent '*'
 ```
 
-需要在所有项目中使用时，改为全局安装：
+Or install for specific agents only:
 
 ```sh
 npx skills add lzm0x219/skills \
-  --skill napi-rs --agent codex --global
+  --skill napi-rs \
+  --agent claude-code cursor codex
 ```
 
-把 `napi-rs` 替换为 `dsa-design` 或 `mise` 即可安装另一个 Skill。安装后可以分别检查项目级和全局状态：
+Omit `--agent` to let the CLI choose interactively from detected agents.
+
+### Install globally
+
+Use the same skill across projects:
 
 ```sh
-npx skills list --agent codex
-npx skills list --global --agent codex
+npx skills add lzm0x219/skills \
+  --skill napi-rs --agent '*' --global
 ```
 
-`npx` 可能在首次运行时下载第三方 `skills` CLI。安装前应先使用 `--list`，并审查目标 Skill 的 `SKILL.md`、脚本和附属资源。交互式确认默认保留；只有在已经固定来源并审查过内容的自动化中，才添加 `--yes`。
+### Install everything
 
-如果当前 Codex 会话没有发现新安装的 Skill，请重新打开任务。然后用 `$skill-name` 显式调用：
+Install all skills from this repository to all agents (skips prompts):
+
+```sh
+npx skills add lzm0x219/skills --all
+```
+
+Replace `napi-rs` with `dsa-design` or `mise` as needed. Check what is installed:
+
+```sh
+npx skills list
+npx skills list --global
+npx skills list --agent claude-code
+```
+
+`npx` may download the third-party `skills` CLI on first run. Before installing, use `--list` and review the target skill's `SKILL.md`, scripts, and related assets. Keep interactive confirmation on by default; add `--yes` only in automation where the source is fixed and the content has already been reviewed.
+
+### Use a skill
+
+Invocation syntax varies by agent. Many tools accept an explicit `$skill-name` mention; others rely on description matching. If a newly installed skill does not appear, restart the agent session, then try an explicit call:
 
 ```text
-$napi-rs 评审这个 addon 的异步、生命周期和发布边界，先不要修改代码。
-$mise 为这个项目设计可复现的工具、环境变量和 test task，先不要修改文件。
+$napi-rs Review this addon's async, lifetime, and release boundaries without changing code.
+$mise Design reproducible tools, environment variables, and a test task for this project without modifying files.
 ```
 
-## 了解仓库结构
+Without installing, you can also generate a one-shot prompt:
 
-仓库采用 [Agent Skills 规范](https://agentskills.io/specification) 所定义的基础目录模型，并增加 Codex 元数据和本仓库自己的行为验证约定。
+```sh
+npx skills use lzm0x219/skills@napi-rs
+```
+
+## Understand the repository layout
+
+The repository follows the base directory model defined by the [Agent Skills specification](https://agentskills.io/specification). Optional Codex UI metadata and this repo's behavior-evaluation conventions sit alongside the portable skill content.
 
 ```text
 .
@@ -82,36 +113,36 @@ $mise 为这个项目设计可复现的工具、环境变量和 test task，先�
 └── .github/workflows/validate.yml
 ```
 
-各类文件承担不同职责：
+Different files own different responsibilities:
 
-| 路径 | 职责 |
+| Path | Responsibility |
 | --- | --- |
-| `skills/**/SKILL.md` | 必需入口；frontmatter 用于发现，正文仅在 Skill 被使用时加载 |
-| `skills/**/agents/openai.yaml` | Codex 界面元数据、默认提示和隐式调用策略 |
-| `skills/**/references/` | 按任务需要读取的参考资料，避免把所有内容塞进 `SKILL.md` |
-| `skills/**/scripts/` | 可执行的确定性检查或辅助工具 |
-| `evals/*.behavior.json` | Skill 的机器可读行为契约、源码断言和必需场景 |
-| `evals/fixtures/` | CI 使用的固定回答；用于验证断言执行器，不代表当前模型表现 |
-| `tests/`、`scripts/` | 验证仓库结构、评测隔离和契约执行逻辑 |
+| `skills/**/SKILL.md` | Portable entrypoint for any Agent Skills-compatible agent; frontmatter is used for discovery, and the body loads only when the skill is used |
+| `skills/**/agents/openai.yaml` | Optional Codex UI metadata, default prompts, and implicit-invocation policy |
+| `skills/**/references/` | Reference material loaded by task need, so `SKILL.md` does not have to hold everything |
+| `skills/**/scripts/` | Deterministic checks or helper tools |
+| `evals/*.behavior.json` | Machine-readable behavior contracts, source assertions, and required scenarios |
+| `evals/fixtures/` | Fixed answers used by CI to verify the assertion runner, not current model quality |
+| `tests/`, `scripts/` | Validate repository structure, evaluation isolation, and contract execution logic |
 
-`agents/openai.yaml` 和 `evals/` 是本仓库约定，不是 Agent Skills 开放规范的必需文件。
+`agents/openai.yaml` and `evals/` are conventions of this repository, not required files in the open Agent Skills specification. Agents that only consume `SKILL.md` (plus `references/` and `scripts/`) do not need them.
 
-## 判断验证结果能证明什么
+## What validation can and cannot prove
 
-仓库把验证分成四层。每一层回答不同问题：
+Validation is split into four layers. Each layer answers a different question:
 
-| 检查 | 能证明 | 不能证明 |
+| Check | Can prove | Cannot prove |
 | --- | --- | --- |
-| 仓库静态验证 | frontmatter、路径、链接、Codex 元数据、行为契约和源码断言符合仓库规则 | Skill 在真实模型中一定给出正确答案 |
-| 固定回答回归 | 行为评测执行器和正则断言能稳定识别已知输出 | 当前模型已经通过这些场景 |
-| 真实 Codex 评测 | 当前 CLI、模型和 Skill 对指定场景的最终可见输出满足断言 | 模型内部一定加载或没有加载某个 Skill |
-| napi-rs/mise 文档清单检查 | 本地路由与检查时的官方索引一致，且链接可访问 | 未来版本或未运行平台仍然有效 |
+| Repository static validation | Frontmatter, paths, links, optional Codex metadata, behavior contracts, and source assertions match repository rules | The skill will give correct answers in a live model or every agent |
+| Fixed-answer regression | The behavior-eval runner and regex assertions stably recognize known outputs | The current model still produces those outputs |
+| Live Codex evaluation | The current Codex CLI, model, and skill satisfy the assertions on the final visible output for a scenario | Other agents behave the same way, or the model did or did not load a skill internally |
+| napi-rs/mise docs inventory checks | Local routing matches the official index at check time, and links are reachable | Future versions or unrun platforms still work |
 
-GitHub Actions 运行静态验证、执行器单元测试和固定回答回归。默认 CI 不调用模型，也不访问 napi-rs 或 mise 官方网站。
+GitHub Actions runs static validation, runner unit tests, and fixed-answer regression. Default CI does not call a model and does not access the official napi-rs or mise websites.
 
-## 运行本地检查
+## Run local checks
 
-提交前先运行离线检查。这些命令只使用仓库文件和 Python 标准库：
+Run the offline checks before you commit. These commands use only repository files and the Python standard library:
 
 ```sh
 python3 scripts/validate_skills.py
@@ -124,7 +155,7 @@ python3 scripts/run_behavior_evals.py \
   --skill mise --answers evals/fixtures/mise
 ```
 
-真实行为评测需要已认证的 Codex CLI，并会把评测提示和 Skill 内容发送给配置的 Codex 服务：
+Live behavior evaluation currently uses an authenticated Codex CLI and sends evaluation prompts plus skill content to the configured Codex service:
 
 ```sh
 python3 scripts/run_behavior_evals.py --skill dsa-design
@@ -132,7 +163,7 @@ python3 scripts/run_behavior_evals.py --skill napi-rs
 python3 scripts/run_behavior_evals.py --skill mise
 ```
 
-刷新或发布 `napi-rs` 官方文档清单前，再运行联网检查：
+Before refreshing or publishing the `napi-rs` or `mise` official-docs inventory, also run the network checks:
 
 ```sh
 node skills/framework/napi-rs/scripts/verify-official-docs-coverage.mjs \
@@ -141,28 +172,31 @@ node skills/framework/mise/scripts/verify-official-docs-inventory.mjs \
   --check --verify-links
 ```
 
-评测场景、隔离方式和限制见[行为评测说明](docs/behavior-evals.md)。
+See the [behavior evaluation notes](docs/behavior-evals.md) for scenarios, isolation, and limits.
 
-## 添加或修改 Skill
+## Add or change a skill
 
-每个 Skill 都需要一条可执行的质量路径。新增或修改时：
+Every skill needs an executable quality path. When adding or changing one:
 
-1. 在 `skills/<category>/<skill-name>/` 中维护 `SKILL.md`
-2. 在 `agents/openai.yaml` 中提供 Codex 界面元数据和调用策略
-3. 在 `evals/<skill-name>.behavior.json` 中定义源码断言和必需场景
-4. 为每个场景添加 `evals/fixtures/<skill-name>/<case-id>.txt`
-5. 更新 Skill 清单，并运行全部离线检查
+1. Maintain portable skill content in `skills/<category>/<skill-name>/SKILL.md`
+2. Optionally provide Codex UI metadata and invocation policy in `agents/openai.yaml`
+3. Define source assertions and required scenarios in `evals/<skill-name>.behavior.json`
+4. Add `evals/fixtures/<skill-name>/<case-id>.txt` for each scenario
+5. Update the skill inventory and run all offline checks
 
-`description` 应同时说明 Skill 做什么、何时使用。较长资料放进 `references/`，确定性工具放进 `scripts/`，不要让 `SKILL.md` 承担与当前任务无关的全部背景。
+`description` should say both what the skill does and when to use it. Put longer material in `references/`, put deterministic tools in `scripts/`, and do not make `SKILL.md` carry background that is irrelevant to the current task.
 
-当前验证器会锁定已收录 Skill 的必需场景。新增 Skill 时，还需要在 `scripts/validate_skills.py` 中登记对应的场景类别和调用方式。
+The current validator locks required scenarios for listed skills. When you add a skill, also register its case categories and invocation modes in `scripts/validate_skills.py`.
 
-## 兼容性和限制
+## Compatibility and limits
 
-仓库当前以 Codex 的目录、界面元数据和评测执行器为验证目标。其他 Agent 可能读取同样的 `SKILL.md`，但其发现路径、元数据、脚本权限和隐式调用行为需要单独验证。
+- **Portable surface:** `SKILL.md`, `references/`, and `scripts/` follow the Agent Skills format and are the primary interface for all agents.
+- **Optional metadata:** `agents/openai.yaml` improves Codex UI discovery and defaults; other agents can ignore it.
+- **Quality gates:** Live behavior evaluation and some validation paths currently run against Codex. That is a repository quality harness, not a hard requirement for end users installing skills into Claude Code, Cursor, OpenCode, or other supported agents.
+- **Agent differences:** Discovery paths, script permissions, and implicit invocation still vary by agent. After install, verify the skill appears in your agent and prefer explicit invocation when reliability matters.
 
-Skill 是任务指导和工具集合，不是运行时安全边界。执行脚本、联网、发布或修改外部系统前，仍应检查代码、凭据范围和用户授权。
+A skill is task guidance and tooling, not a runtime security boundary. Before running scripts, going online, publishing, or changing external systems, still check the code, credential scope, and user authorization.
 
-## 许可证
+## License
 
-本仓库依据 [Apache License 2.0](LICENSE) 授权。
+This repository is licensed under the [Apache License 2.0](LICENSE).

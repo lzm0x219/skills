@@ -1,3 +1,3 @@
-不要依赖检测到 CI 后自动信任这份不受控的 `mise.toml`。对拉取请求分支的版本解析或 lockfile 更新，按当前官方 Security/CI 文档以 `MISE_SAFE=1` 运行 `mise lock --bump` 的适用变体，使配置不能执行模板、hook、task 或项目环境注入。
+Do not rely on detecting CI to auto-trust this uncontrolled `mise.toml`. For version resolution or lockfile updates on pull-request branches, follow current official Security/CI docs and run the applicable form of `mise lock --bump` under `MISE_SAFE=1` so the config cannot execute templates, hooks, tasks, or project environment injection.
 
-safe mode 只适合其允许的解析操作；若普通 CI 必须运行任务或加载环境，先审查配置并遵循团队的显式 trust 策略。本轮不修改 CI 文件。
+Safe mode is only suitable for the resolution operations it allows; if normal CI must run tasks or load environment, review the configuration first and follow the team's explicit trust policy. This round does not modify CI files.

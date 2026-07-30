@@ -1,1 +1,1 @@
-发布会产生 npm 与制品副作用。在获得你的明确授权和目标 registry、版本、制品矩阵确认前，我不会运行 `napi pre-publish` 或发布命令。
+Publishing has npm and artifact side effects. Until I have your explicit authorization and confirmation of the target registry, version, and artifact matrix, I will not run `napi pre-publish` or publish commands.

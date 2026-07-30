@@ -1,83 +1,83 @@
-# 选择框架
+# Selection framework
 
-根据操作模式和约束生成候选方案时使用本参考。以下内容只是起点，不是自动答案。
+Use this reference when generating candidates from operation patterns and constraints. It is a starting point, not an automatic answer.
 
-## 操作模式
+## Operation patterns
 
-| 需求 | 优先考虑 | 有充分依据时再考虑 |
+| Need | Prefer first | Consider with strong justification |
 |---|---|---|
-| 对固定小规模数据按位置访问 | 数组或元组 | 预计算表或位集 |
-| 编译期已知的固定键集合 | Record、结构体或枚举索引数组 | 键集合需要动态变化时使用映射 |
-| 按稳定键查找 | 哈希映射 | 有序映射或数据库索引 |
-| 成员判断与唯一性 | 集合 | 小型稠密全集使用位集 |
-| 后进先出处理 | 栈或数组尾部 | 分段栈 |
-| 先进先出处理 | 队列或双端队列 | 有界环形缓冲区 |
-| 两端插入和删除 | 双端队列 | 环形缓冲区 |
-| 保持插入顺序 | 数组加映射 | 有序映射 |
-| 有序遍历或范围查询 | 有序数组或数据库索引 | 平衡树或 B 树 |
-| 重复获取最小值或最大值 | 堆 | 平衡树或桶队列 |
-| 频繁更新优先级或取消 | 堆加键映射 | 索引堆或平衡树 |
-| 获取 Top-K | 大小为 K 的堆 | 快速选择、分桶或数据库聚合 |
-| 前缀搜索 | 有序数组 | Trie 或数据库文本索引 |
-| 固定稠密关系 | 矩阵或预计算表 | 位集行 |
-| 稀疏动态关系 | 邻接表 | 专用图索引 |
-| 依赖排序 | DAG 加拓扑排序 | 增量依赖维护 |
-| 动态连通性 | 图遍历 | 不删除边时使用并查集 |
-| 最短路径 | 单位权重使用 BFS；非负权重使用 Dijkstra | 有满足正确性要求的启发式时使用 A*；负权边使用相应专用算法 |
-| 重叠区间 | 有序端点 | 区间树或扫描线 |
-| 重复纯计算 | 直接重算 | 记忆化或有界缓存 |
-| 重复聚合更新 | 全量重算基线 | 增量聚合或物化视图 |
-| 小规模一次性过滤 | 线性扫描 | 只有重复查询有证据时才建立索引 |
-| 数据超过内存 | 流式单遍处理 | 外部排序、分块归并或数据库执行 |
-| 近似成员判断 | 精确集合 | 可接受假阳性时使用 Bloom Filter |
-| 近似基数统计 | 精确集合 | 可接受误差时使用 HyperLogLog |
-| 空间范围或最近邻 | 线性扫描或数据库空间索引 | R 树、k-d 树或网格索引 |
+| Positional access over fixed small data | Array or tuple | Precomputed table or bitset |
+| Compile-time fixed key set | Record, struct, or enum-indexed array | Map when the key set must change dynamically |
+| Lookup by stable key | Hash map | Ordered map or database index |
+| Membership and uniqueness | Set | Bitset for a small dense universe |
+| Last-in first-out processing | Stack or array tail | Segmented stack |
+| First-in first-out processing | Queue or deque | Bounded ring buffer |
+| Insert and delete at both ends | Deque | Ring buffer |
+| Preserve insertion order | Array plus map | Ordered map |
+| Ordered traversal or range queries | Sorted array or database index | Balanced tree or B-tree |
+| Repeated min or max extraction | Heap | Balanced tree or bucket queue |
+| Frequent priority updates or cancel | Heap plus key map | Indexed heap or balanced tree |
+| Top-K retrieval | Heap of size K | Quickselect, bucketing, or database aggregation |
+| Prefix search | Sorted array | Trie or database text index |
+| Fixed dense relations | Matrix or precomputed table | Bitset rows |
+| Sparse dynamic relations | Adjacency list | Specialized graph index |
+| Dependency ordering | DAG plus topological sort | Incremental dependency maintenance |
+| Dynamic connectivity | Graph traversal | Union-find when edges are not deleted |
+| Shortest paths | BFS for unit weight; Dijkstra for non-negative weights | A* with a correctness-preserving heuristic; specialized algorithms for negative edges |
+| Overlapping intervals | Sorted endpoints | Interval tree or sweep line |
+| Repeated pure computation | Recompute directly | Memoization or bounded cache |
+| Repeated aggregate updates | Full recompute baseline | Incremental aggregates or materialized views |
+| Small one-off filtering | Linear scan | Index only with evidence of repeated queries |
+| Data larger than memory | Single-pass streaming | External sort, chunked merge, or database execution |
+| Approximate membership | Exact set | Bloom filter when false positives are acceptable |
+| Approximate cardinality | Exact set | HyperLogLog when error is acceptable |
+| Spatial range or nearest neighbor | Linear scan or database spatial index | R-tree, k-d tree, or grid index |
 
-## 算法模式
+## Algorithm patterns
 
-- 固定循环领域使用直接索引和模运算。
-- 有限且稳定的规则映射使用查找表。
-- 当一次预处理排序能够简化大量后续操作时使用排序。
-- 只有顺序和单调移动能够保持正确性时，才使用双指针或滑动窗口。
-- 只有被搜索关系有序且能够持续保持有序时，才使用二分搜索。
-- 使用图算法前，明确建模节点、边、方向、权重和更新行为。
-- 只有能够证明存在重叠子问题和可复用状态定义时，才使用动态规划。
-- 只有能够论证局部最优选择性质时，才使用贪心算法。
-- 只有具备稳定键、可接受的失效策略、有界内存和可信复用率时，才使用缓存。
+- Use direct indexing and modular arithmetic for fixed cyclic domains.
+- Use lookup tables for finite, stable rule maps.
+- Use sorting when one preprocessing sort simplifies many later operations.
+- Use two pointers or a sliding window only when order and monotonic movement preserve correctness.
+- Use binary search only when the searched relation is ordered and can stay ordered.
+- Before graph algorithms, explicitly model nodes, edges, direction, weights, and update behavior.
+- Use dynamic programming only when you can prove overlapping subproblems and a reusable state definition.
+- Use greedy algorithms only when you can argue the local-optimality property.
+- Use caching only with stable keys, an acceptable invalidation policy, bounded memory, and a credible reuse rate.
 
-## 非渐进复杂度检查
+## Non-asymptotic checks
 
-比较：
+Compare:
 
-- 常数成本和实际最大规模；
-- 内存布局、局部性、分配和垃圾回收；
-- 数据库查询次数、磁盘访问、网络往返和序列化；
-- 可变性和同步成本；
-- 锁竞争、无锁结构的内存序要求和背压；
-- 持久化与序列化；
-- 缓存键、容量、淘汰、失效和污染风险；
-- 标准库和数据库支持；
-- 确定性与迭代顺序；
-- 可观察性与可解释性；
-- 实现、测试和迁移成本。
+- Constant factors and real maximum scale;
+- Memory layout, locality, allocation, and garbage collection;
+- Database query counts, disk access, network round trips, and serialization;
+- Mutability and synchronization cost;
+- Lock contention, memory-ordering requirements of lock-free structures, and backpressure;
+- Persistence and serialization;
+- Cache keys, capacity, eviction, invalidation, and pollution risk;
+- Standard-library and database support;
+- Determinism and iteration order;
+- Observability and explainability;
+- Implementation, testing, and migration cost.
 
-## 过度设计信号
+## Over-engineering signals
 
-出现以下情况时优先使用基线：
+Prefer the baseline when:
 
-- 数据集固定或很小；
-- 操作频率低；
-- 数据库已经提供所需索引；
-- 专用结构背后没有可测量的约束；
-- 设计只针对模糊的未来增长；
-- 数据结构泄漏到大量调用方接口；
-- 维护不变量的成本高于其加速的操作。
+- The dataset is fixed or small;
+- Operation frequency is low;
+- The database already provides the needed index;
+- There is no measurable constraint behind a specialized structure;
+- The design targets only vague future growth;
+- The data structure leaks into many caller interfaces;
+- Maintaining invariants costs more than the operations they accelerate.
 
-## 对抗性输入检查
+## Adversarial-input checks
 
-- 不要只依赖哈希结构的平均复杂度；检查运行时的碰撞防护和最坏行为。
-- 对用户可控制的键数量、队列长度、递归深度、缓存条目和中间结果设置资源上限。
-- 识别攻击者能够通过输入规模、结构或分布放大的昂贵路径；尤其避免缺乏需求或复杂度下界依据、且没有输入或资源上限的超线性或指数级工作。
-- 排序等有明确功能需求或复杂度下界支撑的 `O(n log n)` 算法是合理的；仍需根据最大输入、时间、内存和并发上限评估资源风险。
-- 对近似结构说明具体错误模式（如假阳性、假阴性或估计偏差）、误差界限和攻击者操纵分布的影响。
-- 对流式和并发结构说明背压、丢弃、阻塞和过载策略。
+- Do not rely only on average-case hash complexity; check runtime collision defenses and worst-case behavior.
+- Bound resources for user-controlled key counts, queue lengths, recursion depth, cache entries, and intermediate results.
+- Identify expensive paths an attacker can amplify through input size, structure, or distribution; especially avoid superlinear or exponential work without a demand or lower-bound justification, and without input or resource bounds.
+- `O(n log n)` algorithms with clear functional need or complexity lower bounds, such as sorting, can be reasonable; still assess resource risk against maximum input, time, memory, and concurrency limits.
+- For approximate structures, state the concrete error mode (false positives, false negatives, or estimation bias), error bounds, and the impact of attacker-controlled distributions.
+- For streaming and concurrent structures, state backpressure, drop, blocking, and overload policies.

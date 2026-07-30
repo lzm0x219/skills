@@ -1,1 +1,1 @@
-本地路由不能单独证明当前性。在仓库根目录运行 `node skills/framework/mise/scripts/verify-official-docs-inventory.mjs --check`，让它将清单中的页面与官方 `llms.txt`、`sitemap.xml` 的当前索引比较；只有通过后，才能说记录的官方入口仍被收录。
+Local routing alone cannot prove currency. From the repository root run `node skills/framework/mise/scripts/verify-official-docs-inventory.mjs --check` so it compares inventory pages against the current official `llms.txt` and `sitemap.xml` indexes; only after it passes can you say the recorded official entry points are still indexed.
