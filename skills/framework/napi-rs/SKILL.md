@@ -19,15 +19,15 @@ Complete Rust Node-API addon work using the current project's language, package 
 2. When CLI, Cargo features, target platforms, WASI, publishing, or migration are involved, always treat the current official pages as authoritative. Do not infer exact flags, versions, or support matrices from this skill.
 3. Run `node scripts/verify-official-docs-coverage.mjs --check` only when refreshing the inventory or claiming that local material still fully covers the official site; add `--verify-links` before publishing or after documentation refreshes.
 
-| Work | Prefer these official topics |
-| --- | --- |
-| Adopt an existing project, create a package, use the `napi` CLI | Introduction, CLI |
-| `#[napi]`, functions, classes, enums, type declarations, errors | Exports and JavaScript API |
+| Work                                                                     | Prefer these official topics                |
+| ------------------------------------------------------------------------ | ------------------------------------------- |
+| Adopt an existing project, create a package, use the `napi` CLI          | Introduction, CLI                           |
+| `#[napi]`, functions, classes, enums, type declarations, errors          | Exports and JavaScript API                  |
 | Value conversion, `Env`, `this`, references, buffers, Promise, lifetimes | Values, conversion, and lifetime management |
-| `async fn`, `AsyncTask`, thread callbacks, Tokio | Async and concurrency |
-| Cargo features, prebuilt artifacts, cross-compilation, WASI | Build, targets, and WebAssembly |
-| Runtime loading, bundlers, testing, crashes, or platform failures | Quality, integrations, and troubleshooting |
-| Versions, artifacts, npm publish, or v2/v3 migration | Release, migration, and historical context |
+| `async fn`, `AsyncTask`, thread callbacks, Tokio                         | Async and concurrency                       |
+| Cargo features, prebuilt artifacts, cross-compilation, WASI              | Build, targets, and WebAssembly             |
+| Runtime loading, bundlers, testing, crashes, or platform failures        | Quality, integrations, and troubleshooting  |
+| Versions, artifacts, npm publish, or v2/v3 migration                     | Release, migration, and historical context  |
 
 Read pages according to the capabilities you actually touch. For example, when exporting an async `TypedArray`, also read the async, typed array, lifetime, error handling, and export/type conversion pages.
 

@@ -26,13 +26,8 @@
       "prompt": "Change the first line of the README to \"Toolset\". This task is unrelated to Rust, Node, or native modules.",
       "expected": {
         "assertions": {
-          "required_regex": [
-            "README",
-            "Toolset"
-          ],
-          "forbidden_regex": [
-            "(?:napi-rs|Node-API|Rust)"
-          ]
+          "required_regex": ["README", "Toolset"],
+          "forbidden_regex": ["(?:napi-rs|Node-API|Rust)"]
         }
       }
     },
@@ -49,9 +44,7 @@
             "(?:stable|machine-readable).*error",
             "(?:Node.*integration test|integration test.*Node)"
           ],
-          "forbidden_regex": [
-            "repolex"
-          ]
+          "forbidden_regex": ["repolex"]
         }
       }
     },
@@ -68,9 +61,7 @@
             "(?:AsyncTask|async fn|ThreadsafeFunction)",
             "(?:owned|ownership)"
           ],
-          "forbidden_regex": [
-            "repolex"
-          ]
+          "forbidden_regex": ["repolex"]
         }
       }
     },
@@ -85,9 +76,7 @@
             "explicit authorization|confirm",
             "(?:will not|won't|cannot|do not).*publish"
           ],
-          "forbidden_regex": [
-            "published to npm"
-          ]
+          "forbidden_regex": ["published to npm"]
         }
       }
     },
@@ -98,15 +87,8 @@
       "prompt": "Can the local napi-rs documentation inventory prove it still covers the official site? Describe how to verify that without updating files.",
       "expected": {
         "assertions": {
-          "required_regex": [
-            "llms\\.txt",
-            "sitemap\\.xml",
-            "--check",
-            "official"
-          ],
-          "forbidden_regex": [
-            "repolex"
-          ]
+          "required_regex": ["llms\\.txt", "sitemap\\.xml", "--check", "official"],
+          "forbidden_regex": ["repolex"]
         }
       }
     }

@@ -19,13 +19,13 @@ Manage the development environment using the current project's language, package
 2. When exact CLI flags, tool backends, settings, task attributes, or version compatibility matter, always treat the current official pages as authoritative. Do not infer exact flags, defaults, or support matrices from this skill.
 3. Run `node scripts/verify-official-docs-inventory.mjs --check` in this skill directory only when refreshing the routing inventory or claiming that local links remain valid; add `--verify-links` before publishing or after a refresh. From this repository root, use `node skills/framework/mise/scripts/verify-official-docs-inventory.mjs --check`.
 
-| Work | Prefer these official topics |
-| --- | --- |
-| Install, activate, shell, IDE, or CI | Getting Started, Installing mise, Shims, IDE Integration, Continuous Integration, `mise activate`, `mise doctor` |
-| Project configuration, config layers, and environment switching | `mise.toml`, Settings, Configuration Environments |
-| Tool versions, backends, locking, and supply-chain risk | Dev Tools, Backends, Registry, `mise.lock`, Security, `mise use`, `mise install`, `mise exec` |
-| Environment variables, secrets, hooks, or direnv | Environment Variables, Secrets, Hooks, direnv, `mise trust` |
-| Build, test, lint, scripts, and monorepo tasks | Task Overview, Task Architecture, TOML/File Tasks, Task Arguments, Task Configuration, Monorepo Tasks, `mise run`, `mise tasks validate` |
+| Work                                                            | Prefer these official topics                                                                                                             |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Install, activate, shell, IDE, or CI                            | Getting Started, Installing mise, Shims, IDE Integration, Continuous Integration, `mise activate`, `mise doctor`                         |
+| Project configuration, config layers, and environment switching | `mise.toml`, Settings, Configuration Environments                                                                                        |
+| Tool versions, backends, locking, and supply-chain risk         | Dev Tools, Backends, Registry, `mise.lock`, Security, `mise use`, `mise install`, `mise exec`                                            |
+| Environment variables, secrets, hooks, or direnv                | Environment Variables, Secrets, Hooks, direnv, `mise trust`                                                                              |
+| Build, test, lint, scripts, and monorepo tasks                  | Task Overview, Task Architecture, TOML/File Tasks, Task Arguments, Task Configuration, Monorepo Tasks, `mise run`, `mise tasks validate` |
 
 Read pages according to the capabilities you actually touch. For example, when adding a CI task with environment variables for a monorepo, also read the configuration, environment, task, lockfile, and CI pages.
 

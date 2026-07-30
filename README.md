@@ -121,15 +121,15 @@ The repository follows the base directory model defined by the [Agent Skills spe
 
 Different files own different responsibilities:
 
-| Path | Responsibility |
-| --- | --- |
-| `skills/**/SKILL.md` | Portable entrypoint for any Agent Skills-compatible agent; frontmatter is used for discovery, and the body loads only when the skill is used |
-| `skills/**/agents/openai.yaml` | Optional Codex UI metadata, default prompts, and implicit-invocation policy |
-| `skills/**/references/` | Reference material loaded by task need, so `SKILL.md` does not have to hold everything |
-| `skills/**/scripts/` | Deterministic checks or helper tools |
-| `evals/*.behavior.json` | Machine-readable behavior contracts, source assertions, and required scenarios |
-| `evals/fixtures/` | Fixed answers used by CI to verify the assertion runner, not current model quality |
-| `tests/`, `scripts/` | Validate repository structure, evaluation isolation, and contract execution logic |
+| Path                           | Responsibility                                                                                                                               |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `skills/**/SKILL.md`           | Portable entrypoint for any Agent Skills-compatible agent; frontmatter is used for discovery, and the body loads only when the skill is used |
+| `skills/**/agents/openai.yaml` | Optional Codex UI metadata, default prompts, and implicit-invocation policy                                                                  |
+| `skills/**/references/`        | Reference material loaded by task need, so `SKILL.md` does not have to hold everything                                                       |
+| `skills/**/scripts/`           | Deterministic checks or helper tools                                                                                                         |
+| `evals/*.behavior.json`        | Machine-readable behavior contracts, source assertions, and required scenarios                                                               |
+| `evals/fixtures/`              | Fixed answers used by CI to verify the assertion runner, not current model quality                                                           |
+| `tests/`, `scripts/`           | Validate repository structure, evaluation isolation, and contract execution logic                                                            |
 
 `agents/openai.yaml` and `evals/` are conventions of this repository, not required files in the open Agent Skills specification. Agents that only consume `SKILL.md` (plus `references/` and `scripts/`) do not need them.
 
@@ -137,12 +137,12 @@ Different files own different responsibilities:
 
 Validation is split into four layers. Each layer answers a different question:
 
-| Check | Can prove | Cannot prove |
-| --- | --- | --- |
-| Repository static validation | Frontmatter, paths, links, optional Codex metadata, behavior contracts, and source assertions match repository rules | The skill will give correct answers in a live model or every agent |
-| Fixed-answer regression | The behavior-eval runner and regex assertions stably recognize known outputs | The current model still produces those outputs |
-| Live Codex evaluation | The current Codex CLI, model, and skill satisfy the assertions on the final visible output for a scenario | Other agents behave the same way, or the model did or did not load a skill internally |
-| napi-rs/mise docs inventory checks | Local routing matches the official index at check time, and links are reachable | Future versions or unrun platforms still work |
+| Check                              | Can prove                                                                                                            | Cannot prove                                                                          |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Repository static validation       | Frontmatter, paths, links, optional Codex metadata, behavior contracts, and source assertions match repository rules | The skill will give correct answers in a live model or every agent                    |
+| Fixed-answer regression            | The behavior-eval runner and regex assertions stably recognize known outputs                                         | The current model still produces those outputs                                        |
+| Live Codex evaluation              | The current Codex CLI, model, and skill satisfy the assertions on the final visible output for a scenario            | Other agents behave the same way, or the model did or did not load a skill internally |
+| napi-rs/mise docs inventory checks | Local routing matches the official index at check time, and links are reachable                                      | Future versions or unrun platforms still work                                         |
 
 GitHub Actions runs static validation, runner unit tests, and fixed-answer regression. Default CI does not call a model and does not access the official napi-rs or mise websites.
 

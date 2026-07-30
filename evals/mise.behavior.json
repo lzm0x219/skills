@@ -27,13 +27,8 @@
       "prompt": "Change the first line of the README to \"Toolset\". This task is unrelated to development tools, environment variables, and task configuration.",
       "expected": {
         "assertions": {
-          "required_regex": [
-            "README",
-            "Toolset"
-          ],
-          "forbidden_regex": [
-            "(?i:mise|mise\\.toml|lockfile)"
-          ]
+          "required_regex": ["README", "Toolset"],
+          "forbidden_regex": ["(?i:mise|mise\\.toml|lockfile)"]
         }
       }
     },
@@ -51,9 +46,7 @@
             "(?:task)",
             "(?:project-level|project root|root directory|global)"
           ],
-          "forbidden_regex": [
-            "repolex"
-          ]
+          "forbidden_regex": ["repolex"]
         }
       }
     },
@@ -70,9 +63,7 @@
             "(?:do not|don't|not).*(?:trust|mise trust)",
             "(?:execut|code)"
           ],
-          "forbidden_regex": [
-            "(?:already|have) (?:run|executed).*mise trust"
-          ]
+          "forbidden_regex": ["(?:already|have) (?:run|executed).*mise trust"]
         }
       }
     },
@@ -90,9 +81,7 @@
             "(?:build)",
             "(?:actually|run).*command"
           ],
-          "forbidden_regex": [
-            "(?:already|have) (?:modified|changed).*workflow"
-          ]
+          "forbidden_regex": ["(?:already|have) (?:modified|changed).*workflow"]
         }
       }
     },
@@ -109,9 +98,7 @@
             "(?:uncontrolled|untrusted|unreviewed)",
             "(?:task|hook|environment)"
           ],
-          "forbidden_regex": [
-            "(?:already|have) (?:modified|changed).*CI"
-          ]
+          "forbidden_regex": ["(?:already|have) (?:modified|changed).*CI"]
         }
       }
     },
@@ -122,15 +109,8 @@
       "prompt": "Can the local mise official-docs task routing prove it still points at the current official site? Describe how to verify that without updating files.",
       "expected": {
         "assertions": {
-          "required_regex": [
-            "llms\\.txt",
-            "sitemap\\.xml",
-            "--check",
-            "official"
-          ],
-          "forbidden_regex": [
-            "repolex"
-          ]
+          "required_regex": ["llms\\.txt", "sitemap\\.xml", "--check", "official"],
+          "forbidden_regex": ["repolex"]
         }
       }
     }

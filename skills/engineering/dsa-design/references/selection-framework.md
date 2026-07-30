@@ -4,34 +4,34 @@ Use this reference when generating candidates from operation patterns and constr
 
 ## Operation patterns
 
-| Need | Prefer first | Consider with strong justification |
-|---|---|---|
-| Positional access over fixed small data | Array or tuple | Precomputed table or bitset |
-| Compile-time fixed key set | Record, struct, or enum-indexed array | Map when the key set must change dynamically |
-| Lookup by stable key | Hash map | Ordered map or database index |
-| Membership and uniqueness | Set | Bitset for a small dense universe |
-| Last-in first-out processing | Stack or array tail | Segmented stack |
-| First-in first-out processing | Queue or deque | Bounded ring buffer |
-| Insert and delete at both ends | Deque | Ring buffer |
-| Preserve insertion order | Array plus map | Ordered map |
-| Ordered traversal or range queries | Sorted array or database index | Balanced tree or B-tree |
-| Repeated min or max extraction | Heap | Balanced tree or bucket queue |
-| Frequent priority updates or cancel | Heap plus key map | Indexed heap or balanced tree |
-| Top-K retrieval | Heap of size K | Quickselect, bucketing, or database aggregation |
-| Prefix search | Sorted array | Trie or database text index |
-| Fixed dense relations | Matrix or precomputed table | Bitset rows |
-| Sparse dynamic relations | Adjacency list | Specialized graph index |
-| Dependency ordering | DAG plus topological sort | Incremental dependency maintenance |
-| Dynamic connectivity | Graph traversal | Union-find when edges are not deleted |
-| Shortest paths | BFS for unit weight; Dijkstra for non-negative weights | A* with a correctness-preserving heuristic; specialized algorithms for negative edges |
-| Overlapping intervals | Sorted endpoints | Interval tree or sweep line |
-| Repeated pure computation | Recompute directly | Memoization or bounded cache |
-| Repeated aggregate updates | Full recompute baseline | Incremental aggregates or materialized views |
-| Small one-off filtering | Linear scan | Index only with evidence of repeated queries |
-| Data larger than memory | Single-pass streaming | External sort, chunked merge, or database execution |
-| Approximate membership | Exact set | Bloom filter when false positives are acceptable |
-| Approximate cardinality | Exact set | HyperLogLog when error is acceptable |
-| Spatial range or nearest neighbor | Linear scan or database spatial index | R-tree, k-d tree, or grid index |
+| Need                                    | Prefer first                                           | Consider with strong justification                                                    |
+| --------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| Positional access over fixed small data | Array or tuple                                         | Precomputed table or bitset                                                           |
+| Compile-time fixed key set              | Record, struct, or enum-indexed array                  | Map when the key set must change dynamically                                          |
+| Lookup by stable key                    | Hash map                                               | Ordered map or database index                                                         |
+| Membership and uniqueness               | Set                                                    | Bitset for a small dense universe                                                     |
+| Last-in first-out processing            | Stack or array tail                                    | Segmented stack                                                                       |
+| First-in first-out processing           | Queue or deque                                         | Bounded ring buffer                                                                   |
+| Insert and delete at both ends          | Deque                                                  | Ring buffer                                                                           |
+| Preserve insertion order                | Array plus map                                         | Ordered map                                                                           |
+| Ordered traversal or range queries      | Sorted array or database index                         | Balanced tree or B-tree                                                               |
+| Repeated min or max extraction          | Heap                                                   | Balanced tree or bucket queue                                                         |
+| Frequent priority updates or cancel     | Heap plus key map                                      | Indexed heap or balanced tree                                                         |
+| Top-K retrieval                         | Heap of size K                                         | Quickselect, bucketing, or database aggregation                                       |
+| Prefix search                           | Sorted array                                           | Trie or database text index                                                           |
+| Fixed dense relations                   | Matrix or precomputed table                            | Bitset rows                                                                           |
+| Sparse dynamic relations                | Adjacency list                                         | Specialized graph index                                                               |
+| Dependency ordering                     | DAG plus topological sort                              | Incremental dependency maintenance                                                    |
+| Dynamic connectivity                    | Graph traversal                                        | Union-find when edges are not deleted                                                 |
+| Shortest paths                          | BFS for unit weight; Dijkstra for non-negative weights | A* with a correctness-preserving heuristic; specialized algorithms for negative edges |
+| Overlapping intervals                   | Sorted endpoints                                       | Interval tree or sweep line                                                           |
+| Repeated pure computation               | Recompute directly                                     | Memoization or bounded cache                                                          |
+| Repeated aggregate updates              | Full recompute baseline                                | Incremental aggregates or materialized views                                          |
+| Small one-off filtering                 | Linear scan                                            | Index only with evidence of repeated queries                                          |
+| Data larger than memory                 | Single-pass streaming                                  | External sort, chunked merge, or database execution                                   |
+| Approximate membership                  | Exact set                                              | Bloom filter when false positives are acceptable                                      |
+| Approximate cardinality                 | Exact set                                              | HyperLogLog when error is acceptable                                                  |
+| Spatial range or nearest neighbor       | Linear scan or database spatial index                  | R-tree, k-d tree, or grid index                                                       |
 
 ## Algorithm patterns
 

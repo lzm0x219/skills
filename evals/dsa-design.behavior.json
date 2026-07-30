@@ -25,9 +25,7 @@
       "prompt": "Change the settings-page button copy from \"Save\" to \"Save changes\". Return only the replacement copy and do not modify files.",
       "expected": {
         "assertions": {
-          "required_regex": [
-            "Save changes"
-          ],
+          "required_regex": ["Save changes"],
           "forbidden_regex": [
             "(?:DSA|data structure|algorithm|complexity)",
             "(?:data structure|algorithm).*option"
@@ -42,13 +40,8 @@
       "prompt": "Add a method to delete a user by unique ID from the existing in-memory user list. The data set is small and there are no new performance or persistence requirements.",
       "expected": {
         "assertions": {
-          "required_regex": [
-            "(?:keep|reuse|existing).*list"
-          ],
-          "forbidden_regex": [
-            "DSA\\s*choice",
-            "Option\\s*[123]"
-          ]
+          "required_regex": ["(?:keep|reuse|existing).*list"],
+          "forbidden_regex": ["DSA\\s*choice", "Option\\s*[123]"]
         }
       }
     },
