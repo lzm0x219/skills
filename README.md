@@ -102,36 +102,41 @@ npx skills use lzm0x219/skills@napi-rs
 
 ## Understand the repository layout
 
-The repository follows the base directory model defined by the [Agent Skills specification](https://agentskills.io/specification). Optional Codex UI metadata and this repo's behavior-evaluation conventions sit alongside the portable skill content.
+The repository keeps each portable skill in a leaf directory under `skills/development/`. The surrounding evaluation, test, and workflow files validate repository-specific contracts.
 
 ```text
 .
 ├── skills/
-│   ├── engineering/dsa-design/
-│   └── framework/
-│       ├── mise/
-│       └── napi-rs/
+│   └── development/
+│       ├── engineering/dsa-design/
+│       ├── framework/napi-rs/
+│       └── tools/mise/
 ├── evals/
-│   ├── fixtures/
-│   └── *.behavior.json
-├── tests/
-├── scripts/
+│   ├── fixtures/{dsa-design,mise,napi-rs}/
+│   └── {dsa-design,mise,napi-rs}.behavior.json
+├── docs/behavior-evals.md
+├── scripts/{run_behavior_evals,validate_skills}.py
+├── tests/test_{run_behavior_evals,validate_skills}.py
 └── .github/workflows/validate.yml
 ```
 
-Different files own different responsibilities:
+Each path has one role:
 
-| Path                           | Responsibility                                                                                                                               |
-| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `skills/**/SKILL.md`           | Portable entrypoint for any Agent Skills-compatible agent; frontmatter is used for discovery, and the body loads only when the skill is used |
-| `skills/**/agents/openai.yaml` | Optional Codex UI metadata, default prompts, and implicit-invocation policy                                                                  |
-| `skills/**/references/`        | Reference material loaded by task need, so `SKILL.md` does not have to hold everything                                                       |
-| `skills/**/scripts/`           | Deterministic checks or helper tools                                                                                                         |
-| `evals/*.behavior.json`        | Machine-readable behavior contracts, source assertions, and required scenarios                                                               |
-| `evals/fixtures/`              | Fixed answers used by CI to verify the assertion runner, not current model quality                                                           |
-| `tests/`, `scripts/`           | Validate repository structure, evaluation isolation, and contract execution logic                                                            |
+| Path                                 | Responsibility                                                                |
+| ------------------------------------ | ----------------------------------------------------------------------------- |
+| `skills/development/<area>/<skill>/` | Leaf package for a development skill, grouped by engineering area             |
+| `skills/**/SKILL.md`                 | Portable entrypoint and discovery metadata for Agent Skills-compatible agents |
+| `skills/**/agents/openai.yaml`       | Optional Codex UI metadata, default prompt, and implicit-invocation policy    |
+| `skills/**/references/`              | Reference material loaded only when a task needs it                           |
+| `skills/**/scripts/`                 | Deterministic helpers distributed with a skill                                |
+| `evals/*.behavior.json`              | Behavior contracts, source assertions, and required scenarios                 |
+| `evals/fixtures/<skill>/`            | Fixed answers that test the evaluation runner, not current model quality      |
+| `docs/behavior-evals.md`             | Behavior-evaluation design and usage                                          |
+| `scripts/`                           | Repository validators and the behavior-evaluation runner                      |
+| `tests/`                             | Unit tests for repository validation and evaluation tooling                   |
+| `.github/workflows/validate.yml`     | Required continuous integration checks                                        |
 
-`agents/openai.yaml` and `evals/` are conventions of this repository, not required files in the open Agent Skills specification. Agents that only consume `SKILL.md` (plus `references/` and `scripts/`) do not need them.
+The category directories, `agents/openai.yaml`, and `evals/` are repository conventions. They are not required by the [Agent Skills specification](https://agentskills.io/specification). Agents that consume only the portable skill package need `SKILL.md` and any referenced `references/` or `scripts/` content.
 
 ## What validation can and cannot prove
 
