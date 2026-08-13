@@ -1,3 +1,3 @@
-保持 Zig 0.14.1 作为兼容性边界。先核对仓库固定版本与 `zig version`，再使用 0.14.1 官方语言参考以及匹配的标准库源码或编译器源码，不套用较新版本的 `build.zig` API。
+Keep Zig 0.14.1 as the compatibility boundary. First compare the repository pin with `zig version`, then use the official 0.14.1 language reference and matching standard library or compiler source rather than applying a newer version's `build.zig` API.
 
-只设计静态库产物及其现有 module 连接。使用 0.14.1 编译器、仓库测试和最小构建命令验证；本轮不修改或迁移项目。
+Design only the static library artifact and its existing module wiring. Verify with the 0.14.1 compiler, repository tests, and the smallest build command. This response does not modify or migrate the project.

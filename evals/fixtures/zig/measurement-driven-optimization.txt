@@ -1,3 +1,3 @@
-先建立 baseline：固定 Zig 版本、target、optimization mode、输入数据集、预热、机器负载和采样方式，同时记录延迟分布与内存指标。使用 profiler 或等价证据定位瓶颈，避免凭直觉改写解析器。
+Establish a baseline first: fix the Zig version, target, optimization mode, input dataset, warm-up procedure, machine load, and sampling method while recording the latency distribution and memory metrics. Use a profiler or equivalent evidence to locate the bottleneck instead of rewriting the parser from intuition.
 
-一次改变一个主要变量，在相同条件下重复测量并报告分布和波动；同时运行正确性与错误路径回归。只有新结果稳定优于基线且回归通过后，才能声称改善。本轮没有实现或宣称优化完成。
+Change one major variable at a time, repeat measurements under the same conditions, and report the distribution and variance while also running correctness and failure-path regressions. Claim an improvement only when the new results are consistently better than the baseline and the regressions pass. This response neither implements an optimization nor claims that optimization is complete.

@@ -1,3 +1,3 @@
-先记录 Zig 0.14.1 与目标 0.16.0、所有版本固定位置、CI 和 target 矩阵，再阅读跨越版本的官方 release notes。列出语言、标准库、Build API、`build.zig`、`build.zig.zon`、C ABI 和工具参数变化，明确是只支持目标版本还是保留兼容窗口。
+First record Zig 0.14.1, the target 0.16.0, every version-pinning location, and the CI and target matrices, then read the official release notes across that version span. List changes to the language, standard library, Build API, `build.zig`, `build.zig.zon`, C ABI, and tool options, and decide explicitly whether to support only the target version or retain a compatibility window.
 
-用 0.16.0 复现并分类错误，按最小连贯增量更新工具链固定、manifest、构建图和源码。随后运行格式检查、测试执行、全部 target 构建及可用平台的运行验证。保留旧工具链与改动边界，确保失败时能够回滚。本轮不修改项目。
+Reproduce and classify errors with 0.16.0, then update toolchain pins, the manifest, build graph, and source in the smallest coherent increments. Follow with formatting checks, actual test execution, every target build, and runtime verification on available platforms. Preserve the old toolchain and change boundary so the migration can be rolled back after a failure. This response does not modify the project.
