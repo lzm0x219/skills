@@ -1,0 +1,3 @@
+先记录仓库固定版本和 `zig version`，再检查 `build.zig` 或 `zig build --help`，确认实际的 step 与选项名称。
+
+对修改文件运行 `zig fmt --check`，再运行最小适用的 `zig test` 或 `zig build test` step，最后运行完整项目测试。使用项目的 `-Dtarget` 选项和相关 optimization mode 构建声明的 Linux 与 Windows 组合。编译通过不是运行时证明：在本机运行 Linux 集成测试，并在兼容的 Windows 环境中运行 Windows 产物后，才能声称该 target 可用。

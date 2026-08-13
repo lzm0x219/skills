@@ -1,0 +1,3 @@
+先根据 header、macro 和 cflags 需求，在 `@cImport` 与 `zig translate-c` 之间选择，并把生成绑定限制在窄 adapter 内。核对 target、calling convention、整数宽度、alignment、`extern` layout 和链接方式，不能从本机布局推断其他 target 的 ABI。
+
+C 返回的 buffer 由 C 库指定的释放函数释放，不能交给 Zig allocator。callback 的 userdata 必须有稳定 owner，注册到注销期间一直有效，并明确线程、重入与注销顺序。验证分为编译 binding、链接真实或测试 library、在兼容环境运行成功/失败调用，以及跨线程 callback 的注册、触发和注销。

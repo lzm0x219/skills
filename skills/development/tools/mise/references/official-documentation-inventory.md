@@ -7,7 +7,7 @@
 - Official machine-readable directory: [llms.txt](https://mise.jdx.dev/llms.txt). It lists current documentation entry points under Guides, Configuration, Dev Tools, Environments, Tasks, Plugins, Advanced, and CLI Reference.
 - Official site index: [sitemap.xml](https://mise.jdx.dev/sitemap.xml). Together with `llms.txt`, it is used to discover moved, deleted, or new pages.
 - This inventory selects topic pages needed for day-to-day project configuration; it does not claim a full copy of the official site. Exact commands, settings, backends, templates, platform support, and security behavior must still come from the live pages.
-- Running `node scripts/verify-official-docs-inventory.mjs --check` in this skill directory verifies that topic URLs in this inventory still appear in the current official `llms.txt` or sitemap. From this repository root, use `node skills/framework/mise/scripts/verify-official-docs-inventory.mjs --check`. `--verify-links` additionally requests each recorded page. A passing check only proves link and index state; it does not prove a configuration works on any machine, shell, IDE, CI, or tool backend.
+- Running `node scripts/verify-official-docs-inventory.mjs --check` in this skill directory verifies that topic URLs in this inventory still appear in the current official `llms.txt` or sitemap. From this repository root, use `node skills/development/tools/mise/scripts/verify-official-docs-inventory.mjs --check`. `--verify-links` additionally requests each recorded page. A passing check only proves link and index state; it does not prove a configuration works on any machine, shell, IDE, CI, or tool backend.
 
 ## 1. Install, activate, IDE, and CI
 

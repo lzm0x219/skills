@@ -94,4 +94,21 @@ Evaluation sessions use a read-only sandbox and `--ephemeral`. Those settings re
 - Official documentation routing index checks
 - Project-specific terminology is forbidden from re-entering the skill
 
+`zig` covers:
+
+- Unrelated tasks are answered directly
+- Version-aligned build changes and explicit compiler migrations
+- Allocator ownership and cleanup paths
+- Safety boundaries for unreviewed executable build scripts
+- Cross-target compilation versus runtime verification
+- Test artifact compilation versus actual test execution
+- Version-sensitive dependency, hash, network, and cache boundaries
+- C ABI, ownership, callback, linking, and runtime boundaries
+- Measurement-driven optimization
+- Zig formatting, naming, documentation, and public API style
+- Explicit version selection and latest-stable fallback when no version evidence exists
+- Version lower bounds, supported ranges, formatter selection, and representative compiler matrices
+- Runtime-safety boundaries for external input, `unreachable`, and `@setRuntimeSafety(false)`
+- Official latest-stable release metadata and link verification
+
 These scenarios are a regression baseline, not exhaustive verification across all prompts, models, and runtimes.
