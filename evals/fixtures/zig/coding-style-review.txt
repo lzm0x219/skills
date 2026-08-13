@@ -1,0 +1,3 @@
+先以项目明确使用的 Zig 0.15.2 为目标，核对对应版本语言参考中的 Style Guide、标准库源码和 `zig fmt`，再遵循仓库和相邻代码的公开 API 约定。删除与格式化器竞争的手工对齐。目标版本没有更具体规则时，将类型和返回类型的 callable 命名为 `TitleCase`，其他 callable 使用 `camelCase`，其余值通常使用 `snake_case`；稳定 API 或外部 C 名称不为风格而破坏性重命名。
+
+公共声明使用 `///` 文档注释，module/container 说明使用 `//!`；文档写清所有权、allocator、释放者、错误和生命周期。最后检查 visibility、optional 与错误联合的语义、`defer`/`errdefer` 清理，以及测试是否实际执行。本轮不修改文件。

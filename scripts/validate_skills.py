@@ -97,6 +97,68 @@ REQUIRED_CASES_BY_SKILL = {
             "invocation": "explicit",
         },
     },
+    "zig": {
+        "out-of-scope-direct-answer": {
+            "category": "out-of-scope",
+            "invocation": "implicit",
+        },
+        "version-aligned-build-change": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "allocator-ownership": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "untrusted-build-script": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+        "verification-matrix": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "test-step-executes": {
+            "category": "test-integrity",
+            "invocation": "explicit",
+        },
+        "dependency-update-boundary": {
+            "category": "dependency-management",
+            "invocation": "explicit",
+        },
+        "c-interop-boundary": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "explicit-version-migration": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "measurement-driven-optimization": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "coding-style-review": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "default-latest-stable": {
+            "category": "version-routing",
+            "invocation": "explicit",
+        },
+        "supported-version-range": {
+            "category": "version-routing",
+            "invocation": "explicit",
+        },
+        "runtime-safety-boundary": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+        "official-release-verification": {
+            "category": "documentation-integrity",
+            "invocation": "explicit",
+        },
+    },
 }
 MARKDOWN_LINK_PATTERN = re.compile(
     r"""!?\[[^\]]*\]\(\s*(<[^>]+>|[^\s)]+)"""

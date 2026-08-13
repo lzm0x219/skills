@@ -25,12 +25,21 @@ When you are unsure whether to use a skill, start with the boundaries below. Exp
 - **Good for:** adopting, designing, implementing, debugging, testing, building, or publishing Rust Node-API addons with napi-rs
 - **Not for:** tasks unrelated to Rust, Node-API, or napi-rs
 
+### Languages
+
+**[`zig`](skills/development/languages/zig/SKILL.md)** · `$zig`
+
+- **适用于：** 设计、实现、调试、测试、优化、迁移、评审或维护 Zig 源码、构建、依赖、包和 C 互操作
+- **不适用于：** 与 Zig 代码、构建配置、工具链或诊断无关的任务
+
+### Tools
+
 **[`mise`](skills/development/tools/mise/SKILL.md)** · `$mise`
 
 - **Good for:** managing project tools, environment variables, tasks, lockfiles, CI, or IDE integration with mise
 - **Not for:** tasks unrelated to the project development environment, tool versions, environment variables, or tasks
 
-When `napi-rs` and `mise` need exact APIs, CLI flags, target support, backends, or release flows, they return to the current official docs instead of treating skill-time knowledge as permanent fact.
+When `napi-rs`, `zig`, and `mise` need exact APIs, CLI flags, target support, backends, or release flows, they return to the current official docs instead of treating skill-time knowledge as permanent fact.
 
 ## Install and start using
 
@@ -110,10 +119,11 @@ The repository keeps each portable skill in a leaf directory under `skills/devel
 │   └── development/
 │       ├── engineering/dsa-design/
 │       ├── framework/napi-rs/
+│       ├── languages/zig/
 │       └── tools/mise/
 ├── evals/
-│   ├── fixtures/{dsa-design,mise,napi-rs}/
-│   └── {dsa-design,mise,napi-rs}.behavior.json
+│   ├── fixtures/{dsa-design,mise,napi-rs,zig}/
+│   └── {dsa-design,mise,napi-rs,zig}.behavior.json
 ├── docs/behavior-evals.md
 ├── scripts/{run_behavior_evals,validate_skills}.py
 ├── tests/test_{run_behavior_evals,validate_skills}.py
@@ -142,14 +152,16 @@ The category directories, `agents/openai.yaml`, and `evals/` are repository conv
 
 Validation is split into four layers. Each layer answers a different question:
 
-| Check                              | Can prove                                                                                                            | Cannot prove                                                                          |
-| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| Repository static validation       | Frontmatter, paths, links, optional Codex metadata, behavior contracts, and source assertions match repository rules | The skill will give correct answers in a live model or every agent                    |
-| Fixed-answer regression            | The behavior-eval runner and regex assertions stably recognize known outputs                                         | The current model still produces those outputs                                        |
-| Live Codex evaluation              | The current Codex CLI, model, and skill satisfy the assertions on the final visible output for a scenario            | Other agents behave the same way, or the model did or did not load a skill internally |
-| napi-rs/mise docs inventory checks | Local routing matches the official index at check time, and links are reachable                                      | Future versions or unrun platforms still work                                         |
+| Check                              | Can prove                                                                                                             | Cannot prove                                                                          |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Repository static validation       | Frontmatter, paths, links, optional Codex metadata, behavior contracts, and source assertions match repository rules  | The skill will give correct answers in a live model or every agent                    |
+| Fixed-answer regression            | The behavior-eval runner and regex assertions stably recognize known outputs                                          | The current model still produces those outputs                                        |
+| Live Codex evaluation              | The current Codex CLI, model, and skill satisfy the assertions on the final visible output for a scenario             | Other agents behave the same way, or the model did or did not load a skill internally |
+| napi-rs/mise docs inventory checks | Local routing matches the official index at check time, and links are reachable                                       | Future versions or unrun platforms still work                                         |
+| Zig official release check         | The official index currently identifies one latest stable release and its versioned documentation links are reachable | The compiler or a project works on any host, target, or future release                |
+| Zig toolchain smoke                | The selected local compiler formats the fixture and its build-system test artifact actually executes                  | A real project, unsupported compiler, or target-specific runtime works                |
 
-GitHub Actions runs static validation, runner unit tests, and fixed-answer regression. Default CI does not call a model and does not access the official napi-rs or mise websites.
+GitHub Actions runs static validation, runner unit tests, and fixed-answer regression. Default CI does not call a model or access official documentation and download websites.
 
 ## Run local checks
 
@@ -164,6 +176,8 @@ python3 scripts/run_behavior_evals.py \
   --skill napi-rs --answers evals/fixtures/napi-rs
 python3 scripts/run_behavior_evals.py \
   --skill mise --answers evals/fixtures/mise
+python3 scripts/run_behavior_evals.py \
+  --skill zig --answers evals/fixtures/zig
 ```
 
 Live behavior evaluation currently uses an authenticated Codex CLI and sends evaluation prompts plus skill content to the configured Codex service:
@@ -172,15 +186,25 @@ Live behavior evaluation currently uses an authenticated Codex CLI and sends eva
 python3 scripts/run_behavior_evals.py --skill dsa-design
 python3 scripts/run_behavior_evals.py --skill napi-rs
 python3 scripts/run_behavior_evals.py --skill mise
+python3 scripts/run_behavior_evals.py --skill zig
 ```
 
-Before refreshing or publishing the `napi-rs` or `mise` official-docs inventory, also run the network checks:
+Before refreshing or publishing official-document routing or Zig release claims, also run the network checks:
 
 ```sh
-node skills/framework/napi-rs/scripts/verify-official-docs-coverage.mjs \
+node skills/development/framework/napi-rs/scripts/verify-official-docs-coverage.mjs \
   --check --verify-links
-node skills/framework/mise/scripts/verify-official-docs-inventory.mjs \
+node skills/development/tools/mise/scripts/verify-official-docs-inventory.mjs \
   --check --verify-links
+node skills/development/languages/zig/scripts/verify-official-release.mjs \
+  --check --verify-links
+```
+
+When a Zig compiler is available, validate the bundled fixture with every representative version in the declared support range:
+
+```sh
+node skills/development/languages/zig/scripts/run-toolchain-smoke.mjs \
+  --zig /absolute/path/to/zig
 ```
 
 See the [behavior evaluation notes](docs/behavior-evals.md) for scenarios, isolation, and limits.

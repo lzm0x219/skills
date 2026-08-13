@@ -17,7 +17,7 @@ Manage the development environment using the current project's language, package
 
 1. First read the [official documentation task routing](references/official-documentation-inventory.md), then open the official pages directly related to the current work.
 2. When exact CLI flags, tool backends, settings, task attributes, or version compatibility matter, always treat the current official pages as authoritative. Do not infer exact flags, defaults, or support matrices from this skill.
-3. Run `node scripts/verify-official-docs-inventory.mjs --check` in this skill directory only when refreshing the routing inventory or claiming that local links remain valid; add `--verify-links` before publishing or after a refresh. From this repository root, use `node skills/framework/mise/scripts/verify-official-docs-inventory.mjs --check`.
+3. Run `node scripts/verify-official-docs-inventory.mjs --check` in this skill directory only when refreshing the routing inventory or claiming that local links remain valid; add `--verify-links` before publishing or after a refresh. From this repository root, use `node skills/development/tools/mise/scripts/verify-official-docs-inventory.mjs --check`.
 
 | Work                                                            | Prefer these official topics                                                                                                             |
 | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |

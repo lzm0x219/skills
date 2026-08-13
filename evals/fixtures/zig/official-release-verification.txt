@@ -1,0 +1,3 @@
+运行 `node skills/development/languages/zig/scripts/verify-official-release.mjs --check --verify-links`。脚本读取 Zig 官方 `download/index.json`，排除 master/development build，按语义版本选择最新稳定版，并验证该版本的 docs、stdDocs 和 notes/release notes 元数据与链接。
+
+通过只证明查询当时的官方索引结构、最新稳定版选择和版本化链接可达；不能证明未来版本仍相同，也不能证明任何本地工具链、项目构建、target 或运行时行为正确。
