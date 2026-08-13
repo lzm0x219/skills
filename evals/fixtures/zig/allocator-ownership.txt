@@ -1,3 +1,3 @@
-接收调用方提供的 allocator，并返回由调用方拥有全部已分配字段的结果。为结果提供 `deinit(allocator)` 操作，并说明借用的解析器视图不能超出底层 buffer 的生命周期。
+Accept a caller-provided allocator and return a result whose allocated fields are all owned by the caller. Provide `deinit(allocator)` for the result and state that borrowed parser views must not outlive the backing buffer.
 
-对文件和临时 buffer 使用 `defer`；构造成功前，对转移到结果中的每次分配使用 `errdefer`。通过显式错误联合（`!Result`）保留 I/O 和解析失败，不使用 `catch unreachable`。测试成功、格式错误、环境支持时的分配失败，以及使用可检测泄漏的测试 allocator 验证清理。
+Use `defer` for the file and temporary buffer, and protect every allocation being transferred into the result with `errdefer` until construction succeeds. Preserve I/O and parsing failures through an explicit error union (`!Result`) rather than `catch unreachable`. Test success, malformed input, allocation failure when supported by the environment, and cleanup with a leak-detecting test allocator.

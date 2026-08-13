@@ -1,86 +1,86 @@
-# Zig 编码最佳实践与风格
+# Zig coding best practices and style
 
-## 先解析目标版本
+## Resolve the target version first
 
-沿用 `SKILL.md` 已确定的目标 Zig 版本或支持范围：用户指定优先，其次是仓库或项目工具链；两者都没有时，实时查询 Zig 官网并采用当前最新稳定版。多版本项目分别核对最低支持版和支持范围内最新稳定版；不得把版本下限误当精确版本，也不得用 master/nightly 代替最新稳定版。
+Use the target Zig version or supported range already established in `SKILL.md`: an explicit user requirement takes precedence, followed by the repository or project toolchain; when neither supplies a version, query the Zig website in real time and use the current latest stable release. For multi-version projects, check both the minimum supported release and the latest stable release within the supported range. Do not mistake a minimum version for an exact pin or substitute master/nightly for the latest stable release.
 
-针对目标版本读取对应语言参考中的 Style Guide、标准库文档、release notes、随编译器提供的源码和 `zig fmt`/CLI 行为。Style Guide 不存在或未覆盖具体问题时，再从同版本官方源码提取惯例；不得让其他版本的规则覆盖目标版本。
+For the target version, read the corresponding language reference's Style Guide, standard library documentation, release notes, compiler-bundled source, and `zig fmt`/CLI behavior. If the Style Guide is absent or does not cover the question, derive conventions from the official source for the same version. Do not let rules from another version override the target version.
 
-目标精确版本及其官方证据可报告后，再继续风格与最佳实践判断。
+Continue with style and best-practice decisions only after the exact target version and its official evidence can be reported.
 
-## 适用顺序
+## Precedence
 
-1. 先遵守仓库已有的公开 API、目录、命名和测试约定。
-2. 使用目标 Zig 版本的官方语言参考、Style Guide、标准库和源码核对语义与当前惯例。
-3. 让 `zig fmt` 决定空白、缩进和换行，不建立与其竞争的手工格式规则。
-4. 目标版本文档包含 Style Guide 时遵循它；没有时，从该版本官方 Zig/标准库源码提取当前惯例，并把额外选择明确标记为项目默认值。
-5. 只有目标版本与仓库都没有覆盖某项时，才采用下面的工程默认值。
+1. Follow the repository's existing public API, directory, naming, and testing conventions.
+2. Verify semantics and current conventions against the target Zig version's official language reference, Style Guide, standard library, and source.
+3. Let `zig fmt` determine whitespace, indentation, and line breaks; do not create manual formatting rules that compete with it.
+4. Follow the target version's Style Guide when it exists. Otherwise, derive current conventions from that version's official Zig and standard library source, and label any additional choice explicitly as a project default.
+5. Use the engineering defaults below only when neither the target version nor the repository covers the question.
 
-不得把个人偏好表述成 Zig 编译器要求。生成代码、C 名称和稳定公共 API 可以保留外部约定；不要为了风格一致性制造破坏性重命名。
+Do not present personal preferences as Zig compiler requirements. Generated code, C names, and stable public APIs may preserve external conventions; do not introduce breaking renames merely for stylistic consistency.
 
-## 命名与文件组织
+## Naming and file organization
 
-- 优先遵循目标版本 Style Guide 的命名与文件规则。该版本没有 Style Guide 或未覆盖具体问题时，本 Skill 的工程默认值才是：类型以及返回类型的 callable 使用 `TitleCase`，其他 callable 使用 `camelCase`，其余变量和值通常使用 `snake_case`；不得把该默认值表述成所有 Zig 版本的编译器要求。
-- 缩写词、首字母缩写和专有名词也按所在类别套用同一大小写规则；外部协议或平台既有名称可以保留。
-- 名称表达语义或单位，例如 `timeout_ns`、`byte_count`；布尔值优先使用能读成断言的名称。
-- 利用 namespace 提供上下文，避免在成员名称中重复类型或模块名称。
-- 表示类型的文件使用 `TitleCase`，表示 namespace 的文件和目录使用 `snake_case`；生成文件和外部 ABI 文件遵循其来源约定。
-- 文件和 module 保持单一清晰职责；拆分依据是依赖边界和可理解性，不是机械行数。
-- 保持声明的可见性最小；仅把稳定、确实需要的表面声明为 `pub`。
+- Prefer the naming and file rules in the target version's Style Guide. If that version has no Style Guide or it does not cover the question, this skill's engineering default is: use `TitleCase` for types and callables that return a type, `camelCase` for other callables, and generally `snake_case` for other variables and values. Do not present this default as a compiler requirement for every Zig version.
+- Apply the same casing rule for a category to abbreviations, initialisms, and proper nouns; preserve established names from external protocols or platforms.
+- Use names that express meaning or units, such as `timeout_ns` and `byte_count`; prefer boolean names that read as assertions.
+- Let namespaces supply context instead of repeating the type or module name in members.
+- Use `TitleCase` for files that represent types and `snake_case` for files and directories that represent namespaces; generated files and external ABI files follow their source conventions.
+- Give each file and module one clear responsibility. Split by dependency boundaries and comprehensibility, not mechanical line counts.
+- Keep declaration visibility minimal; mark only stable, genuinely required surfaces as `pub`.
 
-## 数据与 API 设计
+## Data and API design
 
-- 优先使用 `const`；只有 binding 需要重新赋值时使用 `var`。区分 binding 是否可变与其指向内存是否可变。
-- 将 `undefined` 只用于随后必定初始化、且初始化前不可读取的存储；不把它当作零值、空值或哨兵值。
-- 优先使用能表达长度的 slice，而不是分离的 pointer 和 length；只有 ABI、sentinel 或底层布局要求时使用更具体的 pointer 类型。
-- 用 optional 表达“没有值”，用错误联合表达“操作失败”，避免用魔法数字、空 slice 或 `undefined` 混合这些状态。
-- 公共函数明确输入有效性、返回值所有权、allocator、错误、线程/重入约束和生命周期。
-- 跨线程共享状态时明确同步所有者、线程安全 allocator 与关闭顺序；不把“能编译”当作无数据竞争或可安全重入的证据。
-- 让 namespace 承担上下文；构造与清理遵循相邻 API 的 `init`/`deinit`、`create`/`destroy` 或其他成对约定。
-- 保持抽象可删除：先写清晰的具体代码；只有重复模式和调用方需求已经出现时再引入泛型或 helper。
+- Prefer `const`; use `var` only when the binding must be reassigned. Distinguish binding mutability from the mutability of the referenced memory.
+- Use `undefined` only for storage that will definitely be initialized before it can be read; do not use it as a zero value, empty value, or sentinel.
+- Prefer slices, which carry their length, over a separate pointer and length. Use more specific pointer types only when required by an ABI, sentinel, or low-level layout.
+- Use optionals for "no value" and error unions for "operation failed"; do not conflate these states with magic numbers, empty slices, or `undefined`.
+- Public functions must specify input validity, return-value ownership, allocator use, errors, thread/reentrancy constraints, and lifetimes.
+- For state shared across threads, specify the synchronization owner, thread-safe allocator, and shutdown order. Compilation alone is not evidence of freedom from data races or safe reentrancy.
+- Let namespaces carry context; follow adjacent API conventions such as paired `init`/`deinit`, `create`/`destroy`, or their equivalent for construction and cleanup.
+- Keep abstractions removable: start with clear concrete code and introduce generics or helpers only after a repeated pattern and caller need are evident.
 
-## 内存与资源
+## Memory and resources
 
-- 可复用库边界接收 allocator，不隐藏进程级 allocator，也不在库内部假设唯一 allocator 策略。
-- 根据生命周期选择 allocator：整批释放的短生命周期对象可考虑 arena；固定上限可考虑 fixed buffer；通用所有权使用适合项目的通用 allocator。具体类型和初始化 API 按目标 Zig 版本核对。
-- 在资源获取点立即安排 `defer`；构造过程把所有权转交给返回值前使用 `errdefer` 保护失败路径。
-- 借用值不得超出 owner、buffer、iterator、container 或 C 资源的生命周期；需要延长生命周期时显式复制并记录释放者。
-- 测试分配代码时使用目标版本提供的测试 allocator 或等价的泄漏检测方式，并覆盖部分构造失败。
+- Accept allocators at reusable library boundaries instead of hiding a process-wide allocator or assuming one allocator strategy inside a library.
+- Select allocators by lifetime: consider an arena for short-lived objects released together, a fixed buffer for a fixed upper bound, and a project-appropriate general-purpose allocator for general ownership. Verify concrete types and initialization APIs against the target Zig version.
+- Schedule `defer` immediately when acquiring a resource; protect failure paths with `errdefer` until construction transfers ownership to the return value.
+- A borrowed value must not outlive its owner, buffer, iterator, container, or C resource. When a longer lifetime is required, copy explicitly and document the releaser.
+- Test allocating code with the target version's test allocator or an equivalent leak-detection mechanism, including partial-construction failures.
 
-## 错误与控制流
+## Errors and control flow
 
-- 使用能描述失败集合的 error set；在库边界避免无必要扩大为 `anyerror`。
-- 用 `try` 传播当前层无法处理的错误；用 `catch` 恢复、添加上下文或转换边界错误。
-- 只对已由类型、前置检查或不可违反的不变量证明的条件使用 `catch unreachable`。
-- 保持 happy path 连续，把清理交给 `defer`/`errdefer`；复杂嵌套出现时先缩小函数或提取有语义的 helper。
-- 使用 `for`、`while`、`switch` 和 labeled block 表达实际控制流，避免把 `comptime` 当作普通运行时分支的替代品。
+- Use an error set that describes the possible failures; avoid unnecessarily widening library boundaries to `anyerror`.
+- Use `try` to propagate errors the current layer cannot handle; use `catch` to recover, add context, or translate an error at a boundary.
+- Use `catch unreachable` only when a type, precondition check, or inviolable invariant has already proven the condition.
+- Keep the happy path contiguous and leave cleanup to `defer`/`errdefer`; when nesting becomes complex, first narrow the function or extract a semantic helper.
+- Use `for`, `while`, `switch`, and labeled blocks for actual control flow. Do not use `comptime` as a substitute for an ordinary runtime branch.
 
-## `comptime` 与版本兼容
+## `comptime` and version compatibility
 
-- 仅在类型、泛型参数、编译期校验或代码生成确实需要时使用 `comptime`；记录它对编译时间、错误信息和代码大小的影响。
-- 优先让类型推导来自调用点，避免无必要的 `anytype` 扩大接口。
-- 多版本兼容优先做 capability/feature detection，例如在目标版本支持时使用 `@hasDecl` 或 `@hasField`，不要到处散落版本号比较。
-- 编译期反射应产生清晰的 `@compileError`，说明违反的契约和调用方修复方式。
+- Use `comptime` only when a type, generic parameter, compile-time validation, or code generation genuinely requires it; document its impact on compile time, diagnostics, and code size.
+- Prefer type inference from the call site and avoid unnecessarily widening interfaces with `anytype`.
+- For multi-version compatibility, prefer capability or feature detection, such as `@hasDecl` or `@hasField` when supported by the target versions, instead of scattering version comparisons throughout the codebase.
+- Compile-time reflection should produce a clear `@compileError` that identifies the violated contract and how the caller can fix it.
 
-## 运行时安全与非法行为
+## Runtime safety and Illegal Behavior
 
-- 把外部输入、I/O、协议数据和 FFI 返回值验证为普通错误；只对已经由类型或前置检查证明的不变量使用 `unreachable`。
-- 将 `@setRuntimeSafety(false)` 限定在经测量且有测试保护的最小作用域，并记录它依赖的前置条件；普通业务代码保持目标 optimization mode 的默认安全策略。
-- 使用 pointer、alignment、integer、enum 或 sentinel 转换前证明范围、对齐、有效值和生命周期；具体 builtin 与失败行为按目标版本核对。
-- 在启用运行时安全检查的模式覆盖非法输入与边界；项目支持 ReleaseFast、ReleaseSmall 或其他关闭部分检查的模式时，再分别验证其目标平台行为。
+- Validate external input, I/O, protocol data, and FFI return values as ordinary errors; use `unreachable` only for invariants already proven by types or precondition checks.
+- Restrict `@setRuntimeSafety(false)` to the smallest measured, test-protected scope and document the preconditions it depends on. Ordinary application code should retain the target optimization mode's default safety policy.
+- Before pointer, alignment, integer, enum, or sentinel conversions, prove the range, alignment, valid values, and lifetime. Verify the specific builtins and failure behavior against the target version.
+- Cover invalid inputs and boundaries in a mode with runtime safety enabled. If the project supports ReleaseFast, ReleaseSmall, or another mode that disables some checks, verify its behavior on the target platform separately.
 
-## 注释与文档
+## Comments and documentation
 
-- 使用 `///` 记录声明的公共契约，使用 `//!` 记录 container/module 级目的，使用 `//` 解释局部实现原因。
-- 注释解释约束、所有权、单位、协议、ABI 或非显然的取舍；不复述代码字面行为。
-- 公开 API 文档至少说明所有权与释放者、错误语义、前置条件和跨线程/跨 ABI 约束。
-- 代码变更使注释失真时，同一改动中修正或删除注释。
+- Use `///` for a declaration's public contract, `//!` for a container or module's purpose, and `//` for local implementation rationale.
+- Comments should explain constraints, ownership, units, protocols, ABI details, or non-obvious tradeoffs, not restate the code's literal behavior.
+- Public API documentation must at least state ownership and the releaser, error semantics, preconditions, and cross-thread or cross-ABI constraints.
+- When a code change makes a comment inaccurate, correct or remove the comment in the same change.
 
-## 测试与评审清单
+## Testing and review checklist
 
-- 把测试放在最接近被保护行为的位置；同时覆盖成功、边界输入、预期错误和资源清理。
-- 测试错误时断言错误语义，不依赖完整诊断文本或不稳定的内部布局。
-- 涉及 target、optimization、C ABI、并发或 allocator 时，显式记录测试矩阵与未覆盖组合。
-- 评审时逐项确认：版本匹配、`zig fmt`、公共 API、所有权、错误、`comptime` 成本、测试是否实际执行、target 运行证据。
+- Place tests as close as possible to the behavior they protect; cover success, boundary inputs, expected errors, and resource cleanup.
+- When testing errors, assert error semantics rather than complete diagnostic text or unstable internal layouts.
+- For target, optimization, C ABI, concurrency, or allocator concerns, record the test matrix and uncovered combinations explicitly.
+- During review, verify each item: version matching, `zig fmt`, public API, ownership, errors, `comptime` cost, actual test execution, and target runtime evidence.
 
-详细语义与风格以目标版本的[语言参考](https://ziglang.org/documentation/)及其中的 Style Guide、标准库文档、release notes、`zig fmt` 和随编译器提供的源码为准。其他版本的 Style Guide 只能解释对应版本，不能作为目标版本或未指定版本时的默认权威。
+For detailed semantics and style, defer to the target version's [language reference](https://ziglang.org/documentation/) and its Style Guide, standard library documentation, release notes, `zig fmt`, and compiler-bundled source. Another version's Style Guide explains only that version and is not the default authority for the target version or an unspecified version.

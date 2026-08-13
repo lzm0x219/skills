@@ -1,6 +1,6 @@
 interface:
-  display_name: "Zig 开发"
-  short_description: "按目标版本设计、构建、调试、测试和评审 Zig 项目"
-  default_prompt: "使用 $zig 按项目目标版本设计、实现、调试、测试或评审这个 Zig 项目。"
+  display_name: "Zig Development"
+  short_description: "Build, debug, test, and review version-matched Zig projects"
+  default_prompt: "Use $zig to design, implement, debug, test, or review this Zig project against its target version."
 policy:
   allow_implicit_invocation: true

@@ -1,3 +1,3 @@
-`unreachable` 不适合用户输入或其他外部输入中的未知 tag；应将它建模为普通错误或错误联合，只对已经证明的不变量使用 `unreachable`。
+`unreachable` is inappropriate for an unknown tag in user input or other external input. Model it as an ordinary error or error union, and use `unreachable` only for a proven invariant.
 
-不要在整个 module 直接设置 `@setRuntimeSafety(false)`。先建立基准并 profile，确认安全检查是实测瓶颈；若确有收益，将关闭范围缩到有明确前置条件和测试保护的最小作用域。验证同时覆盖启用运行时安全检查的模式，以及项目实际支持的 ReleaseFast、ReleaseSmall 或其他 optimization mode，并记录非法输入行为。
+Do not set `@setRuntimeSafety(false)` across the entire module. Establish a benchmark and profile first to confirm that safety checks are a measured bottleneck. If disabling them has a real benefit, narrow it to the smallest scope protected by explicit preconditions and tests. Verification must cover a mode with runtime safety enabled and the ReleaseFast, ReleaseSmall, or other optimization modes actually supported by the project, recording the behavior for invalid input.

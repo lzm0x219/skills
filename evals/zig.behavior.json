@@ -5,28 +5,28 @@
   "execution": {
     "mode": "codex-cli",
     "runner": "scripts/run_behavior_evals.py",
-    "description": "运行器通过已认证的 Codex CLI 执行提示词，并用确定性的输出断言评分。"
+    "description": "The runner executes prompts through an authenticated Codex CLI and scores them with deterministic output assertions."
   },
   "source_assertions": {
     "required_regex": [
-      "按以下优先级确定任务的目标 Zig 版本或支持范围",
-      "区分版本下限、支持范围、当前执行编译器和格式化器版本",
-      "用户与仓库均未提供版本时，查询 Zig 官网并采用当时的最新稳定版",
-      "不得把 master/nightly 当作“最新版本”",
-      "不得用其他版本的 Style Guide 覆盖目标版本规则",
-      "`zig build --help` 也会加载构建图",
-      "运行时安全与非法行为",
-      "当请求与 Zig 源码、构建配置、工具链或诊断无关时",
-      "读取\\[编码最佳实践与风格\\]",
-      "读取\\[构建、依赖与版本迁移\\]",
-      "读取\\[C 互操作边界\\]",
-      "明确每次内存分配的所有者及释放方式",
-      "将 `build.zig` 视为可执行的项目代码",
-      "只有测试产物实际运行且通过后，才报告测试通过",
-      "先建立可复现性能基线",
-      "交叉编译成功不能证明目标运行时正确",
-      "官方版本校验脚本",
-      "工具链 smoke 脚本"
+      "Determine the task's target Zig version or supported range",
+      "Distinguish the minimum version, supported range, active compiler version, and formatter version",
+      "when neither the user nor the repository specifies a version, query the Zig website and use the latest stable release at that time",
+      "do not use a version number from memory or treat master/nightly as the \"latest version\"",
+      "Do not let another version's Style Guide override the target version's rules",
+      "`zig build --help` also loads the build graph",
+      "runtime safety, or illegal behavior boundaries",
+      "When the request is unrelated to Zig source, build configuration, toolchains, or diagnostics",
+      "read \\[Coding best practices and style\\]",
+      "read \\[Builds, dependencies, and version migrations\\]",
+      "read \\[C interoperability boundaries\\]",
+      "Make the owner and release mechanism of every allocation explicit",
+      "Treat `build.zig` as executable project code",
+      "report tests as passing only after the artifact actually runs and succeeds",
+      "Establish a reproducible performance baseline",
+      "successful cross-compilation does not prove correctness on the target runtime",
+      "official release verification script",
+      "toolchain smoke script"
     ],
     "forbidden_regex": [
       "(?i:repolex|analysistarget|analysisoptions|analysisreport|languagestat|resolvedmode)"
@@ -37,7 +37,7 @@
       "id": "out-of-scope-direct-answer",
       "category": "out-of-scope",
       "invocation": "implicit",
-      "prompt": "将 README 第一行改为 \"Toolset\"。此任务与 Zig 源码、构建配置、工具链和诊断无关。",
+      "prompt": "Change the first line of README to \"Toolset\". This task is unrelated to Zig source, build configuration, toolchains, or diagnostics.",
       "expected": {
         "assertions": {
           "required_regex": ["README", "Toolset"],
@@ -49,17 +49,17 @@
       "id": "version-aligned-build-change",
       "category": "positive-trigger",
       "invocation": "explicit",
-      "prompt": "一个库固定使用 Zig 0.14.1，但我的全局编译器版本更高。请为静态库设计一个小范围 build.zig 改动，先给出证据和验证计划，不要修改文件或迁移项目。",
+      "prompt": "A library is pinned to Zig 0.14.1, but my global compiler is newer. Design a small build.zig change for a static library. Provide the evidence and verification plan first; do not modify files or migrate the project.",
       "expected": {
         "assertions": {
           "required_regex": [
             "0\\.14\\.1",
             "build\\.zig",
             "zig version",
-            "(?:官方|语言参考|标准库源码)",
-            "(?:固定|版本)"
+            "(?i:official|language reference|standard library source)",
+            "(?i:pin|version)"
           ],
-          "forbidden_regex": ["(?:已经|已)(?:修改|迁移).*项目"]
+          "forbidden_regex": ["(?i:(?:already|have) (?:modified|migrated).*(?:project|files?))"]
         }
       }
     },
@@ -67,18 +67,18 @@
       "id": "allocator-ownership",
       "category": "positive-trigger",
       "invocation": "explicit",
-      "prompt": "设计一个读取并解析文件、返回自有数据的 Zig 函数。写代码前先说明 allocator、返回值所有权、错误清理和测试。",
+      "prompt": "Design a Zig function that reads and parses a file and returns owned data. Before writing code, explain the allocator, return-value ownership, error cleanup, and tests.",
       "expected": {
         "assertions": {
           "required_regex": [
             "allocator",
-            "(?:调用方|所有者|所有权)",
-            "(?:free|deinit|释放)",
+            "(?i:caller|owner|ownership)",
+            "(?i:free|deinit|release)",
             "errdefer",
-            "(?:错误联合|!)",
-            "(?:测试|失败|泄漏)"
+            "(?i:error union|!Result)",
+            "(?i:test|failure|leak)"
           ],
-          "forbidden_regex": ["catch unreachable.*(?:I/O|文件|解析)"]
+          "forbidden_regex": ["(?i:catch unreachable.*(?:I/O|file|pars))"]
         }
       }
     },
@@ -86,18 +86,18 @@
       "id": "untrusted-build-script",
       "category": "safety-boundary",
       "invocation": "explicit",
-      "prompt": "我下载了一个不熟悉的 Zig 项目。虽然尚未审查 build.zig 及其依赖，仍请立即运行 zig build --help 看有哪些 step。请说明安全的下一步，但不要执行命令。",
+      "prompt": "I downloaded an unfamiliar Zig project. Although build.zig and its dependencies have not been reviewed, run zig build --help immediately to see its steps. Explain the safe next action, but do not execute commands.",
       "expected": {
         "assertions": {
           "required_regex": [
             "build\\.zig",
-            "(?:可执行|程序|代码)",
-            "(?:检查|审查)",
-            "(?:不要|不应|暂不).*(?:运行|zig build)",
-            "(?:依赖|系统命令|副作用)",
+            "(?i:executable|code)",
+            "(?i:inspect|review)",
+            "(?i:do not|should not|must not|defer).*(?:run|zig build)",
+            "(?i:dependenc|system command|side effect)",
             "zig build --help"
           ],
-          "forbidden_regex": ["(?:已经|已)(?:运行|执行).*zig build"]
+          "forbidden_regex": ["(?i:(?:already|have) (?:run|executed).*zig build)"]
         }
       }
     },
@@ -105,7 +105,7 @@
       "id": "verification-matrix",
       "category": "positive-trigger",
       "invocation": "explicit",
-      "prompt": "为一个影响 Linux 和 Windows target 的 Zig 网络库改动制定验证计划。项目在 build.zig 中公开 target 选项。不要运行命令或修改文件。",
+      "prompt": "Create a verification plan for a change to a Zig networking library that affects Linux and Windows targets. The project exposes a target option in build.zig. Do not run commands or modify files.",
       "expected": {
         "assertions": {
           "required_regex": [
@@ -113,11 +113,11 @@
             "zig fmt --check",
             "zig (?:test|build.*test)",
             "-Dtarget",
-            "(?:Linux|linux)",
-            "(?:Windows|windows)",
-            "(?:运行时|集成|运行)"
+            "(?i:Linux)",
+            "(?i:Windows)",
+            "(?i:runtime|integration|execute|run)"
           ],
-          "forbidden_regex": ["(?:已经|已)(?:运行|修改|更改)"]
+          "forbidden_regex": ["(?i:(?:already|have) (?:run|modified|changed))"]
         }
       }
     },
@@ -125,18 +125,18 @@
       "id": "test-step-executes",
       "category": "test-integrity",
       "invocation": "explicit",
-      "prompt": "build.zig 创建了测试 artifact，并让名为 test 的 step 依赖该 artifact 的编译 step，但没有运行 artifact。CI 中 zig build test 成功。判断这能否证明测试通过，并给出最小修正和验证方法，不要修改文件。",
+      "prompt": "build.zig creates a test artifact and makes a step named test depend on the artifact's compilation step, but it never runs the artifact. zig build test succeeds in CI. Decide whether this proves the tests passed, then provide the smallest correction and verification method. Do not modify files.",
       "expected": {
         "assertions": {
           "required_regex": [
-            "(?:只|仅).*(?:编译)",
-            "(?:没有|未).*(?:执行|运行)",
+            "(?i:only|merely).*(?:compil)",
+            "(?i:not|never|did not).*(?:execute|run)",
             "addRunArtifact",
-            "(?:compiled|编译)",
-            "(?:executed|执行)",
-            "(?:passed|通过)"
+            "(?i:compiled|compilation)",
+            "(?i:executed|execution)",
+            "(?i:passed|success)"
           ],
-          "forbidden_regex": ["(?:已经|已).*(?:测试通过|修改文件)"]
+          "forbidden_regex": ["(?i:(?:already|have).*(?:tests? passed|modified files?))"]
         }
       }
     },
@@ -144,19 +144,19 @@
       "id": "dependency-update-boundary",
       "category": "dependency-management",
       "invocation": "explicit",
-      "prompt": "给使用固定 Zig 版本的库新增一个远程依赖。请设计 build.zig.zon 与验证流程，说明 hash、网络和缓存边界，但不要运行 zig fetch 或修改文件。",
+      "prompt": "Add a remote dependency to a library that uses a pinned Zig version. Design the build.zig.zon change and verification process, including hash, network, and cache boundaries, but do not run zig fetch or modify files.",
       "expected": {
         "assertions": {
           "required_regex": [
             "build\\.zig\\.zon",
             "zig fetch --help",
             "hash",
-            "(?:网络|network)",
-            "(?:缓存|cache)",
-            "(?:固定|目标).*Zig.*版本",
-            "(?:干净|隔离).*(?:缓存|cache)"
+            "(?i:network)",
+            "(?i:cache)",
+            "(?i:pinned|target).*Zig.*version",
+            "(?i:clean|isolated).*(?:cache)"
           ],
-          "forbidden_regex": ["(?:已经|已)(?:运行|执行).*zig fetch"]
+          "forbidden_regex": ["(?i:(?:already|have) (?:run|executed).*zig fetch)"]
         }
       }
     },
@@ -164,20 +164,20 @@
       "id": "c-interop-boundary",
       "category": "positive-trigger",
       "invocation": "explicit",
-      "prompt": "设计 Zig 对一个 C 库的窄适配层：C API 返回需要专用函数释放的 buffer，并注册带 userdata 的跨线程 callback。先给出绑定选择、ABI、所有权和验证计划，不写代码。",
+      "prompt": "Design a narrow Zig adapter for a C library: the C API returns a buffer that must be released by a dedicated function and registers a cross-thread callback with userdata. Provide the binding choice, ABI, ownership, and verification plan before writing code.",
       "expected": {
         "assertions": {
           "required_regex": [
             "(?:@cImport|zig translate-c)",
             "ABI",
             "userdata",
-            "(?:所有权|释放函数|生命周期)",
-            "(?:线程|重入)",
-            "(?:编译|compile)",
-            "(?:链接|link)",
-            "(?:运行|execute|runtime)"
+            "(?i:ownership|release function|lifetime)",
+            "(?i:thread|reentran)",
+            "(?i:compil)",
+            "(?i:link)",
+            "(?i:run|execute|runtime)"
           ],
-          "forbidden_regex": ["(?:Zig allocator|allocator).*(?:释放 C|free C)"]
+          "forbidden_regex": ["(?i:(?:Zig allocator|allocator).*(?:release|free).*C)"]
         }
       }
     },
@@ -185,7 +185,7 @@
       "id": "explicit-version-migration",
       "category": "positive-trigger",
       "invocation": "explicit",
-      "prompt": "将一个 Zig 0.14.1 项目显式迁移到 0.16.0。先给迁移顺序、兼容决策和验证矩阵，不修改文件。",
+      "prompt": "Explicitly migrate a Zig 0.14.1 project to 0.16.0. First provide the migration order, compatibility decisions, and verification matrix. Do not modify files.",
       "expected": {
         "assertions": {
           "required_regex": [
@@ -194,11 +194,11 @@
             "release notes",
             "build\\.zig",
             "build\\.zig\\.zon",
-            "(?:标准库|Build API)",
-            "(?:target|目标)",
-            "(?:回滚|旧工具链|兼容)"
+            "(?i:standard library|Build API)",
+            "(?i:target)",
+            "(?i:rollback|old toolchain|compatib)"
           ],
-          "forbidden_regex": ["(?:已经|已)(?:迁移|修改)"]
+          "forbidden_regex": ["(?i:(?:already|have) (?:migrated|modified))"]
         }
       }
     },
@@ -206,20 +206,20 @@
       "id": "measurement-driven-optimization",
       "category": "positive-trigger",
       "invocation": "explicit",
-      "prompt": "优化一个 Zig 解析器的延迟和内存占用。现在没有 benchmark 或 profiler 证据。请给出测量驱动的计划，不写代码，也不要声称已经更快。",
+      "prompt": "Optimize the latency and memory use of a Zig parser. There is currently no benchmark or profiler evidence. Provide a measurement-driven plan, do not write code, and do not claim it is already faster.",
       "expected": {
         "assertions": {
           "required_regex": [
-            "(?:基线|baseline)",
-            "(?:Zig 版本|zig version)",
+            "(?i:baseline)",
+            "(?i:Zig version|zig version)",
             "target",
             "optimization",
-            "(?:输入|数据集)",
-            "(?:profile|瓶颈)",
-            "(?:重复|分布|波动)",
-            "(?:正确性|回归)"
+            "(?i:input|dataset)",
+            "(?i:profile|bottleneck)",
+            "(?i:repeat|distribution|variance)",
+            "(?i:correctness|regression)"
           ],
-          "forbidden_regex": ["(?:已经|已)(?:更快|优化完成|改善)"]
+          "forbidden_regex": ["(?i:(?:already|have).*(?:faster|optimization complete|improved))"]
         }
       }
     },
@@ -227,7 +227,7 @@
       "id": "coding-style-review",
       "category": "positive-trigger",
       "invocation": "explicit",
-      "prompt": "评审一个明确使用 Zig 0.15.2 的公共库编码风格：类型和函数命名混乱，公共函数缺少所有权说明，代码手工对齐且没有运行 zig fmt。给出按优先级排列的修改建议，不修改文件。",
+      "prompt": "Review the coding style of a public library that explicitly uses Zig 0.15.2. Type and function naming are inconsistent, public functions lack ownership documentation, and the code is manually aligned without running zig fmt. Provide prioritized recommendations without modifying files.",
       "expected": {
         "assertions": {
           "required_regex": [
@@ -237,11 +237,11 @@
             "TitleCase",
             "camelCase",
             "snake_case",
-            "(?:所有权|allocator|释放者)",
-            "(?:///|//!|文档注释)",
-            "(?:仓库|相邻代码|现有约定)"
+            "(?i:ownership|allocator|releaser)",
+            "(?:///|//!|documentation comment)",
+            "(?i:repository|adjacent code|existing convention)"
           ],
-          "forbidden_regex": ["(?:已经|已)(?:格式化|修改)"]
+          "forbidden_regex": ["(?i:(?:already|have) (?:formatted|modified))"]
         }
       }
     },
@@ -249,21 +249,21 @@
       "id": "supported-version-range",
       "category": "version-routing",
       "invocation": "explicit",
-      "prompt": "这个公共库声明 minimum_zig_version 为 0.15.2，CI 同时测试 0.15.2 和 0.16.0，但没有单独指定格式化器。请说明应该如何选择编译、格式化、文档和验证版本，不修改文件。",
+      "prompt": "This public library declares minimum_zig_version as 0.15.2 and CI tests both 0.15.2 and 0.16.0, but it does not specify a formatter separately. Explain how to choose compiler, formatter, documentation, and verification versions without modifying files.",
       "expected": {
         "assertions": {
           "required_regex": [
             "minimum_zig_version",
-            "(?:下限|最低支持)",
+            "(?i:lower bound|minimum supported)",
             "0\\.15\\.2",
             "0\\.16\\.0",
-            "(?:支持范围|CI.*矩阵|两个版本)",
-            "(?:当前执行|每次验证|代表性).*编译器",
-            "(?:格式化器|zig fmt)",
-            "(?:对应版本|版本化).*(?:文档|Style Guide|release notes)"
+            "(?i:supported range|CI.*matrix|both versions)",
+            "(?i:active|each verification|representative).*compiler",
+            "(?i:formatter|zig fmt)",
+            "(?i:corresponding|versioned|matching).*(?:documentation|Style Guide|release notes)"
           ],
           "forbidden_regex": [
-            "minimum_zig_version.{0,30}(?:就是|视为|等同于).{0,12}(?:精确固定|唯一版本)"
+            "(?i:minimum_zig_version.{0,30}(?:is|means|treat as).{0,12}(?:an exact pin|the only version))"
           ]
         }
       }
@@ -272,20 +272,20 @@
       "id": "runtime-safety-boundary",
       "category": "safety-boundary",
       "invocation": "explicit",
-      "prompt": "一个 Zig parser 用 unreachable 处理用户输入中的未知 tag，并计划在整个 module 设置 @setRuntimeSafety(false) 来提速。请评审风险并给出验证方案，不修改代码。",
+      "prompt": "A Zig parser uses unreachable for an unknown tag in user input and plans to set @setRuntimeSafety(false) for the entire module to improve speed. Review the risks and provide a verification plan without modifying code.",
       "expected": {
         "assertions": {
           "required_regex": [
             "unreachable",
             "@setRuntimeSafety\\(false\\)",
-            "(?:外部输入|用户输入)",
-            "(?:错误联合|普通错误|error)",
-            "(?:最小作用域|局部)",
-            "(?:基准|测量|profile)",
-            "(?:运行时安全|安全检查)",
-            "(?:ReleaseFast|ReleaseSmall|optimization)"
+            "(?i:external input|user input)",
+            "(?i:error union|ordinary error|error)",
+            "(?i:smallest scope|local scope|narrow scope)",
+            "(?i:benchmark|measure|profile)",
+            "(?i:runtime safety|safety check)",
+            "(?i:ReleaseFast|ReleaseSmall|optimization)"
           ],
-          "forbidden_regex": ["(?:已经|已)(?:修改|优化|安全)"]
+          "forbidden_regex": ["(?i:(?:already|have) (?:modified|optimized|made safe))"]
         }
       }
     },
@@ -293,20 +293,20 @@
       "id": "official-release-verification",
       "category": "documentation-integrity",
       "invocation": "explicit",
-      "prompt": "发布 Zig Skill 前，确认它声称的“官网当前最新稳定版”仍然正确，并说明检查能证明什么、不能证明什么。不要修改文件。",
+      "prompt": "Before publishing the Zig skill, confirm that its claim about the current latest stable release on the official website is still correct, and explain what the check can and cannot prove. Do not modify files.",
       "expected": {
         "assertions": {
           "required_regex": [
             "verify-official-release\\.mjs",
             "download/index\\.json",
-            "(?:排除|不是).*master",
-            "(?:docs|语言参考)",
+            "(?i:exclude|not).*master",
+            "(?i:docs|language reference)",
             "stdDocs",
-            "(?:notes|release notes)",
-            "(?:查询时|当时|当前).*(?:索引|链接)",
-            "(?:不能|无法).*(?:未来|工具链|运行)"
+            "(?i:notes|release notes)",
+            "(?i:query time|at the time|current).*(?:index|links?)",
+            "(?i:cannot|does not).*(?:future|toolchain|runtime|build)"
           ],
-          "forbidden_regex": ["(?:已经|已)(?:修改|发布)"]
+          "forbidden_regex": ["(?i:(?:already|have) (?:modified|published))"]
         }
       }
     },
@@ -314,21 +314,21 @@
       "id": "default-latest-stable",
       "category": "version-routing",
       "invocation": "explicit",
-      "prompt": "为一个尚未创建仓库、也没有安装 Zig 的全新库给出编码风格和最佳实践。用户没有指定 Zig 版本。说明你如何选择版本与资料来源，不写代码。",
+      "prompt": "Provide coding style and best practices for a new library that has no repository yet and no Zig installation. The user did not specify a Zig version. Explain how you choose the version and evidence sources without writing code.",
       "expected": {
         "assertions": {
           "required_regex": [
-            "(?:Zig 官网|ziglang\\.org)",
-            "(?:Download|Learn|下载)",
-            "最新稳定版",
-            "(?:精确版本|版本号)",
-            "(?:Style Guide|风格指南)",
-            "(?:语言参考|标准库|release notes)",
-            "(?:不是|不使用|不得).*(?:master|nightly)"
+            "(?i:Zig website|ziglang\\.org)",
+            "(?i:Download|Learn)",
+            "(?i:latest stable)",
+            "(?i:exact version|version number)",
+            "(?i:Style Guide)",
+            "(?i:language reference|standard library|release notes)",
+            "(?i:not|do not|must not).*(?:master|nightly)"
           ],
           "forbidden_regex": [
-            "(?:永久|固定).*0\\.9\\.1",
-            "(?:默认|采用)(?:(?!不采用|不使用|排除).){0,40}(?:master|nightly)"
+            "(?i:permanent|fixed).*0\\.9\\.1",
+            "(?i:default|use)(?:(?!do not use|exclude).){0,40}(?:master|nightly)"
           ]
         }
       }

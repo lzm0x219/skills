@@ -1,3 +1,3 @@
-先确认项目固定的 Zig 版本、依赖来源、版本或修订、许可证和预期 module。按该目标 Zig 版本运行帮助检查时应使用 `zig fetch --help`；`build.zig.zon` 字段和 hash 规则属于版本敏感接口，hash 应由目标工具链生成或验证，不能手工猜测。
+First confirm the project's pinned Zig version, dependency source, version or revision, license, and expected module. Use `zig fetch --help` from that target Zig version when checking command help. The `build.zig.zon` fields and hash rules are version-sensitive interfaces, so generate or verify the hash with the target toolchain rather than guessing it manually.
 
-`zig fetch` 可能访问网络、写 cache 或修改 manifest，本轮不执行。获得授权并完成改动后，在隔离或干净 cache 中验证依赖解析，再运行项目测试；不要删除或污染用户的全局缓存。
+`zig fetch` may access the network, write a cache, or modify the manifest, so do not execute it in this response. After authorization and implementation, verify dependency resolution with an isolated or clean cache and then run the project tests. Preserve the user's global cache without deleting or contaminating it.
