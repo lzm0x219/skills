@@ -145,6 +145,28 @@ REQUIRED_CASES_BY_SKILL = {
             "invocation": "explicit",
         },
     },
+    "juanjuan-illustrations": {
+        "plan-only-shot-list": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "single-concept-identity": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "long-domain-direct-single": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "commercial-rights-boundary": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+        "precise-architecture-diagram-out-of-scope": {
+            "category": "out-of-scope",
+            "invocation": "explicit",
+        },
+    },
     "napi-rs": {
         "out-of-scope-direct-answer": {
             "category": "out-of-scope",
