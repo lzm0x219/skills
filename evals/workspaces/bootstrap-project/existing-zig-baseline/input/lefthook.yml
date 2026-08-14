@@ -1,0 +1,9 @@
+pre-commit:
+  parallel: true
+  commands:
+    fmt:
+      glob: "*.zig"
+      run: mise exec -- zig fmt {staged_files}
+      stage_fixed: true
+    test:
+      run: mise exec -- zig build test

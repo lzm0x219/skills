@@ -10,8 +10,9 @@
   "source_assertions": {
     "required_regex": [
       "disable-model-invocation: true",
-      "This slice can apply a new Zig library or CLI",
+      "This slice can apply a new Zig library or CLI.*existing Zig library",
       "scripts/bootstrap_zig.py",
+      "scripts/baseline_existing_zig.py",
       "MISE_TRUSTED_CONFIG_PATHS",
       "create.*merge.*preserve.*conflict",
       "user-specified version, then existing constraint, then current stable",
@@ -82,6 +83,25 @@
             "(?:Status|状态).*completed",
             "(?:initialization|初始化).*(?:complete|completed|完成)"
           ]
+        }
+      }
+    },
+    {
+      "id": "existing-zig-baseline",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "Complete the baseline of this recognized existing Zig library while preserving its source, build graph, and exact versions.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:Status|状态).*completed",
+            "(?:Mode|模式).*existing",
+            "(?:Stack|技术栈).*Zig",
+            "(?:preserved|保留).*(?:source|源码)",
+            "mise run ci",
+            "(?:created|创建).*(?:renovate|Renovate)"
+          ],
+          "forbidden_regex": ["zig init", "(?:moved|renamed|移动|重命名).*(?:src|source|源码)"]
         }
       }
     },

@@ -17,6 +17,7 @@
         "single-package-or-module",
         "conflicts-before-writes",
         "new-zig-target-must-be-empty",
+        "existing-zig-strict-merge-only",
         "no-global-shell-mutation"
       ]
     }

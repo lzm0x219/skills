@@ -1,0 +1,24 @@
+Status: completed
+Target: /tmp/existing-zig
+Mode: existing
+Stack: Zig
+Shape: library
+Versions: preserved exact Zig and Lefthook pins; cross-file constraints agree.
+
+Changes:
+- created: mise.lock, .github/workflows/validate.yml, .github/renovate.json, and the partial-stage guard.
+- modified: only the recognized mise task tables and legacy Lefthook ordering.
+- preserved: source, build graph, README, project layout, and exact version pins.
+
+Conflicts:
+- none.
+
+Verification:
+- mise run ci — passed.
+- before/after preserved source hashes — passed.
+
+Failed command:
+- none.
+
+Next step:
+- none.

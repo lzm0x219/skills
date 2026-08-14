@@ -58,6 +58,10 @@ REQUIRED_CASES_BY_SKILL = {
             "category": "safety-boundary",
             "invocation": "explicit",
         },
+        "existing-zig-baseline": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
         "existing-zig-planning": {
             "category": "positive-trigger",
             "invocation": "explicit",
