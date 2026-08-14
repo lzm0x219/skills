@@ -1,0 +1,26 @@
+Status: completed
+Target: /tmp/sample-go-library
+Mode: new
+Stack: Go
+Shape: library
+Versions: Go and Lefthook use the confirmed exact versions.
+
+Changes:
+- created: module through `go mod init`, library source and tests, mise tasks, Lefthook, CI, and Renovate
+- modified: none
+- preserved: none
+
+Conflicts:
+- none
+
+Verification:
+- gofmt check — passed
+- `go vet ./...` — passed
+- `go test ./...` — passed
+- `mise run ci` — passed
+
+Failed command:
+- none
+
+Next step:
+- none

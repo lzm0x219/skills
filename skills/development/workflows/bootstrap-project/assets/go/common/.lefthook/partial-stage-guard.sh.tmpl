@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+
+partial=$(LC_ALL=C git status --porcelain=v1 --untracked-files=no | awk '
+  substr($0, 1, 1) != " " && substr($0, 2, 1) != " " { print }
+')
+
+if [ -n "$partial" ]; then
+  echo "Refusing to format files that contain both staged and unstaged changes:" >&2
+  echo "$partial" >&2
+  echo "Stage the whole file or separate the unstaged changes, then retry." >&2
+  exit 1
+fi

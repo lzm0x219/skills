@@ -1,0 +1,42 @@
+package main
+
+import (
+	"bytes"
+	"fmt"
+	"os"
+	"os/exec"
+	"strings"
+)
+
+func main() {
+	output, err := exec.Command("git", "diff", "--cached", "--name-only", "--diff-filter=ACMR", "-z").Output()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	var files []string
+	for _, raw := range bytes.Split(output, []byte{0}) {
+		path := string(raw)
+		if path != "" && strings.HasSuffix(path, ".go") {
+			files = append(files, path)
+		}
+	}
+	if len(files) == 0 {
+		return
+	}
+
+	format := exec.Command("gofmt", append([]string{"-w", "--"}, files...)...)
+	format.Stdout = os.Stdout
+	format.Stderr = os.Stderr
+	if err := format.Run(); err != nil {
+		os.Exit(1)
+	}
+
+	stage := exec.Command("git", append([]string{"add", "--"}, files...)...)
+	stage.Stdout = os.Stdout
+	stage.Stderr = os.Stderr
+	if err := stage.Run(); err != nil {
+		os.Exit(1)
+	}
+}

@@ -82,6 +82,18 @@ REQUIRED_CASES_BY_SKILL = {
             "category": "positive-trigger",
             "invocation": "explicit",
         },
+        "new-go-library": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "new-go-cli": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "existing-go-baseline": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
         "new-zig-library": {
             "category": "positive-trigger",
             "invocation": "explicit",

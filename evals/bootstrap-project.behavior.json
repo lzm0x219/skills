@@ -10,12 +10,13 @@
   "source_assertions": {
     "required_regex": [
       "disable-model-invocation: true",
-      "supported new or strictly recognized existing Zig, Rust, TypeScript/Node.js, and Python projects",
+      "supported new or strictly recognized existing Zig, Rust, TypeScript/Node.js, Python, and Go projects",
       "scripts/bootstrap_zig.py",
       "scripts/baseline_existing_zig.py",
       "scripts/bootstrap_rust.py",
       "scripts/bootstrap_node.py",
       "scripts/bootstrap_python.py",
+      "scripts/bootstrap_go.py",
       "MISE_TRUSTED_CONFIG_PATHS",
       "create.*merge.*preserve.*conflict",
       "user-specified version, then existing constraint, then current stable",
@@ -272,6 +273,66 @@
             "uv init",
             "(?:modified|修改).*(?:pyproject.toml|source|源码|uv.lock)"
           ]
+        }
+      }
+    },
+    {
+      "id": "new-go-library",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "Initialize a new Go library with a confirmed module path and exact Go and Lefthook versions.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:Status|状态).*completed",
+            "(?:Mode|模式).*new",
+            "(?:Stack|技术栈).*Go",
+            "(?:Shape|形态).*library",
+            "go mod init",
+            "go test",
+            "mise run ci"
+          ],
+          "forbidden_regex": ["(?:planning-only|仅规划)"]
+        }
+      }
+    },
+    {
+      "id": "new-go-cli",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "Initialize a new Go CLI and verify its thin cmd entry, tested library behavior, and real smoke execution.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:Status|状态).*completed",
+            "(?:Stack|技术栈).*Go",
+            "(?:Shape|形态).*CLI",
+            "cmd/",
+            "go run",
+            "go test",
+            "mise run ci"
+          ],
+          "forbidden_regex": ["(?:planning-only|仅规划)"]
+        }
+      }
+    },
+    {
+      "id": "existing-go-baseline",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "Complete this recognized existing Go module baseline while preserving its module path, source files, tests, and package layout.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:Status|状态).*completed",
+            "(?:Mode|模式).*existing",
+            "(?:Stack|技术栈).*Go",
+            "(?:preserved|保留).*(?:module path|模块路径|go.mod)",
+            "(?:preserved|保留).*(?:source|源码)",
+            "go mod tidy -diff",
+            "mise run ci"
+          ],
+          "forbidden_regex": ["go mod init", "(?:modified|修改).*(?:go.mod|source|源码)"]
         }
       }
     },

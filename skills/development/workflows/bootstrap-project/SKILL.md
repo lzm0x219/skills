@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Bootstrap Project
 
-Prepare a deterministic project-bootstrap plan while preserving user-owned work. This slice can apply supported new or strictly recognized existing Zig, Rust, TypeScript/Node.js, and Python projects. Go remains planning-only until its adapter is available.
+Prepare a deterministic project-bootstrap plan while preserving user-owned work. This slice can apply supported new or strictly recognized existing Zig, Rust, TypeScript/Node.js, Python, and Go projects.
 
 ## Establish the target boundary
 
@@ -111,7 +111,11 @@ For Python, read [python.md](references/python.md) completely before applying. U
 
 The Python adapter invokes official uv initialization in new mode, preserves its recognized package boundary, and then applies the complete library or thin-CLI template. It uses uv for locking and frozen execution, Ruff for formatting and linting, strict mypy, pytest, and build. Existing mode never rewrites `pyproject.toml`, `.python-version`, `uv.lock`, sources, tests, README, or the package layout.
 
-For Go or an unsupported existing Zig, Rust, TypeScript/Node.js, or Python shape, return the plan and state that the matching apply adapter is not yet available. Never improvise an unsupported scaffold.
+For Go, read [go.md](references/go.md) completely before applying. Use `scripts/bootstrap_go.py` for a new or strictly recognized existing single-module Go library or CLI/application. New mode requires an absent or empty target, a valid module path and project name, plus exact Go and Lefthook versions. Existing mode requires a recognized `go.mod`, repository-local Git metadata, source and tests, one library package or one `cmd/<name>` thin entry plus testable library package, no workspace or nested module, and only absent or byte-identical baseline destinations.
+
+The Go adapter invokes official `go mod init` in new mode and preserves module metadata and package layout in existing mode. It runs a read-only tidy diff, formatting check, vet, tests, and build under the exact mise-managed Go toolchain. It sets `GOTOOLCHAIN=local` and `GOWORK=off` so toolchain and workspace discovery cannot silently expand the selected boundary.
+
+For an unsupported existing Zig, Rust, TypeScript/Node.js, Python, or Go shape, return the plan and state that the matching apply adapter is not yet available. Never improvise an unsupported scaffold.
 
 ## Verify and report
 
@@ -131,6 +135,8 @@ For Rust, also verify that `Cargo.toml`, mise, and any preserved toolchain file 
 For TypeScript/Node.js, also verify that `package.json`, mise, and `pnpm-lock.yaml` agree on exact Node, pnpm, and local dependency versions; package modules are ESM; Oxfmt check, Oxlint, strict `tsc --noEmit`, Vitest, and build all passed; and no rejected formatter, linter, or test runner was generated. A CLI keeps behavior outside its thin `src/cli.ts` entry. Existing mode must report preserved sources, scripts, README, compatible configs, and package layout.
 
 For Python, also verify that `.python-version`, `pyproject.toml`, mise, and `uv.lock` agree on exact Python, uv, build backend, and development dependency versions; locked sync, Ruff format check, Ruff lint, strict mypy, pytest, and build all passed; and `.venv`, caches, or build artifacts are not tracked. A library includes `py.typed`; a CLI keeps tested behavior outside the thin `cli.py` boundary. Existing mode must report preserved metadata, lockfile, sources, tests, README, and package layout.
+
+For Go, also verify that `go.mod`, mise, and any toolchain directive agree on the exact Go version; module tidy diff, format check, vet, test, and build all passed; `GOTOOLCHAIN=local` and `GOWORK=off` are active; and no executable or cache is tracked. A CLI keeps tested behavior outside its single `cmd/<name>` entry. Existing mode must report preserved module path, module metadata, sources, tests, README, and package layout.
 
 Return this compact result:
 
