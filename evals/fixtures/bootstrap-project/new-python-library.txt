@@ -1,0 +1,27 @@
+Status: completed
+Target: /tmp/sample-python-library
+Mode: new
+Stack: Python
+Shape: library
+Versions: Python, uv, build, mypy, pytest, Ruff, and Lefthook use the confirmed exact versions.
+
+Changes:
+- created: package skeleton through `uv init --lib`, `uv.lock`, `py.typed`, mise tasks, Lefthook, CI, and Renovate
+- modified: recognized uv initializer output only
+- preserved: none
+
+Conflicts:
+- none
+
+Verification:
+- Ruff format check — passed
+- Ruff lint — passed
+- strict mypy — passed
+- pytest — passed
+- `mise run ci` — passed
+
+Failed command:
+- none
+
+Next step:
+- none

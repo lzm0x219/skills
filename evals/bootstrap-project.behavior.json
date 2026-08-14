@@ -10,11 +10,12 @@
   "source_assertions": {
     "required_regex": [
       "disable-model-invocation: true",
-      "supported new or strictly recognized existing Zig, Rust, and TypeScript/Node.js projects",
+      "supported new or strictly recognized existing Zig, Rust, TypeScript/Node.js, and Python projects",
       "scripts/bootstrap_zig.py",
       "scripts/baseline_existing_zig.py",
       "scripts/bootstrap_rust.py",
       "scripts/bootstrap_node.py",
+      "scripts/bootstrap_python.py",
       "MISE_TRUSTED_CONFIG_PATHS",
       "create.*merge.*preserve.*conflict",
       "user-specified version, then existing constraint, then current stable",
@@ -205,6 +206,71 @@
           "forbidden_regex": [
             "(?:replaced|覆盖).*(?:package.json|tsconfig)",
             "(?:modified|修改).*(?:source|源码)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "new-python-library",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "Initialize a new packaged Python library with exact Python, uv, Ruff, mypy, pytest, build, and Lefthook versions.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:Status|状态).*completed",
+            "(?:Mode|模式).*new",
+            "(?:Stack|技术栈).*Python",
+            "(?:Shape|形态).*library",
+            "uv init --lib",
+            "uv.lock",
+            "Ruff",
+            "mypy",
+            "pytest",
+            "mise run ci"
+          ],
+          "forbidden_regex": ["(?:planning-only|仅规划)"]
+        }
+      }
+    },
+    {
+      "id": "new-python-cli",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "Initialize a new packaged Python CLI and verify its thin entry point and pytest smoke test.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:Status|状态).*completed",
+            "(?:Stack|技术栈).*Python",
+            "(?:Shape|形态).*CLI",
+            "cli.py",
+            "core.py",
+            "pytest",
+            "mise run ci"
+          ],
+          "forbidden_regex": ["(?:planning-only|仅规划)"]
+        }
+      }
+    },
+    {
+      "id": "existing-python-baseline",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "Complete this recognized existing uv-managed Python library baseline while preserving metadata, lockfile, sources, tests, and package layout.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:Status|状态).*completed",
+            "(?:Mode|模式).*existing",
+            "(?:Stack|技术栈).*Python",
+            "(?:preserved|保留).*(?:pyproject.toml|metadata|元数据)",
+            "(?:preserved|保留).*(?:source|源码)",
+            "mise run ci"
+          ],
+          "forbidden_regex": [
+            "uv init",
+            "(?:modified|修改).*(?:pyproject.toml|source|源码|uv.lock)"
           ]
         }
       }

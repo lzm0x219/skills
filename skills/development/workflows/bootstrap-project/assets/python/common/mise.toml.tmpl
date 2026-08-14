@@ -1,0 +1,55 @@
+[settings]
+lockfile = true
+lockfile_platforms = ["linux-x64", "linux-arm64", "macos-x64", "macos-arm64"]
+
+[tools]
+python = "{{PYTHON_VERSION}}"
+uv = "{{UV_VERSION}}"
+lefthook = "{{LEFTHOOK_VERSION}}"
+
+[env]
+PYTHONDONTWRITEBYTECODE = "1"
+UV_NO_PROGRESS = "1"
+UV_PYTHON = { value = "{{ tools.python.path }}", tools = true }
+
+[hooks]
+postinstall = "python .lefthook/install_python.py"
+
+[tasks.install]
+description = "Synchronize every dependency group from uv.lock"
+run = "uv sync --locked --all-groups"
+
+[tasks.format]
+description = "Format Python sources with Ruff"
+run = "uv run --locked ruff format --no-cache ."
+
+[tasks.format-check]
+description = "Check Python formatting without changing sources"
+run = "uv run --locked ruff format --check --no-cache ."
+
+[tasks.lint]
+description = "Lint Python sources with Ruff"
+run = "uv run --locked ruff check --no-cache ."
+
+[tasks.check]
+description = "Type-check package and tests with mypy"
+run = "uv run --locked mypy --cache-dir=/dev/null src tests"
+
+[tasks.test]
+description = "Run pytest without a project cache"
+run = "uv run --locked pytest -p no:cacheprovider"
+
+[tasks.build]
+description = "Build the source distribution and wheel"
+run = "uv run --locked python -m build --installer=uv"
+
+[tasks.ci]
+description = "Run the complete project quality gate"
+run = [
+  { task = "install" },
+  { task = "format-check" },
+  { task = "lint" },
+  { task = "check" },
+  { task = "test" },
+  { task = "build" },
+]

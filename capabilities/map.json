@@ -21,6 +21,8 @@
         "rust-cargo-structure-preserved",
         "node-esm-package-structure-preserved",
         "node-rejected-tool-migrations-blocked",
+        "python-pep621-src-layout-preserved",
+        "python-alternative-tool-migrations-blocked",
         "no-global-shell-mutation"
       ]
     }

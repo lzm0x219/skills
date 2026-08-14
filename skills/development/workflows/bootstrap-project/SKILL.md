@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Bootstrap Project
 
-Prepare a deterministic project-bootstrap plan while preserving user-owned work. This slice can apply supported new or strictly recognized existing Zig, Rust, and TypeScript/Node.js projects. Python and Go remain planning-only until their adapters are available.
+Prepare a deterministic project-bootstrap plan while preserving user-owned work. This slice can apply supported new or strictly recognized existing Zig, Rust, TypeScript/Node.js, and Python projects. Go remains planning-only until its adapter is available.
 
 ## Establish the target boundary
 
@@ -107,7 +107,11 @@ For TypeScript/Node.js, read [node.md](references/node.md) completely before app
 
 The TypeScript/Node.js adapter owns the complete library/CLI template because the official runtime and compiler do not provide one unified scaffold. It preserves existing sources, scripts, README, and compatible configuration; creates a frozen pnpm lockfile; and runs Oxfmt, Oxlint, strict `tsc --noEmit`, Vitest, and TypeScript emit through local exact dependencies. It never generates Prettier, ESLint, typescript-eslint, or `node:test` configuration, dependencies, or commands.
 
-For Python, Go, or an unsupported existing Zig, Rust, or TypeScript/Node.js shape, return the plan and state that the matching apply adapter is not yet available. Never improvise an unsupported scaffold.
+For Python, read [python.md](references/python.md) completely before applying. Use `scripts/bootstrap_python.py` for a new or strictly recognized existing single-package Python library or CLI/application. New mode requires an absent or empty target plus exact Python, uv, build, mypy, pytest, Ruff, and Lefthook versions. Existing mode requires PEP 621 metadata, exact Python and uv constraints, a recognized `src` package and pytest layout, repository-local Git metadata, a current `uv.lock`, no alternative manager or quality-tool migration, and only absent or byte-identical baseline destinations.
+
+The Python adapter invokes official uv initialization in new mode, preserves its recognized package boundary, and then applies the complete library or thin-CLI template. It uses uv for locking and frozen execution, Ruff for formatting and linting, strict mypy, pytest, and build. Existing mode never rewrites `pyproject.toml`, `.python-version`, `uv.lock`, sources, tests, README, or the package layout.
+
+For Go or an unsupported existing Zig, Rust, TypeScript/Node.js, or Python shape, return the plan and state that the matching apply adapter is not yet available. Never improvise an unsupported scaffold.
 
 ## Verify and report
 
@@ -125,6 +129,8 @@ After a completed adapter run, verify from the report and target that:
 For Rust, also verify that `Cargo.toml`, mise, and any preserved toolchain file agree on the exact Rust version; `Cargo.lock` exists; rustfmt, Clippy, check, test, and build all passed with `--locked` where applicable; library tests use `#[cfg(test)]`; and CLI logic is outside the thin entry point. Existing mode must report no unexpected Cargo, source, README, or project-layout mutation.
 
 For TypeScript/Node.js, also verify that `package.json`, mise, and `pnpm-lock.yaml` agree on exact Node, pnpm, and local dependency versions; package modules are ESM; Oxfmt check, Oxlint, strict `tsc --noEmit`, Vitest, and build all passed; and no rejected formatter, linter, or test runner was generated. A CLI keeps behavior outside its thin `src/cli.ts` entry. Existing mode must report preserved sources, scripts, README, compatible configs, and package layout.
+
+For Python, also verify that `.python-version`, `pyproject.toml`, mise, and `uv.lock` agree on exact Python, uv, build backend, and development dependency versions; locked sync, Ruff format check, Ruff lint, strict mypy, pytest, and build all passed; and `.venv`, caches, or build artifacts are not tracked. A library includes `py.typed`; a CLI keeps tested behavior outside the thin `cli.py` boundary. Existing mode must report preserved metadata, lockfile, sources, tests, README, and package layout.
 
 Return this compact result:
 

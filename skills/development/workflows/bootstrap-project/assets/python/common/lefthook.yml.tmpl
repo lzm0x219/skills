@@ -1,0 +1,11 @@
+pre-commit:
+  piped: true
+  jobs:
+    - name: partial-stage-guard
+      run: .lefthook/partial-stage-guard.sh
+    - name: format-staged-python
+      run: mise exec -- python .lefthook/format_staged_python.py
+    - name: lint-project-python
+      run: mise run lint
+    - name: type-check-project
+      run: mise run check
