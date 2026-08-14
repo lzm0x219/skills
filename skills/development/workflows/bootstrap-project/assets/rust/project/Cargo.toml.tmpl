@@ -1,0 +1,15 @@
+[package]
+name = "{{PROJECT_NAME}}"
+version = "0.1.0"
+edition = "2024"
+rust-version = "{{RUST_VERSION}}"
+readme = "README.md"
+
+[lints.clippy]
+correctness = "deny"
+suspicious = "warn"
+style = "warn"
+complexity = "warn"
+perf = "warn"
+
+[dependencies]

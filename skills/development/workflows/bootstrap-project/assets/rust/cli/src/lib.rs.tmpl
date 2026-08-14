@@ -1,0 +1,17 @@
+#![doc = include_str!("../README.md")]
+
+/// Returns the CLI greeting.
+#[must_use]
+pub const fn message() -> &'static str {
+    "Hello from {{PROJECT_NAME}}."
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn message_returns_the_cli_greeting() {
+        assert_eq!(message(), "Hello from {{PROJECT_NAME}}.");
+    }
+}

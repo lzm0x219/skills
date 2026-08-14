@@ -1,0 +1,44 @@
+[settings]
+lockfile = true
+lockfile_platforms = ["linux-x64", "linux-arm64", "macos-x64", "macos-arm64"]
+
+[tools]
+rust = "{{RUST_VERSION}}"
+lefthook = "{{LEFTHOOK_VERSION}}"
+
+[hooks]
+postinstall = "lefthook install --force"
+
+[tasks.format]
+description = "Format Rust sources"
+run = "cargo fmt --all"
+
+[tasks.format-check]
+description = "Check Rust formatting without changing sources"
+run = "cargo fmt --all --check"
+
+[tasks.lint]
+description = "Run Clippy for every target and feature"
+run = "cargo clippy --locked --all-targets --all-features -- -D warnings"
+
+[tasks.check]
+description = "Compile every target and feature"
+run = "cargo check --locked --all-targets --all-features"
+
+[tasks.test]
+description = "Execute every test target and feature"
+run = "cargo test --locked --all-targets --all-features"
+
+[tasks.build]
+description = "Build every target and feature"
+run = "cargo build --locked --all-targets --all-features"
+
+[tasks.ci]
+description = "Run the complete project quality gate"
+run = [
+  { task = "format-check" },
+  { task = "lint" },
+  { task = "check" },
+  { task = "test" },
+  { task = "build" },
+]

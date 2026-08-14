@@ -1,0 +1,17 @@
+#![doc = include_str!("../README.md")]
+
+/// Adds two signed integers.
+#[must_use]
+pub const fn add(left: i32, right: i32) -> i32 {
+    left + right
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn add_returns_the_sum_of_both_operands() {
+        assert_eq!(add(2, 3), 5);
+    }
+}

@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Bootstrap Project
 
-Prepare a deterministic project-bootstrap plan while preserving user-owned work. This slice can apply a new Zig library or CLI to an absent or empty target, or complete the baseline of a strictly recognized existing Zig library. Other stacks remain planning-only until their adapters are available.
+Prepare a deterministic project-bootstrap plan while preserving user-owned work. This slice can apply supported new or strictly recognized existing Zig and Rust projects. TypeScript/Node.js, Python, and Go remain planning-only until their adapters are available.
 
 ## Establish the target boundary
 
@@ -73,7 +73,7 @@ The planned version priority is user-specified version, then existing constraint
 
 Complete this step only when every prospective write is classified and every conflict has a precise decision request.
 
-## Apply a supported Zig plan
+## Apply a supported plan
 
 For a new project, apply only when all of these are true:
 
@@ -99,7 +99,11 @@ For an existing Zig project, apply only when all of these are true:
 
 Read [zig-existing.md](references/zig-existing.md) completely before applying. Use `scripts/baseline_existing_zig.py`; do not rerun `zig init`, move source, rewrite the build graph, or replace unknown configuration. The adapter only performs strict structural additions and the one recognized legacy Lefthook migration.
 
-For a non-Zig stack or an existing Zig shape outside that strict boundary, return the plan and state that the matching apply adapter is not yet available. Never improvise an unsupported scaffold.
+For Rust, read [rust.md](references/rust.md) completely before applying. Use `scripts/bootstrap_rust.py` for a new library or CLI, or for a strictly recognized existing single-package Rust library or CLI. New mode requires an absent or empty target, an exact Rust version, and an exact Lefthook version. Existing mode requires an exact Cargo `rust-version`, edition 2024, repository-local Git metadata, a recognized source shape, no alternative tool manager, and only absent or byte-identical baseline destinations.
+
+The Rust adapter uses official `cargo init --vcs none`, keeps small source trees flat, gives a CLI a thin `main.rs` and testable `lib.rs`, preserves existing Cargo and source files, and runs rustfmt, Clippy, check, test, and build through locked Cargo commands. It never runs `cargo fmt` during initialization.
+
+For TypeScript/Node.js, Python, Go, or an unsupported existing Zig or Rust shape, return the plan and state that the matching apply adapter is not yet available. Never improvise an unsupported scaffold.
 
 ## Verify and report
 
@@ -113,6 +117,8 @@ After a completed adapter run, verify from the report and target that:
 - The Ubuntu workflow pins actions by full commit SHA and calls only `mise run ci`;
 - `.github/renovate.json` exists without automerge or lockfile maintenance;
 - Git has no commit.
+
+For Rust, also verify that `Cargo.toml`, mise, and any preserved toolchain file agree on the exact Rust version; `Cargo.lock` exists; rustfmt, Clippy, check, test, and build all passed with `--locked` where applicable; library tests use `#[cfg(test)]`; and CLI logic is outside the thin entry point. Existing mode must report no unexpected Cargo, source, README, or project-layout mutation.
 
 Return this compact result:
 

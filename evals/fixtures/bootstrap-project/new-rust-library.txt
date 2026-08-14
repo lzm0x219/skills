@@ -1,0 +1,18 @@
+Status: completed
+Target: /tmp/rust-library
+Mode: new
+Stack: Rust
+Shape: library
+Versions: exact confirmed Rust and Lefthook pins.
+
+Changes:
+- created: Cargo library, smoke test, lockfiles, mise tasks, hooks, CI, and Renovate.
+- modified: only known cargo init output.
+- preserved: official cargo init boundary.
+
+Verification:
+- mise run ci — passed.
+- cargo test --locked --all-targets --all-features — passed.
+
+Failed command:
+- none.

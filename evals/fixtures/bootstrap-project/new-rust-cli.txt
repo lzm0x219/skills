@@ -1,0 +1,18 @@
+Status: completed
+Target: /tmp/rust-cli
+Mode: new
+Stack: Rust
+Shape: CLI/application
+Versions: exact confirmed Rust and Lefthook pins.
+
+Changes:
+- created: thin main.rs, testable lib.rs, Cargo.lock, mise tasks, hooks, CI, and Renovate.
+- modified: only known cargo init output.
+- preserved: official cargo init boundary.
+
+Verification:
+- cargo test --locked --all-targets --all-features — passed.
+- mise run ci — passed.
+
+Failed command:
+- none.

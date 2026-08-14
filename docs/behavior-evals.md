@@ -99,6 +99,8 @@ The deterministic `existing-zig-baseline` fixture is exercised by `tests/test_bo
 - New Zig library and CLI completion reports backed by the packaged adapter
 - Zig verification failure reported as partial with the exact failed command
 - Existing Ziwei-style Zig baseline completion and idempotent strict merging
+- New Rust library and CLI completion with Cargo, rustfmt, and Clippy gates
+- Existing Rust baseline completion with preserved Cargo and source files
 - Existing Zig project inventory and planning without target writes
 - Ambiguous stack and monorepo target boundaries
 - Volta and Husky migration conflicts
