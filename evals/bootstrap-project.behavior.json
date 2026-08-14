@@ -17,7 +17,8 @@
       "scripts/bootstrap_node.py",
       "scripts/bootstrap_python.py",
       "scripts/bootstrap_go.py",
-      "MISE_TRUSTED_CONFIG_PATHS",
+      "read exactly one stack reference completely",
+      "references/reporting.md",
       "create.*merge.*preserve.*conflict",
       "user-specified version, then existing constraint, then current stable",
       "Never describe inspection or planning as successful initialization"

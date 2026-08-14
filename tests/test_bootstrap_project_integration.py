@@ -61,6 +61,31 @@ HOOK_HELPERS = {
 
 
 class BootstrapProjectIntegrationTests(unittest.TestCase):
+    def test_skill_entrypoint_uses_progressive_disclosure(self) -> None:
+        source = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+        self.assertLessEqual(len(source.splitlines()), 100)
+        self.assertIn("read exactly one stack reference completely", source)
+        for reference in (
+            "stack-evidence.md",
+            "zig.md",
+            "zig-existing.md",
+            "rust.md",
+            "node.md",
+            "python.md",
+            "go.md",
+            "reporting.md",
+        ):
+            self.assertIn(f"(references/{reference})", source)
+        for disclosed_detail in (
+            "MISE_TRUSTED_CONFIG_PATHS",
+            "cargo init",
+            "pnpm-lock.yaml",
+            "uv.lock",
+            "GOTOOLCHAIN",
+            "addRunArtifact",
+        ):
+            self.assertNotIn(disclosed_detail, source)
+
     def test_every_stack_exposes_the_same_public_task_contract(self) -> None:
         for stack in STACKS:
             with self.subTest(stack=stack):
