@@ -1,0 +1,39 @@
+[tasks.format]
+description = "Format Zig sources"
+run = "zig fmt build.zig src"
+
+[tasks.format-check]
+description = "Check Zig formatting without changing sources"
+run = "zig fmt --check build.zig src"
+
+[tasks.lint]
+description = "Run Zig AST checks"
+run = """
+set -eu
+zig ast-check build.zig
+for file in src/*.zig; do
+  zig ast-check "$file"
+done
+"""
+
+[tasks.check]
+description = "Compile library tests without running them"
+run = "zig test --test-no-exec -fno-emit-bin src/root.zig"
+
+[tasks.test]
+description = "Compile and execute project tests"
+run = "zig build test"
+
+[tasks.build]
+description = "Run the existing Zig build graph"
+run = "zig build"
+
+[tasks.ci]
+description = "Run the complete project quality gate"
+run = [
+  { task = "format-check" },
+  { task = "lint" },
+  { task = "check" },
+  { task = "test" },
+  { task = "build" },
+]

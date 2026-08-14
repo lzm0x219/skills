@@ -43,8 +43,8 @@ When you are unsure whether to use a skill, start with the boundaries below. Exp
 
 **[`bootstrap-project`](skills/development/workflows/bootstrap-project/SKILL.md)** · `$bootstrap-project` · manual invocation only
 
-- **Good for:** creating a new single-package Zig library or CLI, or planning a safe scaffold and development baseline for other supported targets
-- **Current boundary:** applies only to absent or empty Zig targets; existing projects and other stacks remain planning-only
+- **Good for:** creating a new single-package Zig library or CLI, strictly completing a recognized existing Zig library baseline, or planning other supported targets
+- **Current boundary:** applies to absent or empty Zig targets and recognized Ziwei-style existing Zig libraries; other stacks remain planning-only
 
 When `napi-rs`, `zig`, and `mise` need exact APIs, CLI flags, target support, backends, or release flows, they return to the current official docs instead of treating skill-time knowledge as permanent fact.
 

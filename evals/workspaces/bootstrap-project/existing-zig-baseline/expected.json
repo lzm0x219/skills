@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "changes": {
+    "created": [
+      ".github/renovate.json",
+      ".github/workflows/validate.yml",
+      ".lefthook/partial-stage-guard.sh",
+      "mise.lock"
+    ],
+    "modified": ["lefthook.yml", "mise.toml"],
+    "deleted": []
+  },
+  "preserved": ["README.md", "build.zig", "build.zig.zon", "src/root.zig"],
+  "versions": {
+    "zig": "0.16.0",
+    "lefthook": "2.1.10"
+  }
+}

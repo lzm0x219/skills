@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Bootstrap Project
 
-Prepare a deterministic project-bootstrap plan while preserving user-owned work. This slice can apply a new Zig library or CLI to an absent or empty target. Existing projects and other stacks remain planning-only until their adapters are available.
+Prepare a deterministic project-bootstrap plan while preserving user-owned work. This slice can apply a new Zig library or CLI to an absent or empty target, or complete the baseline of a strictly recognized existing Zig library. Other stacks remain planning-only until their adapters are available.
 
 ## Establish the target boundary
 
@@ -73,9 +73,9 @@ The planned version priority is user-specified version, then existing constraint
 
 Complete this step only when every prospective write is classified and every conflict has a precise decision request.
 
-## Apply a supported new Zig plan
+## Apply a supported Zig plan
 
-Apply only when all of these are true:
+For a new project, apply only when all of these are true:
 
 - The user requested initialization rather than a plan-only inspection;
 - The mode is `new`, the stack is Zig, and the shape is `library` or `CLI`;
@@ -89,7 +89,17 @@ The adapter initializes Git without creating a commit, runs the official Zig ini
 
 Do not apply when the target becomes non-empty after inventory, an initializer output is unfamiliar, or any command fails. Do not delete partial output automatically. Use the report as the evidence boundary and surface the exact failed command.
 
-For an existing project or a non-Zig stack, return the plan and state that the matching apply adapter is not yet available. Never improvise an unsupported scaffold.
+For an existing Zig project, apply only when all of these are true:
+
+- The user requested baseline completion rather than plan-only inspection;
+- The target is the exact root of a single-package Zig library and an existing Git repository;
+- `mise.toml` pins exact Zig and Lefthook versions, and Zig agrees with `build.zig.zon` and any existing `mise.lock`;
+- `build.zig` proves that its `test` step uses `addRunArtifact`;
+- There is no alternative environment or hook manager, unrecognized hook entry, custom hooks path, unknown Lefthook behavior, conflicting mise task, or unknown destination file.
+
+Read [zig-existing.md](references/zig-existing.md) completely before applying. Use `scripts/baseline_existing_zig.py`; do not rerun `zig init`, move source, rewrite the build graph, or replace unknown configuration. The adapter only performs strict structural additions and the one recognized legacy Lefthook migration.
+
+For a non-Zig stack or an existing Zig shape outside that strict boundary, return the plan and state that the matching apply adapter is not yet available. Never improvise an unsupported scaffold.
 
 ## Verify and report
 
