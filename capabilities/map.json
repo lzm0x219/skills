@@ -19,6 +19,8 @@
         "new-zig-target-must-be-empty",
         "existing-zig-strict-merge-only",
         "rust-cargo-structure-preserved",
+        "node-esm-package-structure-preserved",
+        "node-rejected-tool-migrations-blocked",
         "no-global-shell-mutation"
       ]
     }

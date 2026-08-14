@@ -43,8 +43,8 @@ When you are unsure whether to use a skill, start with the boundaries below. Exp
 
 **[`bootstrap-project`](skills/development/workflows/bootstrap-project/SKILL.md)** · `$bootstrap-project` · manual invocation only
 
-- **Good for:** creating new Zig or Rust libraries/CLIs, strictly completing recognized existing Zig or Rust baselines, or planning other supported targets
-- **Current boundary:** applies to supported single-package Zig and Rust targets; TypeScript/Node.js, Python, and Go remain planning-only
+- **Good for:** creating new Zig, Rust, or TypeScript/Node.js libraries/CLIs, strictly completing their recognized existing baselines, or planning other supported targets
+- **Current boundary:** applies to supported single-package Zig, Rust, and ESM TypeScript/Node.js targets; Python and Go remain planning-only
 
 When `napi-rs`, `zig`, and `mise` need exact APIs, CLI flags, target support, backends, or release flows, they return to the current official docs instead of treating skill-time knowledge as permanent fact.
 

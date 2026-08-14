@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Bootstrap Project
 
-Prepare a deterministic project-bootstrap plan while preserving user-owned work. This slice can apply supported new or strictly recognized existing Zig and Rust projects. TypeScript/Node.js, Python, and Go remain planning-only until their adapters are available.
+Prepare a deterministic project-bootstrap plan while preserving user-owned work. This slice can apply supported new or strictly recognized existing Zig, Rust, and TypeScript/Node.js projects. Python and Go remain planning-only until their adapters are available.
 
 ## Establish the target boundary
 
@@ -75,7 +75,7 @@ Complete this step only when every prospective write is classified and every con
 
 ## Apply a supported plan
 
-For a new project, apply only when all of these are true:
+For a new Zig project, apply only when all of these are true:
 
 - The user requested initialization rather than a plan-only inspection;
 - The mode is `new`, the stack is Zig, and the shape is `library` or `CLI`;
@@ -103,13 +103,17 @@ For Rust, read [rust.md](references/rust.md) completely before applying. Use `sc
 
 The Rust adapter uses official `cargo init --vcs none`, keeps small source trees flat, gives a CLI a thin `main.rs` and testable `lib.rs`, preserves existing Cargo and source files, and runs rustfmt, Clippy, check, test, and build through locked Cargo commands. It never runs `cargo fmt` during initialization.
 
-For TypeScript/Node.js, Python, Go, or an unsupported existing Zig or Rust shape, return the plan and state that the matching apply adapter is not yet available. Never improvise an unsupported scaffold.
+For TypeScript/Node.js, read [node.md](references/node.md) completely before applying. Use `scripts/bootstrap_node.py` for a new or strictly recognized existing single-package ESM TypeScript library or CLI/application. New mode requires an absent or empty target plus exact Node LTS, pnpm, TypeScript, `@types/node`, Oxfmt, Oxlint, Vitest, and Lefthook versions. Existing mode requires exact package constraints or matching explicit versions, repository-local Git metadata, recognized ESM sources and Vitest tests, no alternative manager or quality-tool migration, and only safe structured package metadata additions.
+
+The TypeScript/Node.js adapter owns the complete library/CLI template because the official runtime and compiler do not provide one unified scaffold. It preserves existing sources, scripts, README, and compatible configuration; creates a frozen pnpm lockfile; and runs Oxfmt, Oxlint, strict `tsc --noEmit`, Vitest, and TypeScript emit through local exact dependencies. It never generates Prettier, ESLint, typescript-eslint, or `node:test` configuration, dependencies, or commands.
+
+For Python, Go, or an unsupported existing Zig, Rust, or TypeScript/Node.js shape, return the plan and state that the matching apply adapter is not yet available. Never improvise an unsupported scaffold.
 
 ## Verify and report
 
 After a completed adapter run, verify from the report and target that:
 
-- All seven mise tasks exist and `mise.lock` records the exact Zig and Lefthook versions;
+- Every public task required by the selected stack exists and `mise.lock` records its exact managed tool versions;
 - `build.zig.zon`, `mise.toml`, and the CI toolchain agree on the Zig version;
 - The test build step uses `addRunArtifact`, and `mise run ci` completed;
 - Lefthook is installed and orders the partial-stage guard, staged formatter and restage, staged lint, then quick check without parallel execution;
@@ -119,6 +123,8 @@ After a completed adapter run, verify from the report and target that:
 - Git has no commit.
 
 For Rust, also verify that `Cargo.toml`, mise, and any preserved toolchain file agree on the exact Rust version; `Cargo.lock` exists; rustfmt, Clippy, check, test, and build all passed with `--locked` where applicable; library tests use `#[cfg(test)]`; and CLI logic is outside the thin entry point. Existing mode must report no unexpected Cargo, source, README, or project-layout mutation.
+
+For TypeScript/Node.js, also verify that `package.json`, mise, and `pnpm-lock.yaml` agree on exact Node, pnpm, and local dependency versions; package modules are ESM; Oxfmt check, Oxlint, strict `tsc --noEmit`, Vitest, and build all passed; and no rejected formatter, linter, or test runner was generated. A CLI keeps behavior outside its thin `src/cli.ts` entry. Existing mode must report preserved sources, scripts, README, compatible configs, and package layout.
 
 Return this compact result:
 

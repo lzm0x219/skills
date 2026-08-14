@@ -1,0 +1,50 @@
+[settings]
+lockfile = true
+lockfile_platforms = ["linux-x64", "linux-arm64", "macos-x64", "macos-arm64"]
+
+[tools]
+node = "{{NODE_VERSION}}"
+pnpm = "{{PNPM_VERSION}}"
+lefthook = "{{LEFTHOOK_VERSION}}"
+
+[hooks]
+postinstall = "node .lefthook/install-node.mjs"
+
+[tasks.install]
+description = "Install dependencies from the frozen pnpm lockfile"
+run = "pnpm install --frozen-lockfile"
+
+[tasks.format]
+description = "Format project files with Oxfmt"
+run = "pnpm exec oxfmt"
+
+[tasks.format-check]
+description = "Check project formatting without changing files"
+run = "pnpm exec oxfmt --check"
+
+[tasks.lint]
+description = "Lint JavaScript and TypeScript with Oxlint"
+run = "pnpm exec oxlint --deny-warnings --vitest-plugin ."
+
+[tasks.check]
+description = "Type-check the project without emitting files"
+run = "pnpm exec tsc --noEmit -p tsconfig.json"
+
+[tasks.test]
+description = "Run the Vitest suite once"
+run = "pnpm exec vitest run"
+
+[tasks.build]
+description = "Build JavaScript and declarations with TypeScript"
+run = "pnpm exec tsc -p tsconfig.build.json"
+
+[tasks.ci]
+description = "Run the complete project quality gate"
+run = [
+  { task = "install" },
+  { task = "format-check" },
+  { task = "lint" },
+  { task = "check" },
+  { task = "test" },
+  { task = "build" },
+]
