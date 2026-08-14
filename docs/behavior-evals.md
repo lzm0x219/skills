@@ -103,6 +103,8 @@ The deterministic `existing-zig-baseline` fixture is exercised by `tests/test_bo
 - Existing Rust baseline completion with preserved Cargo and source files
 - New ESM TypeScript/Node.js library and CLI completion with pnpm, Oxc, strict TypeScript, and Vitest gates
 - Existing TypeScript/Node.js baseline completion with preserved sources, package scripts, and compatible configuration
+- New packaged Python library and CLI completion with uv, Ruff, strict mypy, pytest, and build gates
+- Existing Python baseline completion with preserved metadata, lockfile, sources, tests, and package layout
 - Existing Zig project inventory and planning without target writes
 - Ambiguous stack and monorepo target boundaries
 - Volta and Husky migration conflicts

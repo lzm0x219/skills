@@ -1,0 +1,24 @@
+Status: completed
+Target: /tmp/sample-python-cli
+Mode: new
+Stack: Python
+Shape: CLI
+Versions: Python, uv, build, mypy, pytest, Ruff, and Lefthook use the confirmed exact versions.
+
+Changes:
+- created: packaged CLI skeleton with thin `cli.py`, tested `core.py`, `uv.lock`, mise tasks, Lefthook, CI, and Renovate
+- modified: recognized uv initializer output only
+- preserved: none
+
+Conflicts:
+- none
+
+Verification:
+- pytest smoke test — passed
+- `mise run ci` — passed
+
+Failed command:
+- none
+
+Next step:
+- none

@@ -70,6 +70,18 @@ REQUIRED_CASES_BY_SKILL = {
             "category": "positive-trigger",
             "invocation": "explicit",
         },
+        "new-python-library": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "new-python-cli": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "existing-python-baseline": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
         "new-zig-library": {
             "category": "positive-trigger",
             "invocation": "explicit",

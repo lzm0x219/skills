@@ -1,0 +1,25 @@
+Status: completed
+Target: /workspace/existing-python-library
+Mode: existing
+Stack: Python
+Shape: library
+Versions: exact Python, uv, build backend, and development dependency constraints agreed with mise and `uv.lock`.
+
+Changes:
+- created: missing baseline, CI, Renovate, and hook files
+- modified: none
+- preserved: `pyproject.toml` metadata, `.python-version`, `uv.lock`, source files, tests, README, and package layout
+
+Conflicts:
+- none
+
+Verification:
+- `uv lock --check` — passed
+- `mise run ci` — passed
+- existing metadata, lockfile, source, and test hashes — passed
+
+Failed command:
+- none
+
+Next step:
+- none

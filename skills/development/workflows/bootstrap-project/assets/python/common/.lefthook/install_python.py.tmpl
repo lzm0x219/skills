@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+
+import subprocess
+from pathlib import Path
+
+installed = subprocess.run(["lefthook", "install", "--force"], check=False)
+if installed.returncode != 0:
+    raise SystemExit(installed.returncode)
+
+git_path = subprocess.run(
+    ["git", "rev-parse", "--git-path", "hooks"],
+    check=False,
+    capture_output=True,
+    text=True,
+)
+if git_path.returncode != 0:
+    raise SystemExit(git_path.returncode)
+
+hook = Path(git_path.stdout.strip()).resolve() / "pre-commit"
+generated = 'call_lefthook run "pre-commit" "$@"'
+safe = 'call_lefthook run "pre-commit" --no-stage-fixed "$@"'
+source = hook.read_text(encoding="utf-8")
+
+if safe in source:
+    raise SystemExit(0)
+if generated not in source:
+    raise SystemExit("Lefthook pre-commit output changed; refusing an unknown patch.")
+
+hook.write_text(source.replace(generated, safe), encoding="utf-8")

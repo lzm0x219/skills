@@ -95,32 +95,83 @@
 
 ## Python
 
-### 官方事实
+### 核对日版本快照
 
-- Python 官网核对日最新稳定 bugfix release 是 **3.14.7**（2026-08-05）；3.15 仍为 pre-release。[Python downloads](https://www.python.org/downloads/)
-- 标准库 `python -m venv .venv` 创建虚拟环境目录、解释器链接/副本、`pyvenv.cfg` 和 site-packages；它不是项目源码脚手架。Python 3.13 起还默认在环境目录创建 Git `.gitignore`。[`venv`](https://docs.python.org/3.14/library/venv.html)
-- PyPA 官方 Packaging Tutorial 要求建立 `pyproject.toml`、README、license、`src/<package>/` 与 tests，并明确必须选择 build backend；教程默认演示 Hatchling，也列出 Setuptools、Flit、PDM 等，未指定唯一官方 backend。[Packaging Python Projects](https://packaging.python.org/en/latest/tutorials/packaging-projects/) · [Writing `pyproject.toml`](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/)
-- `python -m build` 是 PyPA 教程的标准 build frontend 调用，会在 `dist/` 产生 sdist 和 wheel；`build` package 与实际 build backend 都不是 Python 标准库。[Packaging Python Projects](https://packaging.python.org/en/latest/tutorials/packaging-projects/)
-- 标准库 `python -m unittest` 等价于 discovery，默认匹配 `test*.py` 并导入测试模块后执行测试。[`unittest`](https://docs.python.org/3/library/unittest.html)
-- Python runtime 不强制函数/变量类型注解，官方 `typing` 文档明确把静态检查交给第三方 type checker。[`typing`](https://docs.python.org/3/library/typing.html)
+| 工具   | 最新稳定版 | 发布日期（UTC） | 工具自身的 Python 要求                                                                                                                                                                                                                                          |
+| ------ | ---------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Python | 3.14.7     | 2026-08-05      | 不适用；3.15 仍是 pre-release。[Python 3.14.7](https://www.python.org/downloads/release/python-3147/)                                                                                                                                                           |
+| uv     | 0.12.4     | 2026-08-13      | PyPI distribution 声明 `>=3.8`；官方同时提供 standalone installer。[release](https://github.com/astral-sh/uv/releases/tag/0.12.4) · [PyPI JSON](https://pypi.org/pypi/uv/0.12.4/json) · [installation](https://docs.astral.sh/uv/getting-started/installation/) |
+| Ruff   | 0.16.3     | 2026-08-13      | PyPI distribution 声明 `>=3.7`；官方同时提供 standalone installer。[release](https://github.com/astral-sh/ruff/releases/tag/0.16.3) · [PyPI JSON](https://pypi.org/pypi/ruff/0.16.3/json) · [installation](https://docs.astral.sh/ruff/installation/)           |
+| mypy   | 2.3.0      | 2026-07-13      | `>=3.10`。[PyPI JSON](https://pypi.org/pypi/mypy/2.3.0/json)                                                                                                                                                                                                    |
+| pytest | 9.1.1      | 2026-06-19      | `>=3.10`。[PyPI JSON](https://pypi.org/pypi/pytest/9.1.1/json)                                                                                                                                                                                                  |
+| build  | 1.5.0      | 2026-04-30      | `>=3.10`。[PyPI JSON](https://pypi.org/pypi/build/1.5.0/json)                                                                                                                                                                                                   |
 
-### 必须做出的生态工具选择
+`build` 1.5.1 虽然后来上传，但两个 distributions 都已被 yanked，官方理由是包含可能应作为新 major 发布的 breaking changes，因此“最新可选稳定版”仍应解析为 1.5.0。[build 1.5.1 PyPI JSON](https://pypi.org/pypi/build/1.5.1/json)
 
-- Python 标准库没有 project initializer、formatter、linter、静态 type checker 或统一 build backend；至少要分别确定项目生成/依赖管理、format/lint、typing、build backend。
-- `uv init` 是 Astral 维护的生态入口，可创建 application（默认）、packaged application（`--package`）或 library（`--lib`），但不属于 Python/PSF 标准库；选它会同时引入 uv 的 environment、lockfile 和 build backend 约定。[uv Creating projects](https://docs.astral.sh/uv/concepts/projects/init/)
-- Ruff 是生态 formatter/linter：`ruff format` 改写，`ruff format --check` 只检查；`ruff check` lint，`ruff check --fix` 改写。Ruff 默认使用 `.ruff_cache`，可用 `--no-cache` 避免项目缓存。[Ruff formatter](https://docs.astral.sh/ruff/formatter/) · [Ruff linter](https://docs.astral.sh/ruff/linter/) · [Ruff configuration](https://docs.astral.sh/ruff/configuration/)
-- mypy 是一种第三方静态 type checker，而不是 Python 官方唯一选择。[mypy Getting Started](https://mypy.readthedocs.io/en/stable/getting_started.html)
+以上开发工具均可运行在 Python 3.14.7。版本号只是核对日快照；初始化器仍应按“用户指定 → 既有仓库约束 → 当日官方稳定来源”解析并精确记录，而不是永久依赖这张表。
 
-### 文件副作用
+### `uv init` 的结构与副作用
 
-- **修改项目文件/目录：** `python -m venv .venv`、`python -m build`、`uv init`、`uv sync`、`ruff format`、`ruff check --fix`。
-- **源码只读但默认可能写缓存：** `python -m unittest` 可因 module import 写 `__pycache__`；Ruff 默认写 `.ruff_cache`；mypy 默认写 cache；build/test code 自身也可能有副作用。
-- **更接近 CI 源码只读：** `PYTHONDONTWRITEBYTECODE=1 python -m unittest`、`ruff format --check --no-cache .`、`ruff check --no-cache .`、静态 type checker 的无 cache/外置 cache 配置。依赖同步需使用所选工具的 frozen/locked 模式；例如 uv 提供 `uv lock --check` 与 `uv sync --locked`。[uv locking](https://docs.astral.sh/uv/concepts/projects/sync/)
+- `uv init` 是 Astral 维护的生态入口，不是 Python/PSF 标准库。当前 uv 0.12 的 application 已改为**默认 packaged**：`uv init --app <path>`（`--app` 可省略）生成 `.python-version`、README、`pyproject.toml` 和 `src/<module>/__init__.py`，并写入 `[project.scripts]` 与 `uv_build` build system；0.12 以前 application 默认没有 build system。[uv Creating projects](https://docs.astral.sh/uv/concepts/projects/init/)
+- `uv init --lib <path>` 创建 packaged library，使用同样的 `src/` layout，并额外生成 `py.typed`；library 不能使用 unpackaged 形态。`uv init --no-package <path>` 才创建没有 build system 的 application，源码入口是顶层 `main.py`。[uv Creating projects](https://docs.astral.sh/uv/concepts/projects/init/)
+- `uv init --bare <path>` 只写 `pyproject.toml`，不会生成 README、`.python-version`、源码树或 Git repository；若需要完全控制模板，这是最小副作用入口。[uv Creating projects: minimal project](https://docs.astral.sh/uv/concepts/projects/init/#creating-a-minimal-project)
+- 普通 `uv init` 默认初始化 Git；`--vcs none` 可明确关闭。目标已有 `pyproject.toml` 时命令直接失败，因此既有模式不能把 `uv init` 当作结构化 merger。[uv CLI: `uv init`](https://docs.astral.sh/uv/reference/cli/#uv-init)
+- `--python 3.14.7` 选择用于推导最低支持版本的解释器；默认 `.python-version` 只记录发现到的 **minor** version。因此 `.python-version` 不能代替 `mise.toml` 中的 exact patch pin。[uv CLI: `--python`](https://docs.astral.sh/uv/reference/cli/#uv-init--python) · [`--no-pin-python`](https://docs.astral.sh/uv/reference/cli/#uv-init--no-pin-python)
+- uv 0.12.4 默认生成 `uv_build>=0.12.4,<0.13`，这是 backend compatibility range，不是 exact build-backend pin。若项目要求构建后端也完全可复现，需另行固定 `[build-system].requires` 或为 build frontend 提供 constraints，不能把 `uv.lock` 的存在当作 build isolation 已锁定。[uv Creating projects](https://docs.astral.sh/uv/concepts/projects/init/) · [uv build constraints](https://docs.astral.sh/uv/concepts/projects/build/#build-constraints)
+
+### Lock、环境、运行与构建命令
+
+- `uv lock` 解析依赖并创建或更新 `uv.lock`；`uv lock --check` 只核对 lockfile 是否存在且与 project metadata 一致，过期或缺失时失败。它不会仅因 registry 出现新版本就把 lockfile 判为过期。[uv Locking and syncing](https://docs.astral.sh/uv/concepts/projects/sync/#checking-the-lockfile)
+- `uv sync` 在需要时先 lock，再创建或更新项目根目录的 `.venv`。默认是 exact sync，会移除 lockfile 以外的包；`dev` group 默认包含，`--all-groups` 明确包含所有 dependency groups。`uv sync --locked --all-groups` 要求 `uv.lock` 存在且最新，失败时不更新 lockfile；`--frozen` 反而跳过一致性检查，可能忽略尚未进入 lockfile 的 `pyproject.toml` 变更，所以 CI 应优先 `--locked`。[uv Locking and syncing](https://docs.astral.sh/uv/concepts/projects/sync/)
+- `uv run` 会在运行命令前自动 lock 和 sync，并在环境缺失时创建 `.venv`；它的 sync 默认是 inexact。`uv run --locked ...` 阻止隐式 lockfile 更新；若已先成功执行 locked sync，可追加 `--no-sync` 避免每个门禁重复同步，但该选项会隐含 `--frozen`，不能替代前置的 `uv lock --check` / `uv sync --locked`。[uv Running commands](https://docs.astral.sh/uv/concepts/projects/run/) · [uv CLI: `--no-sync`](https://docs.astral.sh/uv/reference/cli/#uv-run--no-sync)
+- `uv build` 调用 `[build-system]` 声明的 backend，默认先建 sdist、再从 sdist 建 wheel，并把两个 artifacts 写入 `dist/`。它没有 `--locked`；`--no-sources` 仅表示解析时忽略 `tool.uv.sources`、按可发布 metadata 验证，并不锁定 build requirements。[uv Building distributions](https://docs.astral.sh/uv/concepts/projects/build/) · [uv CLI: `--no-sources`](https://docs.astral.sh/uv/reference/cli/#uv-build--no-sources)
+- PyPA `build` 的可靠入口是 `python -m build`：默认同样先建 sdist、再从 sdist 建 wheel，写入 `dist/`，并创建临时 isolated build environment；`--installer=uv` 只切换 build dependency installer。采用本节精确 dev dependency 时可运行 `uv run --locked python -m build --installer=uv`，但 isolated backend requirements 仍受 `[build-system]` / build constraints 控制，而不是 dev group 的 `uv.lock`。[build Basic Usage](https://build.pypa.io/en/latest/how-to/basic-usage.html) · [build CLI](https://build.pypa.io/en/latest/reference/cli.html)
+
+推荐的 Ubuntu CI 门禁顺序是：
+
+```sh
+uv lock --check
+uv sync --locked --all-groups
+uv run --locked ruff format --check --no-cache .
+uv run --locked ruff check --no-cache .
+uv run --locked mypy --cache-dir=/dev/null src tests
+PYTHONDONTWRITEBYTECODE=1 uv run --locked python -m pytest -p no:cacheprovider
+uv run --locked python -m build --installer=uv
+```
+
+- `ruff format` 会改写源码；`ruff format --check` 只报告会变化的文件并在有差异时返回 1。`ruff check` 默认只报告 lint，`--fix` 才改写；`--no-cache` 关闭 cache 使用。[Ruff formatter](https://docs.astral.sh/ruff/formatter/#exit-codes) · [Ruff linter](https://docs.astral.sh/ruff/linter/) · [Ruff CLI configuration](https://docs.astral.sh/ruff/configuration/)
+- mypy 默认读取并写 `.mypy_cache`；仅 `--no-incremental` 仍会写 cache。Ubuntu CI 可用 `--cache-dir=/dev/null` 禁止写入，Windows 对应 `--cache-dir=nul`。[mypy command line: incremental mode](https://mypy.readthedocs.io/en/stable/command_line.html#incremental-mode)
+- pytest 默认发现 `test_*.py` / `*_test.py`；`python -m pytest` 与 `pytest` 几乎等价，但会把当前目录加入 `sys.path`。默认 `cacheprovider` 会写 `.pytest_cache`，可用 `-p no:cacheprovider` 禁用；`PYTHONDONTWRITEBYTECODE=1` 避免 import 写 `__pycache__`。这些选项不能限制测试代码本身的副作用。[pytest invocation](https://docs.pytest.org/en/stable/how-to/usage.html) · [pytest cache](https://docs.pytest.org/en/stable/how-to/cache.html)
+
+### GitHub Actions 与 mise 锁定建议
+
+- 项目既然由 mise 管理环境，`mise.toml` 应 exact pin `python = "3.14.7"` 与 `uv = "0.12.4"`，并可设置 `UV_PYTHON = { value = "{{ tools.python.path }}", tools = true }`，让 uv 明确使用 mise 管理的解释器。存在 `uv.lock` 时，mise 也能识别 uv 项目及其 `.venv`，但自动创建/激活环境是可选设置，不应替代显式 locked sync。[mise Python](https://mise.jdx.dev/lang/python.html)
+- workflow 可沿用单一 setup path：`actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1`，再用 `jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5`、显式 `version: 2026.8.5` 安装项目工具，最后只调用串行的 `mise run ci`。这避免再用另一 action 重复安装 uv。[mise CI](https://mise.jdx.dev/continuous-integration.html) · [mise-action v4.2.5](https://github.com/jdx/mise-action/releases/tag/v4.2.5)
+- 若未来放弃 mise 管理 uv，Astral 官方推荐 `setup-uv`；核对日最新是 `astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0`，并应另设 `version: "0.12.4"`。这只是替代方案，不应与 mise path 同时生成。[uv GitHub Actions guide](https://docs.astral.sh/uv/guides/integration/github/) · [setup-uv v10.0.0](https://github.com/astral-sh/setup-uv/releases/tag/v10.0.0)
+
+### Renovate 的 PEP 621 与 uv 支持
+
+- Renovate 的 `pep621` manager 默认匹配 `pyproject.toml`，通过 PyPI datasource 提取 `requires-python`、`project.dependencies`、optional dependencies、PEP 735 `dependency-groups`、`build-system.requires` 与 `tool.uv.*`。[Renovate `pep621` manager](https://docs.renovatebot.com/modules/manager/pep621/)
+- 仓库存在 `uv.lock` 时，Renovate 能识别 uv，更新正式、可选和开发依赖，并同时更新 `pyproject.toml` 与 `uv.lock`。`pep621` manager 也支持对 `uv.lock` 做 lockfile maintenance；该功能默认关闭，不是启用 uv dependency updates 的前提。[uv Renovate guide](https://docs.astral.sh/uv/guides/integration/renovate/) · [Renovate lock file maintenance](https://docs.renovatebot.com/modules/manager/pep621/#lock-file-maintenance)
+- 首版 `.github/renovate.json` 仍可使用通用 `config:recommended`、semantic commits 与 `dependencies` label，不启用 automerge、auto-approve 或 lockfile maintenance；Python 的 `pyproject.toml` / `uv.lock` 不需要额外 custom manager。
+
+### 文件副作用总结
+
+| 操作                                     | 可预期副作用                                                                                           |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `uv init`                                | 写 project metadata、README、Python pin 与源码；默认还创建 Git repository，除非使用 `--vcs none`       |
+| `uv lock`                                | 创建或更新 `uv.lock`；`uv lock --check` 不更新                                                         |
+| `uv sync`                                | 可能更新 lockfile；创建/更新 `.venv` 和 uv cache；exact sync 默认移除环境中的 extraneous packages      |
+| `uv run`                                 | 默认在执行任意项目命令前 lock/sync；被执行代码可有任意副作用                                           |
+| `ruff format` / `ruff check --fix`       | 改写源码；check-only 命令不改源码，但默认 cache 策略仍需单独控制                                       |
+| mypy / pytest                            | 默认分别写 `.mypy_cache`、`.pytest_cache`，import 还可能写 `__pycache__`；测试代码本身可产生任意副作用 |
+| `uv build` / `python -m build`           | 写 `dist/`，创建临时 build environment/cache，并可能下载、构建和执行 backend requirements              |
+| `jdx/mise-action` / `astral-sh/setup-uv` | 下载工具并写 runner tool/cache directories；二者应二选一                                               |
 
 ### 对 Skill 的建议
 
-- 项目形态必须先确认：script/application、packaged CLI/application、library 的结构和 build 要求不同。
-- 若首版采用 uv + Ruff + 某一 type checker，应明确标为 Skill 的**有意生态基线**，不能表述为 Python 官方默认；build backend 同样应由项目形态或用户选择决定。
+- 项目形态必须先确认：packaged application/CLI、unpackaged application、library 的结构与 build 要求不同。首版若只承诺 library 与 CLI，应把两者都映射到 uv 0.12 的 packaged templates，并为生成源码补真实 pytest smoke test。
+- uv、Ruff、mypy、pytest 与 build 都是 Skill 的**有意生态基线**，不能表述为 Python 官方默认。既有项目若已采用 Poetry、PDM、Hatch、Black、Pyright 等方案，应在写入前进入 migration conflict，而不是静默并存。
 
 ## Go
 
