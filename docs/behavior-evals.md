@@ -98,6 +98,7 @@ The dated five-stack evidence, platform limits, and tool side effects are record
 `bootstrap-project` covers:
 
 - Manual invocation metadata and explicit-only behavior cases
+- Progressive disclosure from the shared workflow into one selected stack reference and the final reporting contract
 - New Zig library and CLI completion reports backed by the packaged adapter
 - Zig verification failure reported as partial with the exact failed command
 - Existing Ziwei-style Zig baseline completion and idempotent strict merging

@@ -6,164 +6,67 @@ disable-model-invocation: true
 
 # Bootstrap Project
 
-Prepare a deterministic project-bootstrap plan while preserving user-owned work. This slice can apply supported new or strictly recognized existing Zig, Rust, TypeScript/Node.js, Python, and Go projects.
+Prepare a deterministic project-bootstrap plan while preserving user-owned work. Apply supported new or strictly recognized existing Zig, Rust, TypeScript/Node.js, Python, and Go projects only through the packaged adapters.
 
-## Establish the target boundary
+## Run the workflow
 
-Resolve the exact target directory first. Read every applicable repository instruction file whose scope includes that directory.
+### 1. Establish the target boundary
 
-Accept only these v1 boundaries:
+Resolve the absolute target and read every repository instruction that applies to it. Accept one language, one package or module, and either a library or CLI/application shape. Require an exact subproject for a monorepo. Treat Git and mise as host prerequisites without changing global shell configuration.
 
-- One language and one package or module;
-- Zig, Rust, TypeScript/Node.js, Python, or Go;
-- A library or CLI/application shape;
-- A new target or an existing project that needs its baseline completed.
+Complete this step when the target, repository boundary, requested outcome, and applicable instructions are explicit.
 
-Require the user to name the target subproject when the directory is a monorepo. Treat Git and mise as host prerequisites; report their absence without changing global shell configuration.
+### 2. Inventory without writing
 
-## Inventory before deciding
+Inspect manifests, source layout, tests, lockfiles, Git state, CI, quality tools, build commands, version constraints, environment managers, and hook systems. Record staged and unstaged changes without modifying the index.
 
-Use read-only inspection to record:
+When stack or shape evidence is incomplete, read [stack-evidence.md](references/stack-evidence.md). Ask one concise question when ambiguity would change the plan. Treat conflicting stack evidence or an unnamed monorepo target as unresolved.
 
-- Existing manifests, source layout, tests, lockfiles, repository instructions, CI, formatter, linter, type or compile checks, and build commands;
-- Git state, including staged and unstaged changes, without modifying the index;
-- Runtime and tool versions declared by the user or repository;
-- Existing environment managers and hook systems, including asdf, Volta, Husky, and pre-commit;
-- Evidence of multiple packages, modules, languages, or project shapes.
+Complete this step when every detected fact is recorded or marked unknown.
 
-When the user did not explicitly provide the stack or shape, read [stack-evidence.md](references/stack-evidence.md). Ask one concise question when the evidence is ambiguous or a missing answer would change the plan. Do not infer a single target from conflicting evidence.
+### 3. Resolve mode, stack, shape, and versions
 
-Complete this step only when every detected project fact is either recorded or called out as unknown.
+Classify an absent or intentionally empty target as `new`; otherwise classify it as `existing` and preserve its source layout. Resolve versions by user-specified version, then existing constraint, then current stable from an authoritative source checked on the execution date.
 
-## Resolve mode, stack, shape, and versions
+Treat these as blocking conflicts:
 
-Resolve facts in this order:
+- Multiple credible stacks, packages, or modules;
+- A service, Web, GUI, framework, multi-language, or multi-package request;
+- An alternative to mise or Lefthook that requires migration;
+- Disagreeing version constraints;
+- Unknown configuration that cannot be merged without discarding content.
 
-1. Use an explicit user choice.
-2. Otherwise use one unambiguous existing project constraint.
-3. Otherwise use the current stable release verified from an authoritative source at execution time.
+Complete this step when mode, stack, shape, version evidence, and every conflict have an explicit value.
 
-Classify the mode as `new` only for an absent or intentionally empty target. Otherwise classify it as `existing` and preserve its source layout.
+### 4. Build the change plan
 
-Treat any of these as a blocking conflict:
+Classify each relevant path once as `create`, `merge`, `preserve`, or `conflict`. Cover the code skeleton, scaffold smoke test, exact version pins, mise tasks, Lefthook, GitHub Actions, `.github/renovate.json`, README, ignore rules, EditorConfig, dependency and lockfile operations, Git initialization, hook installation, and verification.
 
-- More than one credible stack or package boundary;
-- A monorepo without an exact target subproject;
-- An existing alternative to mise or Lefthook that would require migration;
-- Cross-file version constraints that disagree;
-- An existing file that cannot be merged structurally without discarding unknown content;
-- A requested service, Web, GUI, framework, multi-language, or multi-package shape.
+For each proposed change, record its evidence, path, operation, command or content responsibility, and verification. Represent an unsupported quality gate explicitly instead of generating an empty successful task.
 
-Complete this step only when mode, stack, shape, version source, and every conflict have an evidence-backed value.
+Complete this step when every prospective write is classified and each conflict has a precise decision request.
 
-## Build the change plan
+### 5. Route and apply
 
-Classify every operation as `create`, `merge`, `preserve`, or `conflict`.
+After mode and stack are resolved, read exactly one stack reference completely:
 
-Assign every relevant path exactly one operation:
+| Branch             | Reference                                     | Packaged adapter                   |
+| ------------------ | --------------------------------------------- | ---------------------------------- |
+| New Zig            | [zig.md](references/zig.md)                   | `scripts/bootstrap_zig.py`         |
+| Existing Zig       | [zig-existing.md](references/zig-existing.md) | `scripts/baseline_existing_zig.py` |
+| Rust               | [rust.md](references/rust.md)                 | `scripts/bootstrap_rust.py`        |
+| TypeScript/Node.js | [node.md](references/node.md)                 | `scripts/bootstrap_node.py`        |
+| Python             | [python.md](references/python.md)             | `scripts/bootstrap_python.py`      |
+| Go                 | [go.md](references/go.md)                     | `scripts/bootstrap_go.py`          |
 
-- `create`: the path is absent and can be added without replacing user content;
-- `merge`: the path has a known structure and each preserved field is identified;
-- `preserve`: the path or behavior already satisfies the requirement or is outside scope;
-- `conflict`: a user decision is required before any write.
+Use the selected adapter and its assets instead of reproducing generated files from memory. Apply only when the user requested initialization, the selected reference accepts the target, and the plan has no conflicts. Return `planned` for plan-only requests or unsupported shapes.
 
-Cover the prospective code skeleton, smoke test, exact version pins, mise tasks, Lefthook, GitHub Actions, `.github/renovate.json`, README, ignore rules, EditorConfig, dependency installation, lockfile generation, Git initialization, hook installation, and verification. For each item, name the evidence, intended path, operation, proposed command or content responsibility, and verification command. Do not use an empty task as a placeholder for an unsupported gate.
+Stop at the first write or command failure. Retain partial output and the adapter report for diagnosis; preserve user-owned files and unrelated work.
 
-The planned version priority is user-specified version, then existing constraint, then current stable from an authoritative source. Record the source and the date checked whenever the last branch is used.
+Complete this step when the adapter has returned a report, or when a supported reason prevented apply.
 
-Complete this step only when every prospective write is classified and every conflict has a precise decision request.
+### 6. Verify and report
 
-## Apply a supported plan
+After the selected adapter finishes or apply is skipped, read [reporting.md](references/reporting.md) completely. Combine its common result contract with the completion gates in the selected stack reference.
 
-For a new Zig project, apply only when all of these are true:
-
-- The user requested initialization rather than a plan-only inspection;
-- The mode is `new`, the stack is Zig, and the shape is `library` or `CLI`;
-- The exact target is absent or empty, the plan has no conflicts, and the project name is a valid lowercase Zig identifier;
-- Git and mise are available on the host;
-- Exact Zig and Lefthook versions have been resolved and their evidence recorded.
-
-Read [zig.md](references/zig.md) completely before applying. Use the packaged `scripts/bootstrap_zig.py` adapter and assets; do not reproduce the files from memory or invoke `zig init` separately. Give `--report` a fresh path outside the target.
-
-The adapter initializes Git without creating a commit, runs the official Zig initializer in an isolated project-name directory, preserves its package fingerprint, installs the exact mise tools and local hooks, and runs `mise run ci`. It scopes `MISE_TRUSTED_CONFIG_PATHS` to adapter children and the repository-local hook process; do not modify persistent mise trust or global shell configuration.
-
-Do not apply when the target becomes non-empty after inventory, an initializer output is unfamiliar, or any command fails. Do not delete partial output automatically. Use the report as the evidence boundary and surface the exact failed command.
-
-For an existing Zig project, apply only when all of these are true:
-
-- The user requested baseline completion rather than plan-only inspection;
-- The target is the exact root of a single-package Zig library and an existing Git repository;
-- `mise.toml` pins exact Zig and Lefthook versions, and Zig agrees with `build.zig.zon` and any existing `mise.lock`;
-- `build.zig` proves that its `test` step uses `addRunArtifact`;
-- There is no alternative environment or hook manager, unrecognized hook entry, custom hooks path, unknown Lefthook behavior, conflicting mise task, or unknown destination file.
-
-Read [zig-existing.md](references/zig-existing.md) completely before applying. Use `scripts/baseline_existing_zig.py`; do not rerun `zig init`, move source, rewrite the build graph, or replace unknown configuration. The adapter only performs strict structural additions and the one recognized legacy Lefthook migration.
-
-For Rust, read [rust.md](references/rust.md) completely before applying. Use `scripts/bootstrap_rust.py` for a new library or CLI, or for a strictly recognized existing single-package Rust library or CLI. New mode requires an absent or empty target, an exact Rust version, and an exact Lefthook version. Existing mode requires an exact Cargo `rust-version`, edition 2024, repository-local Git metadata, a recognized source shape, no alternative tool manager, and only absent or byte-identical baseline destinations.
-
-The Rust adapter uses official `cargo init --vcs none`, keeps small source trees flat, gives a CLI a thin `main.rs` and testable `lib.rs`, preserves existing Cargo and source files, and runs rustfmt, Clippy, check, test, and build through locked Cargo commands. It never runs `cargo fmt` during initialization.
-
-For TypeScript/Node.js, read [node.md](references/node.md) completely before applying. Use `scripts/bootstrap_node.py` for a new or strictly recognized existing single-package ESM TypeScript library or CLI/application. New mode requires an absent or empty target plus exact Node LTS, pnpm, TypeScript, `@types/node`, Oxfmt, Oxlint, Vitest, and Lefthook versions. Existing mode requires exact package constraints or matching explicit versions, repository-local Git metadata, recognized ESM sources and Vitest tests, no alternative manager or quality-tool migration, and only safe structured package metadata additions.
-
-The TypeScript/Node.js adapter owns the complete library/CLI template because the official runtime and compiler do not provide one unified scaffold. It preserves existing sources, scripts, README, and compatible configuration; creates a frozen pnpm lockfile; and runs Oxfmt, Oxlint, strict `tsc --noEmit`, Vitest, and TypeScript emit through local exact dependencies. It never generates Prettier, ESLint, typescript-eslint, or `node:test` configuration, dependencies, or commands.
-
-For Python, read [python.md](references/python.md) completely before applying. Use `scripts/bootstrap_python.py` for a new or strictly recognized existing single-package Python library or CLI/application. New mode requires an absent or empty target plus exact Python, uv, build, mypy, pytest, Ruff, and Lefthook versions. Existing mode requires PEP 621 metadata, exact Python and uv constraints, a recognized `src` package and pytest layout, repository-local Git metadata, a current `uv.lock`, no alternative manager or quality-tool migration, and only absent or byte-identical baseline destinations.
-
-The Python adapter invokes official uv initialization in new mode, preserves its recognized package boundary, and then applies the complete library or thin-CLI template. It uses uv for locking and frozen execution, Ruff for formatting and linting, strict mypy, pytest, and build. Existing mode never rewrites `pyproject.toml`, `.python-version`, `uv.lock`, sources, tests, README, or the package layout.
-
-For Go, read [go.md](references/go.md) completely before applying. Use `scripts/bootstrap_go.py` for a new or strictly recognized existing single-module Go library or CLI/application. New mode requires an absent or empty target, a valid module path and project name, plus exact Go and Lefthook versions. Existing mode requires a recognized `go.mod`, repository-local Git metadata, source and tests, one library package or one `cmd/<name>` thin entry plus testable library package, no workspace or nested module, and only absent or byte-identical baseline destinations.
-
-The Go adapter invokes official `go mod init` in new mode and preserves module metadata and package layout in existing mode. It runs a read-only tidy diff, formatting check, vet, tests, and build under the exact mise-managed Go toolchain. It sets `GOTOOLCHAIN=local` and `GOWORK=off` so toolchain and workspace discovery cannot silently expand the selected boundary.
-
-For an unsupported existing Zig, Rust, TypeScript/Node.js, Python, or Go shape, return the plan and state that the matching apply adapter is not yet available. Never improvise an unsupported scaffold.
-
-## Verify and report
-
-After a completed adapter run, verify from the report and target that:
-
-- Every public task required by the selected stack exists and `mise.lock` records its exact managed tool versions;
-- `build.zig.zon`, `mise.toml`, and the CI toolchain agree on the Zig version;
-- The test build step uses `addRunArtifact`, and `mise run ci` completed;
-- Lefthook is installed and orders the partial-stage guard, staged formatter and restage, staged lint, then quick check without parallel execution;
-- Pre-commit excludes the full test and build tasks;
-- The Ubuntu workflow pins actions by full commit SHA and calls only `mise run ci`;
-- `.github/renovate.json` exists without automerge and with lockfile maintenance explicitly disabled;
-- Git has no commit.
-
-For Rust, also verify that `Cargo.toml`, mise, and any preserved toolchain file agree on the exact Rust version; `Cargo.lock` exists; rustfmt, Clippy, check, test, and build all passed with `--locked` where applicable; library tests use `#[cfg(test)]`; and CLI logic is outside the thin entry point. Existing mode must report no unexpected Cargo, source, README, or project-layout mutation.
-
-For TypeScript/Node.js, also verify that `package.json`, mise, and `pnpm-lock.yaml` agree on exact Node, pnpm, and local dependency versions; package modules are ESM; Oxfmt check, Oxlint, strict `tsc --noEmit`, Vitest, and build all passed; and no rejected formatter, linter, or test runner was generated. A CLI keeps behavior outside its thin `src/cli.ts` entry. Existing mode must report preserved sources, scripts, README, compatible configs, and package layout.
-
-For Python, also verify that `.python-version`, `pyproject.toml`, mise, and `uv.lock` agree on exact Python, uv, build backend, and development dependency versions; locked sync, Ruff format check, Ruff lint, strict mypy, pytest, and build all passed; and `.venv`, caches, or build artifacts are not tracked. A library includes `py.typed`; a CLI keeps tested behavior outside the thin `cli.py` boundary. Existing mode must report preserved metadata, lockfile, sources, tests, README, and package layout.
-
-For Go, also verify that `go.mod`, mise, and any toolchain directive agree on the exact Go version; module tidy diff, format check, vet, test, and build all passed; `GOTOOLCHAIN=local` and `GOWORK=off` are active; and no executable or cache is tracked. A CLI keeps tested behavior outside its single `cmd/<name>` entry. Existing mode must report preserved module path, module metadata, sources, tests, README, and package layout.
-
-Return this compact result:
-
-```text
-Status: completed | partial | planned | blocked
-Target: <absolute path>
-Mode: new | existing
-Stack: Zig | Rust | TypeScript/Node.js | Python | Go | unresolved
-Shape: library | CLI/application | unresolved
-Versions: <value, precedence branch, evidence>
-
-Changes:
-- created: <paths, or none>
-- modified: <paths, or none>
-- preserved: <paths, or none>
-
-Conflicts:
-- <decision needed, or none>
-
-Verification:
-- <command> — <passed|failed|not run>
-
-Failed command:
-- <exact argv, or none>
-
-Next step:
-- <recovery command, adapter boundary, or none>
-```
-
-Use `blocked` when a conflict prevents apply, `partial` when a write or external command fails after apply begins, `planned` when the stack has no apply adapter or the user requested planning only, and `completed` only when every verification passes. Never describe inspection or planning as successful initialization.
+Complete this step only when the final status, changes, conflicts, commands, verification evidence, failed command, and next step are all accounted for. Never describe inspection or planning as successful initialization.
