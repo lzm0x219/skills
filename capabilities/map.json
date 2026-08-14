@@ -27,6 +27,27 @@
         "go-workspace-and-nested-modules-blocked",
         "no-global-shell-mutation"
       ]
+    },
+    {
+      "id": "juanjuan-illustrations",
+      "kind": "composite",
+      "status": "existing",
+      "entrypoint": "skills/creative/juanjuan-illustrations/SKILL.md",
+      "invocation": "manual",
+      "inputs": ["source-content", "mode", "image-count", "allowed-labels", "output-directory"],
+      "workspace_access": {
+        "current": "target-write",
+        "planned": "target-write-with-source-fact-card-and-artifact-record"
+      },
+      "safety_boundaries": [
+        "explicit-invocation-only",
+        "internal-reference-status",
+        "no-rights-clearance-claims",
+        "source-fidelity-before-metaphor",
+        "exact-label-whitelist",
+        "no-existing-asset-overwrite",
+        "professional-diagrams-out-of-scope"
+      ]
     }
   ]
 }

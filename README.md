@@ -11,6 +11,16 @@ Each skill here comes from a problem I actually hit, and the set grows as new ne
 
 When you are unsure whether to use a skill, start with the boundaries below. Explicit invocation is the most reliable path. Implicit matching depends on the agent and model, so this repo does not promise that installation alone guarantees automatic triggers.
 
+### Creative
+
+**[`juanjuan-illustrations`](skills/creative/juanjuan-illustrations/SKILL.md)** · `$juanjuan-illustrations`
+
+- **Invocation:** manual only; include `$juanjuan-illustrations` explicitly because generic illustration requests do not trigger it
+- **Good for:** planning, generating, or editing nostalgic hand-drawn Juanjuan illustrations for Chinese articles, posts, emotional content, and conceptual metaphors
+- **Not for:** exact editable diagrams, or claims that the current character reference is original, rights-cleared, or safe for commercial use
+- **Visual evaluation:** [`evals/juanjuan-illustrations.visual.md`](evals/juanjuan-illustrations.visual.md) defines live image, source-fidelity, action, text, and artifact gates
+- **Artifact validation:** `python3 skills/creative/juanjuan-illustrations/scripts/validate_artifact.py <image-path>` checks the PNG and same-name prompt record before delivery
+
 ### Engineering
 
 **[`dsa-design`](skills/development/engineering/dsa-design/SKILL.md)** · `$dsa-design`
@@ -91,7 +101,7 @@ Install all skills from this repository to all agents (skips prompts):
 npx skills add lzm0x219/skills --all
 ```
 
-Replace `napi-rs` with `bootstrap-project`, `dsa-design`, `mise`, or `zig` as needed. Check what is installed:
+Replace `napi-rs` with `bootstrap-project`, `dsa-design`, `juanjuan-illustrations`, `mise`, or `zig` as needed. Check what is installed:
 
 ```sh
 npx skills list
@@ -107,6 +117,7 @@ Invocation syntax varies by agent. Many tools accept an explicit `$skill-name` m
 
 ```text
 $napi-rs Review this addon's async, lifetime, and release boundaries without changing code.
+$juanjuan-illustrations Plan three Juanjuan article illustrations for this Chinese article without generating images yet.
 $mise Design reproducible tools, environment variables, and a test task for this project without modifying files.
 $bootstrap-project Inspect this existing project and prepare its initialization plan without writing files.
 ```
@@ -119,11 +130,12 @@ npx skills use lzm0x219/skills@napi-rs
 
 ## Understand the repository layout
 
-The repository keeps each portable skill in a leaf directory under `skills/development/`. The surrounding evaluation, test, and workflow files validate repository-specific contracts.
+The repository keeps each portable skill in a leaf directory under `skills/`, grouped by domain. The surrounding evaluation, test, and workflow files validate repository-specific contracts.
 
 ```text
 .
 ├── skills/
+│   ├── creative/juanjuan-illustrations/
 │   └── development/
 │       ├── engineering/dsa-design/
 │       ├── framework/napi-rs/
@@ -132,9 +144,9 @@ The repository keeps each portable skill in a leaf directory under `skills/devel
 │       └── workflows/bootstrap-project/
 ├── capabilities/map.json
 ├── evals/
-│   ├── fixtures/{bootstrap-project,dsa-design,mise,napi-rs,zig}/
+│   ├── fixtures/{bootstrap-project,dsa-design,juanjuan-illustrations,mise,napi-rs,zig}/
 │   ├── workspaces/bootstrap-project/
-│   └── {bootstrap-project,dsa-design,mise,napi-rs,zig}.behavior.json
+│   └── {bootstrap-project,dsa-design,juanjuan-illustrations,mise,napi-rs,zig}.behavior.json
 ├── docs/behavior-evals.md
 ├── scripts/{run_behavior_evals,run_workspace_evals,validate_skills}.py
 ├── tests/test_{run_behavior_evals,run_workspace_evals,validate_skills}.py
@@ -145,6 +157,7 @@ Each path has one role:
 
 | Path                                 | Responsibility                                                                |
 | ------------------------------------ | ----------------------------------------------------------------------------- |
+| `skills/creative/<skill>/`           | Leaf package for a creative-production skill                                  |
 | `skills/development/<area>/<skill>/` | Leaf package for a development skill, grouped by engineering area             |
 | `skills/**/SKILL.md`                 | Portable entrypoint and discovery metadata for Agent Skills-compatible agents |
 | `skills/**/agents/openai.yaml`       | Optional Codex UI metadata, default prompt, and implicit-invocation policy    |
@@ -189,6 +202,8 @@ python3 scripts/run_behavior_evals.py \
 python3 scripts/run_behavior_evals.py \
   --skill dsa-design --answers evals/fixtures/dsa-design
 python3 scripts/run_behavior_evals.py \
+  --skill juanjuan-illustrations --answers evals/fixtures/juanjuan-illustrations
+python3 scripts/run_behavior_evals.py \
   --skill napi-rs --answers evals/fixtures/napi-rs
 python3 scripts/run_behavior_evals.py \
   --skill mise --answers evals/fixtures/mise
@@ -201,6 +216,7 @@ Live behavior evaluation currently uses an authenticated Codex CLI and sends eva
 ```sh
 python3 scripts/run_behavior_evals.py --skill dsa-design
 python3 scripts/run_behavior_evals.py --skill bootstrap-project
+python3 scripts/run_behavior_evals.py --skill juanjuan-illustrations
 python3 scripts/run_behavior_evals.py --skill napi-rs
 python3 scripts/run_behavior_evals.py --skill mise
 python3 scripts/run_behavior_evals.py --skill zig
