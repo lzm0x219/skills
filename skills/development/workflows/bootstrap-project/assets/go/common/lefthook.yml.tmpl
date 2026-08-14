@@ -6,6 +6,6 @@ pre-commit:
     - name: format-staged-go
       run: mise exec -- go run .lefthook/format_staged_go.go
     - name: check-module-metadata
-      run: mise run modules-check
+      run: mise run check
     - name: vet-project
       run: mise run lint

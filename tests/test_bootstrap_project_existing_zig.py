@@ -66,7 +66,7 @@ class BaselineExistingZigTest(unittest.TestCase):
         self.assertEqual(
             [
                 ["install"],
-                ["exec", "--", "lefthook", "install", "--force"],
+                ["exec", "--", "sh", ".lefthook/install-hooks.sh"],
                 ["run", "ci"],
             ],
             [entry["argv"] for entry in result["commands"]],
@@ -163,6 +163,8 @@ class BaselineExistingZigTest(unittest.TestCase):
             [
                 ".github/renovate.json",
                 ".github/workflows/validate.yml",
+                ".lefthook/format-staged-zig.sh",
+                ".lefthook/install-hooks.sh",
                 ".lefthook/partial-stage-guard.sh",
                 "mise.lock",
             ],
@@ -173,7 +175,7 @@ class BaselineExistingZigTest(unittest.TestCase):
     def test_reports_install_and_hook_failures_as_partial(self) -> None:
         for failed in (
             ["install"],
-            ["exec", "--", "lefthook", "install", "--force"],
+            ["exec", "--", "sh", ".lefthook/install-hooks.sh"],
         ):
             with self.subTest(failed=failed):
                 result = self.run_baseline(fail_on=" ".join(failed))
@@ -261,16 +263,23 @@ class BaselineExistingZigTest(unittest.TestCase):
                         '[[tools.zig]]\\nversion = "0.16.0"\\n',
                         encoding="utf-8",
                     )
-                elif args == ["exec", "--", "lefthook", "install", "--force"]:
+                elif args == ["exec", "--", "sh", ".lefthook/install-hooks.sh"]:
                     hooks = cwd / ".git" / "hooks"
                     hooks.mkdir(parents=True, exist_ok=True)
                     hook = hooks / "pre-commit"
-                    hook.write_text("LEFTHOOK installed\\n", encoding="utf-8")
+                    hook.write_text(
+                        '#!/bin/sh\\nexport MISE_TRUSTED_CONFIG_PATHS="$(git rev-parse '
+                        '--show-toplevel)"; call_lefthook run "pre-commit" '
+                        '--no-stage-fixed "$@"\\n',
+                        encoding="utf-8",
+                    )
                     hook.chmod(0o755)
                 elif args == ["run", "ci"]:
                     required = [
                         "mise.toml",
                         "lefthook.yml",
+                        ".lefthook/format-staged-zig.sh",
+                        ".lefthook/install-hooks.sh",
                         ".lefthook/partial-stage-guard.sh",
                         ".github/workflows/validate.yml",
                         ".github/renovate.json",

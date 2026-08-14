@@ -248,10 +248,15 @@ class BootstrapRustTest(unittest.TestCase):
                         "version = 4\\n\\n[[package]]\\nname = \\"fixture\\"\\nversion = \\"0.1.0\\"\\n",
                         encoding="utf-8",
                     )
-                elif args == ["exec", "--", "lefthook", "install", "--force"]:
+                elif args == ["exec", "--", "sh", ".lefthook/install-hooks.sh"]:
                     hook = cwd / ".git" / "hooks" / "pre-commit"
                     hook.parent.mkdir(parents=True, exist_ok=True)
-                    hook.write_text("LEFTHOOK installed\\n", encoding="utf-8")
+                    hook.write_text(
+                        '#!/bin/sh\\nexport MISE_TRUSTED_CONFIG_PATHS="$(git rev-parse '
+                        '--show-toplevel)"; call_lefthook run "pre-commit" '
+                        '--no-stage-fixed "$@"\\n',
+                        encoding="utf-8",
+                    )
                     hook.chmod(0o755)
                 elif args == ["run", "ci"]:
                     if not (cwd / "Cargo.lock").is_file():
@@ -305,9 +310,26 @@ class BootstrapRustTest(unittest.TestCase):
             lefthook.index("quick-project-check"),
         ]
         self.assertEqual(sorted(order), order)
+        self.assertIn("piped: true", lefthook)
+        self.assertNotIn("stage_fixed", lefthook)
+        self.assertNotIn("{staged_files}", lefthook)
         self.assertNotIn("cargo test", lefthook)
         self.assertNotIn("cargo build", lefthook)
-        self.assertTrue((target / ".github" / "renovate.json").is_file())
+        hook = (target / ".git" / "hooks" / "pre-commit").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('--no-stage-fixed "$@"', hook)
+        self.assertIn("MISE_TRUSTED_CONFIG_PATHS", hook)
+        staged_formatter = (
+            target / ".lefthook" / "format-staged-rust.sh"
+        ).read_text(encoding="utf-8")
+        self.assertIn("git diff --cached", staged_formatter)
+        self.assertIn("-z -- '*.rs'", staged_formatter)
+        self.assertIn("xargs -0 git add --", staged_formatter)
+        renovate = json.loads(
+            (target / ".github" / "renovate.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual({"enabled": False}, renovate["lockFileMaintenance"])
 
     def preserved_hashes(self, target: Path) -> dict[str, str]:
         return {

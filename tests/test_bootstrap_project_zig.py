@@ -137,6 +137,15 @@ class BootstrapZigTest(unittest.TestCase):
         self.assertTrue((result["target"] / "mise.toml").is_file())
         self.assertTrue(report["commands"])
 
+    def test_network_backed_tool_install_failure_is_partial(self) -> None:
+        result = self.run_bootstrap("library", fail_on="install")
+
+        self.assertNotEqual(0, result["completed"].returncode)
+        report = result["report"]
+        self.assertEqual("partial", report["status"])
+        self.assertEqual([str(result["fake_mise"]), "install"], report["failed_command"])
+        self.assertIsNotNone(report["recovery"])
+
     def test_partial_stage_guard_stops_before_formatting(self) -> None:
         result = self.run_bootstrap("library")
 
@@ -221,10 +230,15 @@ class BootstrapZigTest(unittest.TestCase):
                     )
                     (cwd / "src" / "main.zig").write_text("official main\\n", encoding="utf-8")
                     (cwd / "src" / "root.zig").write_text("official root\\n", encoding="utf-8")
-                elif args == ["exec", "--", "lefthook", "install", "--force"]:
+                elif args == ["exec", "--", "sh", ".lefthook/install-hooks.sh"]:
                     hooks = cwd / ".git" / "hooks"
                     hooks.mkdir(parents=True, exist_ok=True)
-                    (hooks / "pre-commit").write_text("installed\\n", encoding="utf-8")
+                    (hooks / "pre-commit").write_text(
+                        '#!/bin/sh\\nexport MISE_TRUSTED_CONFIG_PATHS="$(git rev-parse '
+                        '--show-toplevel)"; call_lefthook run "pre-commit" '
+                        '--no-stage-fixed "$@"\\n',
+                        encoding="utf-8",
+                    )
                     (hooks / "pre-commit").chmod(0o755)
                 elif args == ["run", "ci"]:
                     required = [
@@ -312,11 +326,23 @@ class BootstrapZigTest(unittest.TestCase):
             lefthook_source.index("quick-project-check"),
         ]
         self.assertEqual(sorted(order), order)
-        self.assertIn("stage_fixed: true", lefthook_source)
+        self.assertIn("piped: true", lefthook_source)
+        self.assertNotIn("stage_fixed", lefthook_source)
+        self.assertNotIn("zig fmt {staged_files}", lefthook_source)
         self.assertNotIn("parallel: true", lefthook_source)
         self.assertNotIn("mise run test", lefthook_source)
         self.assertNotIn("mise run build", lefthook_source)
-        self.assertTrue((target / ".git" / "hooks" / "pre-commit").is_file())
+        hook = (target / ".git" / "hooks" / "pre-commit").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('--no-stage-fixed "$@"', hook)
+        self.assertIn("MISE_TRUSTED_CONFIG_PATHS", hook)
+        staged_formatter = (
+            target / ".lefthook" / "format-staged-zig.sh"
+        ).read_text(encoding="utf-8")
+        self.assertIn("git diff --cached", staged_formatter)
+        self.assertIn("-z -- '*.zig'", staged_formatter)
+        self.assertIn("xargs -0 git add --", staged_formatter)
         hooks_path = subprocess.run(
             ["git", "-C", str(target), "config", "--local", "--get", "core.hooksPath"],
             check=True,
@@ -341,7 +367,7 @@ class BootstrapZigTest(unittest.TestCase):
         self.assertEqual("enabled", renovate["semanticCommits"])
         self.assertEqual(["dependencies"], renovate["labels"])
         self.assertNotIn("automerge", renovate)
-        self.assertNotIn("lockFileMaintenance", renovate)
+        self.assertEqual({"enabled": False}, renovate["lockFileMaintenance"])
 
     def assert_command_order(self, commands: list[dict[str, object]]) -> None:
         argv = [entry["argv"] for entry in commands]
@@ -349,7 +375,7 @@ class BootstrapZigTest(unittest.TestCase):
             [
                 ["install"],
                 ["exec", "--", "zig", "init"],
-                ["exec", "--", "lefthook", "install", "--force"],
+                ["exec", "--", "sh", ".lefthook/install-hooks.sh"],
                 ["run", "ci"],
             ],
             argv,

@@ -224,6 +224,12 @@ def initialize(options: argparse.Namespace, report: dict[str, Any]) -> None:
         "ZIG_VERSION": options.zig_version,
     }
     render_tree(ASSETS_DIR / "common", target, values)
+    for relative in (
+        ".lefthook/format-staged-zig.sh",
+        ".lefthook/install-hooks.sh",
+        ".lefthook/partial-stage-guard.sh",
+    ):
+        (target / relative).chmod(0o755)
     (target / "mise.lock").touch()
     mise_environment = {"MISE_TRUSTED_CONFIG_PATHS": str(target)}
 
@@ -282,27 +288,32 @@ def initialize(options: argparse.Namespace, report: dict[str, Any]) -> None:
         remove_generated_file(target / "src" / "main.zig")
     else:
         remove_generated_file(target / "src" / "root.zig")
-    (target / ".lefthook" / "partial-stage-guard.sh").chmod(0o755)
-
     run_command(
-        [options.mise, "exec", "--", "lefthook", "install", "--force"],
+        [options.mise, "exec", "--", "sh", ".lefthook/install-hooks.sh"],
         target,
         commands,
         env_overrides=mise_environment,
         sanitize_git=True,
     )
     hook_path = target / ".git" / "hooks" / "pre-commit"
-    if not hook_path.is_file() or not os.access(hook_path, os.X_OK):
+    safe_dispatch = (
+        'export MISE_TRUSTED_CONFIG_PATHS="$(git rev-parse --show-toplevel)"; '
+        'call_lefthook run "pre-commit" --no-stage-fixed "$@"'
+    )
+    if (
+        not hook_path.is_file()
+        or not os.access(hook_path, os.X_OK)
+        or safe_dispatch not in hook_path.read_text(encoding="utf-8", errors="replace")
+    ):
         raise BootstrapFailure(
-            "Lefthook returned success but did not install an executable pre-commit hook",
+            "Lefthook did not install the safe executable pre-commit hook",
             status="partial",
             failed_command=[
                 options.mise,
                 "exec",
                 "--",
-                "lefthook",
-                "install",
-                "--force",
+                "sh",
+                ".lefthook/install-hooks.sh",
             ],
         )
     report["verification"]["lefthook"] = "passed"

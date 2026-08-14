@@ -91,6 +91,8 @@ The fixture and isolated skill copy are deleted after the report is written. The
 
 The deterministic `existing-zig-baseline` fixture is exercised by `tests/test_bootstrap_project_existing_zig.py`. It copies the input into a temporary Git repository, invokes the packaged adapter through a fake mise command boundary, and checks exact created and modified paths plus preserved source hashes. A separate real-tool smoke run is still required before claiming Zig compatibility.
 
+The dated five-stack evidence, platform limits, and tool side effects are recorded in [bootstrap-project-acceptance.md](bootstrap-project-acceptance.md). `tests/test_bootstrap_project_integration.py` keeps the shared task, hook, workflow, Renovate, and behavior-matrix contracts aligned.
+
 ## Behaviors currently covered
 
 `bootstrap-project` covers:

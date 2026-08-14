@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+
+paths=$(mktemp "${TMPDIR:-/tmp}/bootstrap-staged-zig.XXXXXX")
+trap 'rm -f "$paths"' EXIT HUP INT TERM
+git diff --cached --name-only --diff-filter=ACMR -z -- '*.zig' > "$paths"
+
+if [ ! -s "$paths" ]; then
+  exit 0
+fi
+
+xargs -0 sh -c 'for file do zig fmt "./$file" || exit; done' sh < "$paths"
+xargs -0 git add -- < "$paths"

@@ -538,9 +538,13 @@ def install_and_verify(
             failed_command=hook_command,
         )
     hook_source = hook.read_text(encoding="utf-8", errors="replace")
-    if 'run "pre-commit" --no-stage-fixed' not in hook_source:
+    safe_dispatch = (
+        'export MISE_TRUSTED_CONFIG_PATHS="$(git rev-parse --show-toplevel)"; '
+        'call_lefthook run "pre-commit" --no-stage-fixed "$@"'
+    )
+    if safe_dispatch not in hook_source:
         raise BootstrapFailure(
-            "installed pre-commit hook is missing the partial-stage safety flag",
+            "installed pre-commit hook is missing its scoped trust or safety flag",
             status="partial",
             failed_command=hook_command,
         )

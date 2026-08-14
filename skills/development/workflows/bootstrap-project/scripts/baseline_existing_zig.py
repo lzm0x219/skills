@@ -227,7 +227,12 @@ def inspect_versions(
             status="blocked",
         )
     postinstall = hooks.get("postinstall")
-    if postinstall not in (None, "lefthook install", "lefthook install --force"):
+    if postinstall not in (
+        None,
+        "lefthook install",
+        "lefthook install --force",
+        "sh .lefthook/install-hooks.sh",
+    ):
         raise BootstrapFailure(
             "mise.toml postinstall hook is not recognized",
             status="blocked",
@@ -322,6 +327,34 @@ def merge_settings(source: str, data: dict[str, Any]) -> str:
     return prefix + "\nlockfile = true\n\n" + suffix
 
 
+def merge_postinstall(source: str, data: dict[str, Any]) -> str:
+    desired = 'postinstall = "sh .lefthook/install-hooks.sh"'
+    hooks = data.get("hooks")
+    if hooks is None:
+        return source.rstrip() + f"\n\n[hooks]\n{desired}\n"
+    current = hooks.get("postinstall")
+    if current == "sh .lefthook/install-hooks.sh":
+        return source
+    if current is None:
+        section = re.search(r"(?m)^\[hooks\]\s*$", source)
+        if section is None:
+            raise BootstrapFailure(
+                "existing mise hooks use an unsupported structure",
+                status="blocked",
+            )
+        return source[: section.end()] + "\n" + desired + source[section.end() :]
+    pattern = re.compile(
+        r'(?m)^postinstall\s*=\s*"lefthook install(?: --force)?"\s*$'
+    )
+    merged, count = pattern.subn(desired, source, count=1)
+    if count != 1:
+        raise BootstrapFailure(
+            "existing mise postinstall hook is not safely mergeable",
+            status="blocked",
+        )
+    return merged
+
+
 def merge_tasks(source: str, data: dict[str, Any]) -> str:
     asset = (ASSETS_DIR / "existing" / "mise-tasks.toml.tmpl").read_text(
         encoding="utf-8"
@@ -371,7 +404,10 @@ def plan_files(
     if "b.addRunArtifact" not in build_source or 'b.step("test"' not in build_source:
         add_conflict(report, "build.zig does not prove that its test step executes tests")
 
-    merged_mise = merge_tasks(merge_settings(mise_source, mise_data), mise_data)
+    merged_mise = merge_tasks(
+        merge_postinstall(merge_settings(mise_source, mise_data), mise_data),
+        mise_data,
+    )
     desired_lefthook = desired_asset("lefthook.yml.tmpl", values)
     current_lefthook = read_regular_file(target, "lefthook.yml")
     normalized_current = normalized_text(current_lefthook)
@@ -386,6 +422,14 @@ def plan_files(
         "lefthook.yml": desired_lefthook,
         ".lefthook/partial-stage-guard.sh": desired_asset(
             ".lefthook/partial-stage-guard.sh.tmpl",
+            values,
+        ),
+        ".lefthook/format-staged-zig.sh": desired_asset(
+            ".lefthook/format-staged-zig.sh.tmpl",
+            values,
+        ),
+        ".lefthook/install-hooks.sh": desired_asset(
+            ".lefthook/install-hooks.sh.tmpl",
             values,
         ),
         ".github/workflows/validate.yml": desired_asset(
@@ -416,23 +460,35 @@ def write_planned_files(target: Path, planned: dict[str, str]) -> None:
             continue
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(source, encoding="utf-8")
-    (target / ".lefthook" / "partial-stage-guard.sh").chmod(0o755)
+    for relative in (
+        ".lefthook/format-staged-zig.sh",
+        ".lefthook/install-hooks.sh",
+        ".lefthook/partial-stage-guard.sh",
+    ):
+        (target / relative).chmod(0o755)
     (target / "mise.lock").touch(exist_ok=True)
 
 
 def verify_hook(target: Path, options: argparse.Namespace) -> None:
     hook_path = target / ".git" / "hooks" / "pre-commit"
-    if not hook_path.is_file() or not os.access(hook_path, os.X_OK):
+    safe_dispatch = (
+        'export MISE_TRUSTED_CONFIG_PATHS="$(git rev-parse --show-toplevel)"; '
+        'call_lefthook run "pre-commit" --no-stage-fixed "$@"'
+    )
+    if (
+        not hook_path.is_file()
+        or not os.access(hook_path, os.X_OK)
+        or safe_dispatch not in hook_path.read_text(encoding="utf-8", errors="replace")
+    ):
         raise BootstrapFailure(
-            "Lefthook returned success but did not install an executable pre-commit hook",
+            "Lefthook did not install the safe executable pre-commit hook",
             status="partial",
             failed_command=[
                 options.mise,
                 "exec",
                 "--",
-                "lefthook",
-                "install",
-                "--force",
+                "sh",
+                ".lefthook/install-hooks.sh",
             ],
         )
 
@@ -480,7 +536,7 @@ def apply_baseline(options: argparse.Namespace, report: dict[str, Any]) -> None:
         sanitize_git=True,
     )
     run_command(
-        [options.mise, "exec", "--", "lefthook", "install", "--force"],
+        [options.mise, "exec", "--", "sh", ".lefthook/install-hooks.sh"],
         target,
         commands,
         env_overrides=mise_environment,

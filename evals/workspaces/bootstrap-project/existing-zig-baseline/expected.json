@@ -4,6 +4,8 @@
     "created": [
       ".github/renovate.json",
       ".github/workflows/validate.yml",
+      ".lefthook/format-staged-zig.sh",
+      ".lefthook/install-hooks.sh",
       ".lefthook/partial-stage-guard.sh",
       "mise.lock"
     ],

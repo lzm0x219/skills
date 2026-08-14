@@ -36,7 +36,7 @@ Existing mode never runs `cargo init`. It preserves `Cargo.toml`, `Cargo.lock` w
 - `lint`: Clippy for all targets and features with warnings denied;
 - `check`, `test`, and `build`: all targets and features with `--locked`;
 - serial `ci`: format-check, lint, check, test, then build;
-- pre-commit: partial-stage guard, staged rustfmt and restage, project Clippy, then quick Cargo check; full test and build remain outside the hook;
+- pre-commit: `piped: true` enforces the partial-stage guard, staged rustfmt with explicit restage, project Clippy, then quick Cargo check; full test and build remain outside the hook. The installer adds `--no-stage-fixed` and process-local `MISE_TRUSTED_CONFIG_PATHS` to the generated hook without persisting global trust, and the formatter helper reads NUL-delimited paths from the Git index;
 - Ubuntu CI through the same `mise run ci` entry, immutable action SHAs, and Renovate coverage for mise, Cargo, and Actions.
 
 Small libraries remain flat. New CLI projects keep `main.rs` as a thin output boundary and place tested logic in `lib.rs`. Unit tests live under `#[cfg(test)]` and use behavior-descriptive names.

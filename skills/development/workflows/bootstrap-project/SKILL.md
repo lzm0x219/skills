@@ -85,7 +85,7 @@ For a new Zig project, apply only when all of these are true:
 
 Read [zig.md](references/zig.md) completely before applying. Use the packaged `scripts/bootstrap_zig.py` adapter and assets; do not reproduce the files from memory or invoke `zig init` separately. Give `--report` a fresh path outside the target.
 
-The adapter initializes Git without creating a commit, runs the official Zig initializer in an isolated project-name directory, preserves its package fingerprint, installs the exact mise tools and local hooks, and runs `mise run ci`. It trusts the new target only for its child mise processes through `MISE_TRUSTED_CONFIG_PATHS`; do not modify global mise trust or shell configuration.
+The adapter initializes Git without creating a commit, runs the official Zig initializer in an isolated project-name directory, preserves its package fingerprint, installs the exact mise tools and local hooks, and runs `mise run ci`. It scopes `MISE_TRUSTED_CONFIG_PATHS` to adapter children and the repository-local hook process; do not modify persistent mise trust or global shell configuration.
 
 Do not apply when the target becomes non-empty after inventory, an initializer output is unfamiliar, or any command fails. Do not delete partial output automatically. Use the report as the evidence boundary and surface the exact failed command.
 
@@ -127,7 +127,7 @@ After a completed adapter run, verify from the report and target that:
 - Lefthook is installed and orders the partial-stage guard, staged formatter and restage, staged lint, then quick check without parallel execution;
 - Pre-commit excludes the full test and build tasks;
 - The Ubuntu workflow pins actions by full commit SHA and calls only `mise run ci`;
-- `.github/renovate.json` exists without automerge or lockfile maintenance;
+- `.github/renovate.json` exists without automerge and with lockfile maintenance explicitly disabled;
 - Git has no commit.
 
 For Rust, also verify that `Cargo.toml`, mise, and any preserved toolchain file agree on the exact Rust version; `Cargo.lock` exists; rustfmt, Clippy, check, test, and build all passed with `--locked` where applicable; library tests use `#[cfg(test)]`; and CLI logic is outside the thin entry point. Existing mode must report no unexpected Cargo, source, README, or project-layout mutation.

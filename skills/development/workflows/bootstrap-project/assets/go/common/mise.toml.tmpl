@@ -25,7 +25,7 @@ run = "go run .lefthook/format_all_go.go"
 description = "Check Go formatting without changing sources"
 run = "go run .lefthook/check_gofmt.go"
 
-[tasks.modules-check]
+[tasks.check]
 description = "Check go.mod and go.sum without changing them"
 run = "go mod tidy -diff"
 
@@ -45,7 +45,7 @@ run = "go build -mod=readonly ./..."
 description = "Run the complete project quality gate"
 run = [
   { task = "install" },
-  { task = "modules-check" },
+  { task = "check" },
   { task = "format-check" },
   { task = "lint" },
   { task = "test" },

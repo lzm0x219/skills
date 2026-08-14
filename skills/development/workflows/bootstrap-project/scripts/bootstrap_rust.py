@@ -28,6 +28,8 @@ IGNORED_ROOTS = {".git", "target"}
 BASELINE_PATHS = {
     "mise.toml",
     "lefthook.yml",
+    ".lefthook/format-staged-rust.sh",
+    ".lefthook/install-hooks.sh",
     ".lefthook/partial-stage-guard.sh",
     ".github/workflows/validate.yml",
     ".github/renovate.json",
@@ -103,6 +105,14 @@ def common_assets(values: dict[str, str]) -> dict[str, str]:
         "lefthook.yml": render_asset("common/lefthook.yml.tmpl", values),
         ".lefthook/partial-stage-guard.sh": render_asset(
             "common/.lefthook/partial-stage-guard.sh.tmpl",
+            values,
+        ),
+        ".lefthook/format-staged-rust.sh": render_asset(
+            "common/.lefthook/format-staged-rust.sh.tmpl",
+            values,
+        ),
+        ".lefthook/install-hooks.sh": render_asset(
+            "common/.lefthook/install-hooks.sh.tmpl",
             values,
         ),
         ".github/workflows/validate.yml": render_asset(
@@ -354,18 +364,32 @@ def install_and_verify(
             sanitize_git=True,
         )
     run_command(
-        [options.mise, "exec", "--", "lefthook", "install", "--force"],
+        [options.mise, "exec", "--", "sh", ".lefthook/install-hooks.sh"],
         target,
         commands,
         env_overrides=environment,
         sanitize_git=True,
     )
     hook = target / ".git" / "hooks" / "pre-commit"
-    if not hook.is_file() or not os.access(hook, os.X_OK):
+    safe_dispatch = (
+        'export MISE_TRUSTED_CONFIG_PATHS="$(git rev-parse --show-toplevel)"; '
+        'call_lefthook run "pre-commit" --no-stage-fixed "$@"'
+    )
+    if (
+        not hook.is_file()
+        or not os.access(hook, os.X_OK)
+        or safe_dispatch not in hook.read_text(encoding="utf-8", errors="replace")
+    ):
         raise BootstrapFailure(
-            "Lefthook did not install an executable pre-commit hook",
+            "Lefthook did not install the safe executable pre-commit hook",
             status="partial",
-            failed_command=[options.mise, "exec", "--", "lefthook", "install", "--force"],
+            failed_command=[
+                options.mise,
+                "exec",
+                "--",
+                "sh",
+                ".lefthook/install-hooks.sh",
+            ],
         )
     report["verification"]["lefthook"] = "passed"
     report["verification"]["mise_run_ci"] = "running"
@@ -417,7 +441,12 @@ def bootstrap_new(options: argparse.Namespace, report: dict[str, Any]) -> None:
     assets = common_assets(values)
     for relative, source in assets.items():
         write_asset(target, relative, source)
-    (target / ".lefthook" / "partial-stage-guard.sh").chmod(0o755)
+    for relative in (
+        ".lefthook/format-staged-rust.sh",
+        ".lefthook/install-hooks.sh",
+        ".lefthook/partial-stage-guard.sh",
+    ):
+        (target / relative).chmod(0o755)
     (target / "mise.lock").touch()
     environment = {
         "CARGO_TARGET_DIR": str(target / "target"),
@@ -516,7 +545,12 @@ def bootstrap_existing(options: argparse.Namespace, report: dict[str, Any]) -> N
         raise BootstrapFailure("mise.lock is not safely writable", status="blocked")
     for relative, source in planned.items():
         write_asset(target, relative, source)
-    (target / ".lefthook" / "partial-stage-guard.sh").chmod(0o755)
+    for relative in (
+        ".lefthook/format-staged-rust.sh",
+        ".lefthook/install-hooks.sh",
+        ".lefthook/partial-stage-guard.sh",
+    ):
+        (target / relative).chmod(0o755)
     if not mise_lock.exists():
         mise_lock.touch()
     install_and_verify(

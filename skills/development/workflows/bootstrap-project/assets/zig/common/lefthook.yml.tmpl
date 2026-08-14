@@ -1,11 +1,10 @@
 pre-commit:
+  piped: true
   jobs:
     - name: partial-stage-guard
       run: .lefthook/partial-stage-guard.sh
     - name: format-staged-zig
-      glob: "*.zig"
-      run: mise exec -- zig fmt {staged_files}
-      stage_fixed: true
+      run: mise exec -- sh .lefthook/format-staged-zig.sh
     - name: lint-staged-zig
       glob: "*.zig"
       run: mise exec -- sh -c 'for file do zig ast-check "$file"; done' sh {staged_files}

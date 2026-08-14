@@ -17,7 +17,9 @@ if (gitPath.status !== 0) {
 
 const hook = resolve(gitPath.stdout.trim(), "pre-commit");
 const generated = 'call_lefthook run "pre-commit" "$@"';
-const safe = 'call_lefthook run "pre-commit" --no-stage-fixed "$@"';
+const safe =
+  'export MISE_TRUSTED_CONFIG_PATHS="$(git rev-parse --show-toplevel)"; ' +
+  'call_lefthook run "pre-commit" --no-stage-fixed "$@"';
 const source = readFileSync(hook, "utf8");
 
 if (source.includes(safe)) {
