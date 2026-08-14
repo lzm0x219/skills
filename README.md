@@ -39,6 +39,13 @@ When you are unsure whether to use a skill, start with the boundaries below. Exp
 - **Good for:** managing project tools, environment variables, tasks, lockfiles, CI, or IDE integration with mise
 - **Not for:** tasks unrelated to the project development environment, tool versions, environment variables, or tasks
 
+### Workflows
+
+**[`bootstrap-project`](skills/development/workflows/bootstrap-project/SKILL.md)** · `$bootstrap-project` · manual invocation only
+
+- **Good for:** inspecting a new or existing single-package project and preparing a safe scaffold and development-baseline plan
+- **Current boundary:** planning only; it classifies proposed writes and conflicts without changing the target
+
 When `napi-rs`, `zig`, and `mise` need exact APIs, CLI flags, target support, backends, or release flows, they return to the current official docs instead of treating skill-time knowledge as permanent fact.
 
 ## Install and start using
@@ -84,7 +91,7 @@ Install all skills from this repository to all agents (skips prompts):
 npx skills add lzm0x219/skills --all
 ```
 
-Replace `napi-rs` with `dsa-design` or `mise` as needed. Check what is installed:
+Replace `napi-rs` with `bootstrap-project`, `dsa-design`, `mise`, or `zig` as needed. Check what is installed:
 
 ```sh
 npx skills list
@@ -101,6 +108,7 @@ Invocation syntax varies by agent. Many tools accept an explicit `$skill-name` m
 ```text
 $napi-rs Review this addon's async, lifetime, and release boundaries without changing code.
 $mise Design reproducible tools, environment variables, and a test task for this project without modifying files.
+$bootstrap-project Inspect this existing project and prepare its initialization plan without writing files.
 ```
 
 Without installing, you can also generate a one-shot prompt:
@@ -120,13 +128,16 @@ The repository keeps each portable skill in a leaf directory under `skills/devel
 │       ├── engineering/dsa-design/
 │       ├── framework/napi-rs/
 │       ├── languages/zig/
-│       └── tools/mise/
+│       ├── tools/mise/
+│       └── workflows/bootstrap-project/
+├── capabilities/map.json
 ├── evals/
-│   ├── fixtures/{dsa-design,mise,napi-rs,zig}/
-│   └── {dsa-design,mise,napi-rs,zig}.behavior.json
+│   ├── fixtures/{bootstrap-project,dsa-design,mise,napi-rs,zig}/
+│   ├── workspaces/bootstrap-project/
+│   └── {bootstrap-project,dsa-design,mise,napi-rs,zig}.behavior.json
 ├── docs/behavior-evals.md
-├── scripts/{run_behavior_evals,validate_skills}.py
-├── tests/test_{run_behavior_evals,validate_skills}.py
+├── scripts/{run_behavior_evals,run_workspace_evals,validate_skills}.py
+├── tests/test_{run_behavior_evals,run_workspace_evals,validate_skills}.py
 └── .github/workflows/validate.yml
 ```
 
@@ -141,6 +152,8 @@ Each path has one role:
 | `skills/**/scripts/`                 | Deterministic helpers distributed with a skill                                |
 | `evals/*.behavior.json`              | Behavior contracts, source assertions, and required scenarios                 |
 | `evals/fixtures/<skill>/`            | Fixed answers that test the evaluation runner, not current model quality      |
+| `evals/workspaces/<skill>/`          | Copied target fixtures and their expected path-level mutations                |
+| `capabilities/map.json`              | Minimal registry for implemented Composite Skills and their safety boundaries |
 | `docs/behavior-evals.md`             | Behavior-evaluation design and usage                                          |
 | `scripts/`                           | Repository validators and the behavior-evaluation runner                      |
 | `tests/`                             | Unit tests for repository validation and evaluation tooling                   |
@@ -157,6 +170,7 @@ Validation is split into four layers. Each layer answers a different question:
 | Repository static validation       | Frontmatter, paths, links, optional Codex metadata, behavior contracts, and source assertions match repository rules  | The skill will give correct answers in a live model or every agent                    |
 | Fixed-answer regression            | The behavior-eval runner and regex assertions stably recognize known outputs                                          | The current model still produces those outputs                                        |
 | Live Codex evaluation              | The current Codex CLI, model, and skill satisfy the assertions on the final visible output for a scenario             | Other agents behave the same way, or the model did or did not load a skill internally |
+| Isolated workspace evaluation      | A copied fixture's before/after manifest, command result, output, and expected path changes agree                     | The invoked command cannot affect anything outside the subprocess sandbox             |
 | napi-rs/mise docs inventory checks | Local routing matches the official index at check time, and links are reachable                                       | Future versions or unrun platforms still work                                         |
 | Zig official release check         | The official index currently identifies one latest stable release and its versioned documentation links are reachable | The compiler or a project works on any host, target, or future release                |
 | Zig toolchain smoke                | The selected local compiler formats the fixture and its build-system test artifact actually executes                  | A real project, unsupported compiler, or target-specific runtime works                |
@@ -171,6 +185,8 @@ Run the offline checks before you commit. These commands use only repository fil
 python3 scripts/validate_skills.py
 python3 -m unittest discover -s tests -p 'test_*.py'
 python3 scripts/run_behavior_evals.py \
+  --skill bootstrap-project --answers evals/fixtures/bootstrap-project
+python3 scripts/run_behavior_evals.py \
   --skill dsa-design --answers evals/fixtures/dsa-design
 python3 scripts/run_behavior_evals.py \
   --skill napi-rs --answers evals/fixtures/napi-rs
@@ -184,9 +200,19 @@ Live behavior evaluation currently uses an authenticated Codex CLI and sends eva
 
 ```sh
 python3 scripts/run_behavior_evals.py --skill dsa-design
+python3 scripts/run_behavior_evals.py --skill bootstrap-project
 python3 scripts/run_behavior_evals.py --skill napi-rs
 python3 scripts/run_behavior_evals.py --skill mise
 python3 scripts/run_behavior_evals.py --skill zig
+```
+
+Workspace mutation evaluation uses a copied fixture and an explicit writable sandbox. Persist the report outside the temporary workspace:
+
+```sh
+python3 scripts/run_workspace_evals.py \
+  --skill bootstrap-project \
+  --case existing-zig-planning \
+  --report-dir /tmp/bootstrap-project-eval-reports
 ```
 
 Before refreshing or publishing official-document routing or Zig release claims, also run the network checks:
@@ -217,7 +243,9 @@ Every skill needs an executable quality path. When adding or changing one:
 2. Optionally provide Codex UI metadata and invocation policy in `agents/openai.yaml`
 3. Define source assertions and required scenarios in `evals/<skill-name>.behavior.json`
 4. Add `evals/fixtures/<skill-name>/<case-id>.txt` for each scenario
-5. Update the skill inventory and run all offline checks
+5. For workspace-writing behavior, add an isolated input and expectation under `evals/workspaces/<skill-name>/`
+6. Register an implemented Composite in `capabilities/map.json`
+7. Update the skill inventory and run all offline checks
 
 `description` should say both what the skill does and when to use it. Put longer material in `references/`, put deterministic tools in `scripts/`, and do not make `SKILL.md` carry background that is irrelevant to the current task.
 

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "capabilities": [
+    {
+      "id": "bootstrap-project",
+      "kind": "composite",
+      "status": "existing",
+      "entrypoint": "skills/development/workflows/bootstrap-project/SKILL.md",
+      "invocation": "manual",
+      "inputs": ["target-directory", "mode", "stack", "shape", "version"],
+      "workspace_access": {
+        "current": "read-only",
+        "planned": "target-write-after-confirmed-plan"
+      },
+      "safety_boundaries": [
+        "exact-target-directory",
+        "single-package-or-module",
+        "conflicts-before-writes",
+        "no-global-shell-mutation"
+      ]
+    }
+  ]
+}

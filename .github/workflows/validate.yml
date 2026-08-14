@@ -16,6 +16,7 @@ jobs:
         run: |
           python3 scripts/validate_skills.py
           python3 -m unittest discover -s tests -p 'test_*.py'
+          python3 scripts/run_behavior_evals.py --skill bootstrap-project --answers evals/fixtures/bootstrap-project
           python3 scripts/run_behavior_evals.py --skill dsa-design --answers evals/fixtures/dsa-design
           python3 scripts/run_behavior_evals.py --skill napi-rs --answers evals/fixtures/napi-rs
           python3 scripts/run_behavior_evals.py --skill mise --answers evals/fixtures/mise

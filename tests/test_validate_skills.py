@@ -15,6 +15,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 NAPI_RS_SKILL = Path("skills/development/framework/napi-rs")
+BOOTSTRAP_PROJECT_SKILL = Path("skills/development/workflows/bootstrap-project")
 
 
 class ValidateSkillsTest(unittest.TestCase):
@@ -71,6 +72,79 @@ class ValidateSkillsTest(unittest.TestCase):
             self.assertNotEqual(0, completed.returncode)
             self.assertIn(
                 "frontmatter must be a YAML mapping",
+                completed.stdout + completed.stderr,
+            )
+
+    def test_manual_skill_requires_matching_openai_policy(self) -> None:
+        with self.copied_repo() as repo:
+            openai_path = repo / BOOTSTRAP_PROJECT_SKILL / "agents" / "openai.yaml"
+            source = openai_path.read_text(encoding="utf-8")
+            openai_path.write_text(
+                source.replace(
+                    "allow_implicit_invocation: false",
+                    "allow_implicit_invocation: true",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+
+            completed = self.run_validator(repo)
+
+            self.assertNotEqual(0, completed.returncode)
+            self.assertIn(
+                "allow_implicit_invocation must be false when "
+                "disable-model-invocation is true",
+                completed.stdout + completed.stderr,
+            )
+
+    def test_disable_model_invocation_must_be_boolean(self) -> None:
+        with self.copied_repo() as repo:
+            skill_path = repo / BOOTSTRAP_PROJECT_SKILL / "SKILL.md"
+            source = skill_path.read_text(encoding="utf-8")
+            skill_path.write_text(
+                source.replace(
+                    "disable-model-invocation: true",
+                    "disable-model-invocation: sometimes",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+
+            completed = self.run_validator(repo)
+
+            self.assertNotEqual(0, completed.returncode)
+            self.assertIn(
+                "disable-model-invocation must be a boolean",
+                completed.stdout + completed.stderr,
+            )
+
+    def test_manual_skill_cannot_define_an_implicit_behavior_case(self) -> None:
+        def mutate(contract: dict[str, object]) -> None:
+            contract["cases"][0]["invocation"] = "implicit"
+
+        self.assert_contract_rejected(
+            mutate,
+            skill_name="bootstrap-project",
+            expected_message=(
+                "manual Skill bootstrap-project cannot define implicit behavior cases"
+            ),
+        )
+
+    def test_capability_map_requires_bootstrap_project_registration(self) -> None:
+        with self.copied_repo() as repo:
+            map_path = repo / "capabilities" / "map.json"
+            capability_map = json.loads(map_path.read_text(encoding="utf-8"))
+            capability_map["capabilities"] = []
+            map_path.write_text(
+                json.dumps(capability_map, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+
+            completed = self.run_validator(repo)
+
+            self.assertNotEqual(0, completed.returncode)
+            self.assertIn(
+                "manual Skill bootstrap-project must be registered",
                 completed.stdout + completed.stderr,
             )
 

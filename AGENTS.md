@@ -37,3 +37,17 @@ Tests use `unittest`. Name files `test_*.py` and methods `test_*`. Add or update
 Recent history favors concise Conventional Commit-style subjects, including `docs:`, `feat:`, and scoped forms such as `test(validation):`. Use an imperative summary and keep each commit focused.
 
 Pull requests should explain the affected skill or tool, user-visible behavior, and validation commands run. Link related issues and call out network-backed or live-model checks separately. Include screenshots only when a change affects rendered UI.
+
+## Agent skills
+
+### Issue tracker
+
+Issues and specs are tracked in this repository's GitHub Issues. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the five canonical triage labels. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Use the single-context domain layout. See `docs/agents/domain.md`.

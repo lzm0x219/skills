@@ -22,11 +22,15 @@ Each scenario declares its invocation mode with `invocation`:
 
 Both modes only inspect the final visible output. An `implicit` scenario can verify that unrelated requests do not surface skill terminology, but it cannot prove that the skill was never loaded inside the model.
 
+A manual Skill with `disable-model-invocation: true` defines only `explicit` scenarios. Static validation keeps that frontmatter setting aligned with `policy.allow_implicit_invocation: false`.
+
 ## Run offline evaluations
 
 Use `--answers` to read fixed answers without calling a model or needing credentials:
 
 ```sh
+python3 scripts/run_behavior_evals.py \
+  --skill bootstrap-project --answers evals/fixtures/bootstrap-project
 python3 scripts/run_behavior_evals.py \
   --skill dsa-design --answers evals/fixtures/dsa-design
 python3 scripts/run_behavior_evals.py \
@@ -49,6 +53,7 @@ Omit `--answers` to make the runner use an authenticated Codex CLI:
 
 ```sh
 python3 scripts/run_behavior_evals.py --skill dsa-design
+python3 scripts/run_behavior_evals.py --skill bootstrap-project
 python3 scripts/run_behavior_evals.py --skill napi-rs
 python3 scripts/run_behavior_evals.py --skill mise
 ```
@@ -66,7 +71,33 @@ If the original `CODEX_HOME` contains `auth.json`, the runner copies only that f
 
 Evaluation sessions use a read-only sandbox and `--ephemeral`. Those settings reduce file side effects and session residue, but they do not replace review of prompts, skill scripts, and external-service permissions.
 
+## Evaluate workspace mutations
+
+Use `run_workspace_evals.py` when the expected behavior is expressed by target files, not only the final answer. The runner copies `evals/workspaces/<skill>/<case>/input/` into a temporary workspace, installs a uniquely named working-tree Skill, runs one explicit case with `workspace-write`, and writes a JSON report containing:
+
+- The command, return code, stdout, and stderr;
+- Before and after manifests with type, mode, size, and SHA-256 evidence;
+- Created, modified, and deleted relative paths;
+- Final-answer assertion failures and mutation mismatches.
+
+```sh
+python3 scripts/run_workspace_evals.py \
+  --skill bootstrap-project \
+  --case existing-zig-planning \
+  --report-dir /tmp/bootstrap-project-eval-reports
+```
+
+The fixture and isolated skill copy are deleted after the report is written. The current planning case expects an unchanged target. The writable sandbox and temporary directory reduce risk; they are evidence boundaries, not proof that arbitrary executed tools have no external side effects.
+
 ## Behaviors currently covered
+
+`bootstrap-project` covers:
+
+- Manual invocation metadata and explicit-only behavior cases
+- Existing Zig project inventory and planning without target writes
+- Ambiguous stack and monorepo target boundaries
+- Volta and Husky migration conflicts
+- Before/after workspace manifests and unexpected mutation failure
 
 `dsa-design` covers:
 

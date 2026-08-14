@@ -16,8 +16,10 @@ LICENSE_PATH = ROOT / "LICENSE"
 SKILLS_DIR = ROOT / "skills"
 EVALS_DIR = ROOT / "evals"
 BEHAVIOR_RUNNER = ROOT / "scripts" / "run_behavior_evals.py"
+WORKSPACE_RUNNER = ROOT / "scripts" / "run_workspace_evals.py"
+CAPABILITY_MAP_PATH = ROOT / "capabilities" / "map.json"
 SKILL_NAME_PATTERN = re.compile(r"\A[a-z0-9]+(?:-[a-z0-9]+)*\Z")
-ALLOWED_FRONTMATTER_KEYS = {"name", "description"}
+ALLOWED_FRONTMATTER_KEYS = {"name", "description", "disable-model-invocation"}
 ALLOWED_CONTRACT_KEYS = {
     "automated",
     "cases",
@@ -30,7 +32,37 @@ ALLOWED_EXECUTION_KEYS = {"description", "mode", "runner"}
 ALLOWED_CASE_KEYS = {"category", "expected", "id", "invocation", "prompt"}
 ALLOWED_EXPECTED_KEYS = {"assertions"}
 ALLOWED_ASSERTION_KEYS = {"forbidden_regex", "required_regex"}
+ALLOWED_CAPABILITY_MAP_KEYS = {"capabilities", "schema_version"}
+ALLOWED_CAPABILITY_KEYS = {
+    "entrypoint",
+    "id",
+    "inputs",
+    "invocation",
+    "kind",
+    "safety_boundaries",
+    "status",
+    "workspace_access",
+}
+ALLOWED_WORKSPACE_ACCESS_KEYS = {"current", "planned"}
 REQUIRED_CASES_BY_SKILL = {
+    "bootstrap-project": {
+        "existing-zig-planning": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "ambiguous-stack": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+        "monorepo-target-required": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+        "tool-migration-conflict": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+    },
     "dsa-design": {
         "prose-edit-no-trigger": {
             "category": "out-of-scope",
@@ -417,7 +449,7 @@ def validate_license(errors: list[str]) -> None:
 
 def validate_skills(
     errors: list[str],
-) -> tuple[dict[str, Path], int]:
+) -> tuple[dict[str, Path], set[str], int]:
     skill_files = (
         sorted(path for path in SKILLS_DIR.rglob("SKILL.md") if path.is_file())
         if SKILLS_DIR.is_dir()
@@ -426,6 +458,7 @@ def validate_skills(
     if not skill_files:
         errors.append("skills/: directory is missing or contains no SKILL.md files")
     skills_by_name: dict[str, Path] = {}
+    manual_skills: set[str] = set()
 
     for skill_file in skill_files:
         skill_dir = skill_file.parent
@@ -435,6 +468,10 @@ def validate_skills(
         if metadata is not None:
             name = metadata.get("name")
             description = metadata.get("description")
+            disable_model_invocation = metadata.get(
+                "disable-model-invocation",
+                False,
+            )
             unexpected_keys = set(metadata) - ALLOWED_FRONTMATTER_KEYS
             if unexpected_keys:
                 errors.append(
@@ -465,6 +502,10 @@ def validate_skills(
                     f"{label}: description must be a non-empty string of at most "
                     "1024 characters without angle brackets"
                 )
+            if not isinstance(disable_model_invocation, bool):
+                errors.append(
+                    f"{label}: disable-model-invocation must be a boolean"
+                )
             if (
                 isinstance(name, str)
                 and SKILL_NAME_PATTERN.fullmatch(name)
@@ -478,6 +519,8 @@ def validate_skills(
                     )
                 else:
                     skills_by_name[name] = skill_dir
+                    if disable_model_invocation is True:
+                        manual_skills.add(name)
 
         openai_path = skill_dir / "agents" / "openai.yaml"
         openai = load_yaml(openai_path, errors, relative(openai_path))
@@ -513,12 +556,151 @@ def validate_skills(
         if not isinstance(policy, dict):
             errors.append(f"{relative(openai_path)}: policy must be a mapping")
             policy = {}
-        if not isinstance(policy.get("allow_implicit_invocation"), bool):
+        allow_implicit_invocation = policy.get("allow_implicit_invocation")
+        if not isinstance(allow_implicit_invocation, bool):
             errors.append(
                 f"{relative(openai_path)}: policy.allow_implicit_invocation "
                 "must be a boolean"
             )
-    return skills_by_name, len(skill_files)
+        elif directory_name in manual_skills and allow_implicit_invocation:
+            errors.append(
+                f"{relative(openai_path)}: policy.allow_implicit_invocation must "
+                "be false when disable-model-invocation is true"
+            )
+        elif directory_name not in manual_skills and not allow_implicit_invocation:
+            errors.append(
+                f"{relative(openai_path)}: policy.allow_implicit_invocation must "
+                "be true unless disable-model-invocation is true"
+            )
+    return skills_by_name, manual_skills, len(skill_files)
+
+
+def string_list(
+    value: object,
+    label: str,
+    errors: list[str],
+) -> list[str] | None:
+    if (
+        not isinstance(value, list)
+        or not value
+        or any(not isinstance(item, str) or not item.strip() for item in value)
+    ):
+        errors.append(f"{label} must be a non-empty array of non-empty strings")
+        return None
+    if len(set(value)) != len(value):
+        errors.append(f"{label} must not contain duplicates")
+    return value
+
+
+def validate_capability_map(
+    skills_by_name: dict[str, Path],
+    manual_skills: set[str],
+    errors: list[str],
+) -> int:
+    label = relative(CAPABILITY_MAP_PATH)
+    try:
+        capability_map: Any = json.loads(
+            CAPABILITY_MAP_PATH.read_text(encoding="utf-8")
+        )
+    except FileNotFoundError:
+        errors.append(f"{label}: file is missing")
+        return 0
+    except json.JSONDecodeError as error:
+        errors.append(f"{label}: invalid JSON ({str(error).splitlines()[0]})")
+        return 0
+    if not isinstance(capability_map, dict):
+        errors.append(f"{label}: expected a JSON object")
+        return 0
+    reject_unexpected_keys(
+        capability_map,
+        ALLOWED_CAPABILITY_MAP_KEYS,
+        label,
+        errors,
+    )
+    if capability_map.get("schema_version") != 1:
+        errors.append(f"{label}: schema_version must be 1")
+    capabilities = capability_map.get("capabilities")
+    if not isinstance(capabilities, list):
+        errors.append(f"{label}: capabilities must be an array")
+        return 0
+
+    registered_manual_skills: set[str] = set()
+    ids: list[str] = []
+    for index, capability in enumerate(capabilities):
+        capability_label = f"{label}: capabilities[{index}]"
+        if not isinstance(capability, dict):
+            errors.append(f"{capability_label} must be an object")
+            continue
+        reject_unexpected_keys(
+            capability,
+            ALLOWED_CAPABILITY_KEYS,
+            capability_label,
+            errors,
+        )
+        capability_id = capability.get("id")
+        if not isinstance(capability_id, str) or capability_id not in skills_by_name:
+            errors.append(f"{capability_label}.id must name a discovered Skill")
+            continue
+        ids.append(capability_id)
+        expected_entrypoint = relative(skills_by_name[capability_id] / "SKILL.md")
+        if capability.get("entrypoint") != expected_entrypoint:
+            errors.append(
+                f"{capability_label}.entrypoint must be {expected_entrypoint}"
+            )
+        if capability.get("kind") != "composite":
+            errors.append(f'{capability_label}.kind must be "composite"')
+        if capability.get("status") != "existing":
+            errors.append(f'{capability_label}.status must be "existing"')
+        invocation = capability.get("invocation")
+        if invocation not in {"manual", "model"}:
+            errors.append(
+                f'{capability_label}.invocation must be "manual" or "model"'
+            )
+        if capability_id in manual_skills:
+            registered_manual_skills.add(capability_id)
+            if invocation != "manual":
+                errors.append(
+                    f'{capability_label}.invocation must be "manual" for a '
+                    "manual Skill"
+                )
+        string_list(capability.get("inputs"), f"{capability_label}.inputs", errors)
+        string_list(
+            capability.get("safety_boundaries"),
+            f"{capability_label}.safety_boundaries",
+            errors,
+        )
+        workspace_access = capability.get("workspace_access")
+        reject_unexpected_keys(
+            workspace_access,
+            ALLOWED_WORKSPACE_ACCESS_KEYS,
+            f"{capability_label}.workspace_access",
+            errors,
+        )
+        if not isinstance(workspace_access, dict):
+            errors.append(f"{capability_label}.workspace_access must be an object")
+        else:
+            if workspace_access.get("current") not in {"read-only", "target-write"}:
+                errors.append(
+                    f"{capability_label}.workspace_access.current must be "
+                    '"read-only" or "target-write"'
+                )
+            planned = workspace_access.get("planned")
+            if not isinstance(planned, str) or not planned.strip():
+                errors.append(
+                    f"{capability_label}.workspace_access.planned must be "
+                    "a non-empty string"
+                )
+
+    duplicate_ids = [
+        capability_id
+        for capability_id, count in Counter(ids).items()
+        if count > 1
+    ]
+    if duplicate_ids:
+        errors.append(f"{label}: duplicate capability ids: {', '.join(duplicate_ids)}")
+    for skill_name in sorted(manual_skills - registered_manual_skills):
+        errors.append(f"{label}: manual Skill {skill_name} must be registered")
+    return len(capabilities)
 
 
 def validate_markdown_links(errors: list[str]) -> tuple[int, int]:
@@ -547,6 +729,7 @@ def validate_markdown_links(errors: list[str]) -> tuple[int, int]:
 
 def validate_contracts(
     skills_by_name: dict[str, Path],
+    manual_skills: set[str],
     errors: list[str],
 ) -> int:
     contracts = (
@@ -704,6 +887,11 @@ def validate_contracts(
                 errors.append(
                     f'{case_label}.invocation must be "explicit" or "implicit"'
                 )
+            elif skill_name in manual_skills and invocation == "implicit":
+                errors.append(
+                    f"{label}: manual Skill {skill_name} cannot define implicit "
+                    "behavior cases"
+                )
             if skill_name and isinstance(case_id, str) and case_id:
                 fixture_path = (
                     EVALS_DIR / "fixtures" / skill_name / f"{case_id}.txt"
@@ -738,16 +926,24 @@ def validate_contracts(
 def main() -> int:
     errors: list[str] = []
     validate_license(errors)
-    skills_by_name, skill_count = validate_skills(errors)
+    skills_by_name, manual_skills, skill_count = validate_skills(errors)
     markdown_count, local_link_count = validate_markdown_links(errors)
-    contract_count = validate_contracts(skills_by_name, errors)
+    capability_count = validate_capability_map(
+        skills_by_name,
+        manual_skills,
+        errors,
+    )
+    contract_count = validate_contracts(skills_by_name, manual_skills, errors)
+    if not WORKSPACE_RUNNER.is_file():
+        errors.append(f"{relative(WORKSPACE_RUNNER)}: file is missing")
 
     if not errors:
         print(
             f"PASS: validated {skill_count} skill(s), "
             f"{markdown_count} Markdown file(s), "
             f"{local_link_count} local link(s), and "
-            f"{contract_count} behavior contract(s)."
+            f"{contract_count} behavior contract(s), with "
+            f"{capability_count} registered capability item(s)."
         )
         return 0
     print(
