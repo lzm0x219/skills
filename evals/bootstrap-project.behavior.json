@@ -10,9 +10,10 @@
   "source_assertions": {
     "required_regex": [
       "disable-model-invocation: true",
-      "This slice can apply a new Zig library or CLI.*existing Zig library",
+      "supported new or strictly recognized existing Zig and Rust projects",
       "scripts/bootstrap_zig.py",
       "scripts/baseline_existing_zig.py",
+      "scripts/bootstrap_rust.py",
       "MISE_TRUSTED_CONFIG_PATHS",
       "create.*merge.*preserve.*conflict",
       "user-specified version, then existing constraint, then current stable",
@@ -83,6 +84,62 @@
             "(?:Status|状态).*completed",
             "(?:initialization|初始化).*(?:complete|completed|完成)"
           ]
+        }
+      }
+    },
+    {
+      "id": "new-rust-library",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "Initialize a new empty Rust library with the confirmed exact Rust and Lefthook versions.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:Status|状态).*completed",
+            "(?:Mode|模式).*new",
+            "(?:Stack|技术栈).*Rust",
+            "(?:Shape|形态).*library",
+            "cargo init",
+            "mise run ci"
+          ],
+          "forbidden_regex": ["(?:planning-only|仅规划)"]
+        }
+      }
+    },
+    {
+      "id": "new-rust-cli",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "Initialize a new Rust CLI and verify its thin entry point and smoke test.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:Status|状态).*completed",
+            "(?:Stack|技术栈).*Rust",
+            "(?:Shape|形态).*CLI",
+            "main.rs",
+            "lib.rs",
+            "cargo test"
+          ],
+          "forbidden_regex": ["(?:planning-only|仅规划)"]
+        }
+      }
+    },
+    {
+      "id": "existing-rust-baseline",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "Complete this recognized existing Rust library baseline without changing Cargo.toml or source files.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:Status|状态).*completed",
+            "(?:Mode|模式).*existing",
+            "(?:Stack|技术栈).*Rust",
+            "(?:preserved|保留).*(?:Cargo.toml|source|源码)",
+            "mise run ci"
+          ],
+          "forbidden_regex": ["cargo init", "(?:modified|修改).*Cargo.toml"]
         }
       }
     },

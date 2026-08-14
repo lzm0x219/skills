@@ -1,0 +1,18 @@
+Status: completed
+Target: /tmp/existing-rust
+Mode: existing
+Stack: Rust
+Shape: library
+Versions: preserved exact Cargo Rust version and matching Lefthook pin.
+
+Changes:
+- created: missing project baseline files and lockfiles.
+- modified: none.
+- preserved: Cargo.toml, Cargo.lock when present, source, README, and project layout.
+
+Verification:
+- mise run ci — passed.
+- preserved Cargo.toml and source hashes — passed.
+
+Failed command:
+- none.

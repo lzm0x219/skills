@@ -18,6 +18,7 @@
         "conflicts-before-writes",
         "new-zig-target-must-be-empty",
         "existing-zig-strict-merge-only",
+        "rust-cargo-structure-preserved",
         "no-global-shell-mutation"
       ]
     }

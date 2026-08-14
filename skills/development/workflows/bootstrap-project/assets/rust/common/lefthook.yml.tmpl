@@ -1,0 +1,12 @@
+pre-commit:
+  jobs:
+    - name: partial-stage-guard
+      run: .lefthook/partial-stage-guard.sh
+    - name: format-staged-rust
+      glob: "*.rs"
+      run: mise exec -- rustfmt --edition 2024 {staged_files}
+      stage_fixed: true
+    - name: lint-project-rust
+      run: mise run lint
+    - name: quick-project-check
+      run: mise run check

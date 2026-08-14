@@ -46,6 +46,18 @@ ALLOWED_CAPABILITY_KEYS = {
 ALLOWED_WORKSPACE_ACCESS_KEYS = {"current", "planned"}
 REQUIRED_CASES_BY_SKILL = {
     "bootstrap-project": {
+        "new-rust-library": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "new-rust-cli": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "existing-rust-baseline": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
         "new-zig-library": {
             "category": "positive-trigger",
             "invocation": "explicit",
