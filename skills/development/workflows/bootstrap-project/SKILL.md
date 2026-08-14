@@ -1,12 +1,12 @@
 ---
 name: bootstrap-project
-description: Plan a safe project scaffold or development-baseline initialization.
+description: Create or plan a safe project scaffold and development baseline.
 disable-model-invocation: true
 ---
 
 # Bootstrap Project
 
-Prepare a deterministic project-bootstrap plan while preserving user-owned work. This slice is planning-only: inspect the target and report the proposed changes, but stop before writing files, installing dependencies, initializing Git, or installing hooks.
+Prepare a deterministic project-bootstrap plan while preserving user-owned work. This slice can apply a new Zig library or CLI to an absent or empty target. Existing projects and other stacks remain planning-only until their adapters are available.
 
 ## Establish the target boundary
 
@@ -58,6 +58,8 @@ Complete this step only when mode, stack, shape, version source, and every confl
 
 ## Build the change plan
 
+Classify every operation as `create`, `merge`, `preserve`, or `conflict`.
+
 Assign every relevant path exactly one operation:
 
 - `create`: the path is absent and can be added without replacing user content;
@@ -71,26 +73,63 @@ The planned version priority is user-specified version, then existing constraint
 
 Complete this step only when every prospective write is classified and every conflict has a precise decision request.
 
-## Report and stop
+## Apply a supported new Zig plan
+
+Apply only when all of these are true:
+
+- The user requested initialization rather than a plan-only inspection;
+- The mode is `new`, the stack is Zig, and the shape is `library` or `CLI`;
+- The exact target is absent or empty, the plan has no conflicts, and the project name is a valid lowercase Zig identifier;
+- Git and mise are available on the host;
+- Exact Zig and Lefthook versions have been resolved and their evidence recorded.
+
+Read [zig.md](references/zig.md) completely before applying. Use the packaged `scripts/bootstrap_zig.py` adapter and assets; do not reproduce the files from memory or invoke `zig init` separately. Give `--report` a fresh path outside the target.
+
+The adapter initializes Git without creating a commit, runs the official Zig initializer in an isolated project-name directory, preserves its package fingerprint, installs the exact mise tools and local hooks, and runs `mise run ci`. It trusts the new target only for its child mise processes through `MISE_TRUSTED_CONFIG_PATHS`; do not modify global mise trust or shell configuration.
+
+Do not apply when the target becomes non-empty after inventory, an initializer output is unfamiliar, or any command fails. Do not delete partial output automatically. Use the report as the evidence boundary and surface the exact failed command.
+
+For an existing project or a non-Zig stack, return the plan and state that the matching apply adapter is not yet available. Never improvise an unsupported scaffold.
+
+## Verify and report
+
+After a completed adapter run, verify from the report and target that:
+
+- All seven mise tasks exist and `mise.lock` records the exact Zig and Lefthook versions;
+- `build.zig.zon`, `mise.toml`, and the CI toolchain agree on the Zig version;
+- The test build step uses `addRunArtifact`, and `mise run ci` completed;
+- Lefthook is installed and orders the partial-stage guard, staged formatter and restage, staged lint, then quick check without parallel execution;
+- Pre-commit excludes the full test and build tasks;
+- The Ubuntu workflow pins actions by full commit SHA and calls only `mise run ci`;
+- `.github/renovate.json` exists without automerge or lockfile maintenance;
+- Git has no commit.
 
 Return this compact result:
 
 ```text
-Status: planned | blocked
+Status: completed | partial | planned | blocked
 Target: <absolute path>
 Mode: new | existing
 Stack: Zig | Rust | TypeScript/Node.js | Python | Go | unresolved
 Shape: library | CLI/application | unresolved
 Versions: <value, precedence branch, evidence>
 
-Plan:
-- <create|merge|preserve|conflict> <path> — <reason>; verify with <command>
+Changes:
+- created: <paths, or none>
+- modified: <paths, or none>
+- preserved: <paths, or none>
 
 Conflicts:
 - <decision needed, or none>
 
+Verification:
+- <command> — <passed|failed|not run>
+
+Failed command:
+- <exact argv, or none>
+
 Next step:
-- Review the plan. This planning-only slice has not changed the target.
+- <recovery command, adapter boundary, or none>
 ```
 
-Use `blocked` when any conflict remains; otherwise use `planned`. Never describe inspection or planning as successful initialization.
+Use `blocked` when a conflict prevents apply, `partial` when a write or external command fails after apply begins, `planned` when the stack has no apply adapter or the user requested planning only, and `completed` only when every verification passes. Never describe inspection or planning as successful initialization.

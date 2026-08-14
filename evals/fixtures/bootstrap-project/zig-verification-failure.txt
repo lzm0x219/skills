@@ -1,0 +1,23 @@
+Status: partial
+Target: /tmp/sample_project
+Mode: new
+Stack: Zig
+Shape: library
+Versions: exact confirmed Zig and Lefthook pins.
+
+Changes:
+- created: partial Zig project baseline retained for inspection.
+- modified: none.
+- preserved: none.
+
+Conflicts:
+- none.
+
+Verification:
+- mise run ci — failed with status 1.
+
+Failed command:
+- mise run ci
+
+Next step:
+- Inspect the recorded stderr, correct the failed gate, then retry mise run ci from the target.

@@ -94,10 +94,12 @@ The fixture and isolated skill copy are deleted after the report is written. The
 `bootstrap-project` covers:
 
 - Manual invocation metadata and explicit-only behavior cases
+- New Zig library and CLI completion reports backed by the packaged adapter
+- Zig verification failure reported as partial with the exact failed command
 - Existing Zig project inventory and planning without target writes
 - Ambiguous stack and monorepo target boundaries
 - Volta and Husky migration conflicts
-- Before/after workspace manifests and unexpected mutation failure
+- Before/after workspace manifests, adapter unit tests, and unexpected mutation failure
 
 `dsa-design` covers:
 

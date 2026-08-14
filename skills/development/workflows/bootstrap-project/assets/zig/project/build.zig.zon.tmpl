@@ -1,0 +1,13 @@
+.{
+    .name = .{{PROJECT_NAME}},
+    .version = "0.1.0",
+    .fingerprint = {{PACKAGE_FINGERPRINT}}, // Changing this has security and trust implications.
+    .minimum_zig_version = "{{ZIG_VERSION}}",
+    .dependencies = .{},
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "README.md",
+    },
+}
