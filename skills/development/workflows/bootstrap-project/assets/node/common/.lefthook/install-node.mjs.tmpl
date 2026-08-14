@@ -1,0 +1,31 @@
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { spawnSync } from "node:child_process";
+
+const install = spawnSync("lefthook", ["install", "--force"], { stdio: "inherit" });
+if (install.status !== 0) {
+  process.exit(install.status ?? 1);
+}
+
+const gitPath = spawnSync("git", ["rev-parse", "--git-path", "hooks"], {
+  encoding: "utf8",
+});
+if (gitPath.status !== 0) {
+  process.stderr.write(gitPath.stderr);
+  process.exit(gitPath.status ?? 1);
+}
+
+const hook = resolve(gitPath.stdout.trim(), "pre-commit");
+const generated = 'call_lefthook run "pre-commit" "$@"';
+const safe = 'call_lefthook run "pre-commit" --no-stage-fixed "$@"';
+const source = readFileSync(hook, "utf8");
+
+if (source.includes(safe)) {
+  process.exit(0);
+}
+if (!source.includes(generated)) {
+  console.error("Lefthook pre-commit output changed; refusing an unknown patch.");
+  process.exit(1);
+}
+
+writeFileSync(hook, source.replace(generated, safe), "utf8");

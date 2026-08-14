@@ -1,0 +1,11 @@
+pre-commit:
+  piped: true
+  jobs:
+    - name: partial-stage-guard
+      run: .lefthook/partial-stage-guard.sh
+    - name: format-staged-node
+      run: mise exec -- node .lefthook/format-staged-node.mjs
+    - name: lint-project-node
+      run: mise run lint
+    - name: type-check-project
+      run: mise run check

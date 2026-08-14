@@ -1,0 +1,27 @@
+Status: completed
+Target: /tmp/sample-library
+Mode: new
+Stack: TypeScript/Node.js
+Shape: library
+Versions: Node LTS, pnpm, TypeScript, Oxfmt, Oxlint, Vitest, and Lefthook use the confirmed exact versions.
+
+Changes:
+- created: ESM package skeleton, `pnpm-lock.yaml`, mise tasks, Lefthook, CI, and Renovate
+- modified: none
+- preserved: none
+
+Conflicts:
+- none
+
+Verification:
+- Oxfmt check — passed
+- Oxlint — passed
+- `tsc --noEmit` — passed
+- Vitest — passed
+- `mise run ci` — passed
+
+Failed command:
+- none
+
+Next step:
+- none

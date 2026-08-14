@@ -1,0 +1,9 @@
+import { describe, expect, test } from "vitest";
+
+import { greet } from "../src/index.js";
+
+describe("greet", () => {
+  test("returns a greeting for the supplied name", () => {
+    expect(greet("TypeScript")).toBe("Hello, TypeScript!");
+  });
+});

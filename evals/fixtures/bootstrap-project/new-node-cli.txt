@@ -1,0 +1,25 @@
+Status: completed
+Target: /tmp/sample-cli
+Mode: new
+Stack: TypeScript/Node.js
+Shape: CLI/application
+Versions: exact Node LTS, pnpm, TypeScript, Oxc, Vitest, and Lefthook pins
+
+Changes:
+- created: thin `src/cli.ts`, tested `src/index.ts`, package bin entry, lockfiles, hooks, CI, and Renovate
+- modified: none
+- preserved: none
+
+Conflicts:
+- none
+
+Verification:
+- `vitest run` — passed
+- `mise run ci` — passed
+- Git history remains empty — passed
+
+Failed command:
+- none
+
+Next step:
+- none

@@ -10,10 +10,11 @@
   "source_assertions": {
     "required_regex": [
       "disable-model-invocation: true",
-      "supported new or strictly recognized existing Zig and Rust projects",
+      "supported new or strictly recognized existing Zig, Rust, and TypeScript/Node.js projects",
       "scripts/bootstrap_zig.py",
       "scripts/baseline_existing_zig.py",
       "scripts/bootstrap_rust.py",
+      "scripts/bootstrap_node.py",
       "MISE_TRUSTED_CONFIG_PATHS",
       "create.*merge.*preserve.*conflict",
       "user-specified version, then existing constraint, then current stable",
@@ -140,6 +141,71 @@
             "mise run ci"
           ],
           "forbidden_regex": ["cargo init", "(?:modified|修改).*Cargo.toml"]
+        }
+      }
+    },
+    {
+      "id": "new-node-library",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "Initialize a new ESM TypeScript/Node.js library with exact Node LTS, pnpm, Oxc, TypeScript, Vitest, and Lefthook versions.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:Status|状态).*completed",
+            "(?:Mode|模式).*new",
+            "(?:Stack|技术栈).*TypeScript.*Node",
+            "(?:Shape|形态).*library",
+            "pnpm-lock.yaml",
+            "Oxfmt",
+            "Oxlint",
+            "tsc --noEmit",
+            "Vitest",
+            "mise run ci"
+          ],
+          "forbidden_regex": ["Prettier", "ESLint", "node:test", "(?:planning-only|仅规划)"]
+        }
+      }
+    },
+    {
+      "id": "new-node-cli",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "Initialize a new ESM TypeScript CLI and verify its thin entry point and Vitest smoke test.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:Status|状态).*completed",
+            "(?:Stack|技术栈).*TypeScript.*Node",
+            "(?:Shape|形态).*CLI",
+            "src/cli.ts",
+            "src/index.ts",
+            "vitest run",
+            "mise run ci"
+          ],
+          "forbidden_regex": ["node:test", "(?:planning-only|仅规划)"]
+        }
+      }
+    },
+    {
+      "id": "existing-node-baseline",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "Complete this recognized existing ESM TypeScript library baseline while preserving sources, package scripts, and compatible configuration.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:Status|状态).*completed",
+            "(?:Mode|模式).*existing",
+            "(?:Stack|技术栈).*TypeScript.*Node",
+            "(?:preserved|保留).*(?:source|源码)",
+            "(?:preserved|保留).*(?:scripts|脚本)",
+            "mise run ci"
+          ],
+          "forbidden_regex": [
+            "(?:replaced|覆盖).*(?:package.json|tsconfig)",
+            "(?:modified|修改).*(?:source|源码)"
+          ]
         }
       }
     },

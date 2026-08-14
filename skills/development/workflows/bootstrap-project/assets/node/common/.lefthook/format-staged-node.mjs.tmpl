@@ -1,0 +1,32 @@
+import { spawnSync } from "node:child_process";
+
+const diff = spawnSync("git", ["diff", "--cached", "--name-only", "--diff-filter=ACMR", "-z"], {
+  encoding: "buffer",
+});
+
+if (diff.status !== 0) {
+  process.stderr.write(diff.stderr);
+  process.exit(diff.status ?? 1);
+}
+
+const supported = /\.(?:cjs|js|json|jsonc|jsx|md|mjs|toml|ts|tsx|yaml|yml)$/u;
+const files = diff.stdout
+  .toString("utf8")
+  .split("\0")
+  .filter((file) => file.length > 0 && supported.test(file));
+
+if (files.length === 0) {
+  process.exit(0);
+}
+
+const safeFiles = files.map((file) => (file.startsWith("-") ? `./${file}` : file));
+const format = spawnSync("pnpm", ["exec", "oxfmt", ...safeFiles], {
+  stdio: "inherit",
+});
+
+if (format.status !== 0) {
+  process.exit(format.status ?? 1);
+}
+
+const stage = spawnSync("git", ["add", "--", ...files], { stdio: "inherit" });
+process.exit(stage.status ?? 1);

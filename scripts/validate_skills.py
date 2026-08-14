@@ -58,6 +58,18 @@ REQUIRED_CASES_BY_SKILL = {
             "category": "positive-trigger",
             "invocation": "explicit",
         },
+        "new-node-library": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "new-node-cli": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "existing-node-baseline": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
         "new-zig-library": {
             "category": "positive-trigger",
             "invocation": "explicit",

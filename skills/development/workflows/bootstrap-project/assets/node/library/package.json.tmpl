@@ -1,0 +1,35 @@
+{
+  "name": "{{PROJECT_NAME}}",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint --deny-warnings --vitest-plugin .",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "devDependencies": {
+    "@types/node": "{{NODE_TYPES_VERSION}}",
+    "oxfmt": "{{OXFMT_VERSION}}",
+    "oxlint": "{{OXLINT_VERSION}}",
+    "typescript": "{{TYPESCRIPT_VERSION}}",
+    "vitest": "{{VITEST_VERSION}}"
+  },
+  "engines": {
+    "node": "{{NODE_VERSION}}",
+    "pnpm": "{{PNPM_VERSION}}"
+  },
+  "packageManager": "pnpm@{{PNPM_VERSION}}"
+}

@@ -1,0 +1,24 @@
+Status: completed
+Target: /workspace/existing-node-library
+Mode: existing
+Stack: TypeScript/Node.js
+Shape: library
+Versions: exact package constraints agreed with mise and the frozen pnpm lockfile.
+
+Changes:
+- created: missing baseline, CI, Renovate, and lockfiles
+- modified: structured package metadata only where an exact pin was missing
+- preserved: source files, package scripts, README, compatible TypeScript, Oxc, Vitest, and pnpm configuration
+
+Conflicts:
+- none
+
+Verification:
+- `mise run ci` — passed
+- existing source and scripts hashes — passed
+
+Failed command:
+- none
+
+Next step:
+- none
