@@ -29,8 +29,8 @@ When you are unsure whether to use a skill, start with the boundaries below. Exp
 
 **[`zig`](skills/development/languages/zig/SKILL.md)** · `$zig`
 
-- **适用于：** 设计、实现、调试、测试、优化、迁移、评审或维护 Zig 源码、构建、依赖、包和 C 互操作
-- **不适用于：** 与 Zig 代码、构建配置、工具链或诊断无关的任务
+- **Good for:** designing, implementing, debugging, testing, optimizing, migrating, reviewing, or maintaining Zig source code, builds, dependencies, packages, and C interoperability
+- **Not for:** tasks unrelated to Zig code, build configuration, toolchains, or diagnostics
 
 ### Tools
 
