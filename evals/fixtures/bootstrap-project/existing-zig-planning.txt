@@ -1,0 +1,16 @@
+Status: planned
+Target: /tmp/example
+Mode: existing
+Stack: Zig
+Shape: library
+Versions: preserve the existing Zig and Lefthook constraints; verify cross-file consistency before apply.
+
+Plan:
+- preserve src/root.zig — existing project source remains unchanged; verify with the existing build command.
+- conflict mise.toml and lefthook.yml only if their versions disagree with primary manifests; resolve before any write.
+
+Conflicts:
+- none detected in the supplied evidence.
+
+Next step:
+- Review the plan. This planning-only slice has not changed the target.

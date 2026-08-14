@@ -1,0 +1,1 @@
+Status: blocked. Volta and Husky are existing tools, so replacing them with mise and Lefthook is a conflict that requires explicit confirmation or approval. Nothing was removed or migrated.

@@ -1,0 +1,1 @@
+Status: blocked. The stack and target are ambiguous because both Node and Python primary manifests exist. Specify the exact target subproject and choose which stack applies before planning writes.
