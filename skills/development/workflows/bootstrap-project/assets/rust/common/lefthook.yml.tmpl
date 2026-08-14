@@ -1,11 +1,10 @@
 pre-commit:
+  piped: true
   jobs:
     - name: partial-stage-guard
       run: .lefthook/partial-stage-guard.sh
     - name: format-staged-rust
-      glob: "*.rs"
-      run: mise exec -- rustfmt --edition 2024 {staged_files}
-      stage_fixed: true
+      run: mise exec -- sh .lefthook/format-staged-rust.sh
     - name: lint-project-rust
       run: mise run lint
     - name: quick-project-check

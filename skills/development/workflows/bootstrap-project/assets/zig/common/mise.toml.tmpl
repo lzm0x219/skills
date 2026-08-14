@@ -7,7 +7,7 @@ zig = "{{ZIG_VERSION}}"
 lefthook = "{{LEFTHOOK_VERSION}}"
 
 [hooks]
-postinstall = "lefthook install --force"
+postinstall = "sh .lefthook/install-hooks.sh"
 
 [tasks.format]
 description = "Format Zig sources"

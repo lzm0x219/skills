@@ -43,7 +43,7 @@ Existing mode never runs `uv init` and never rewrites `pyproject.toml`, `uv.lock
 - `test`: pytest with its cache provider disabled;
 - `build`: `python -m build --installer=uv` through the locked uv environment;
 - serial `ci`: locked sync, format-check, lint, check, test, then build;
-- pre-commit: `piped: true` enforces stop-on-failure order across the partial-stage guard, staged Ruff formatter and explicit restage of only those files, whole-project Ruff lint, then mypy. Full pytest and build remain outside the hook. The version-locked installer validates Lefthook's generated hook and adds the official `--no-stage-fixed` run flag, while the formatter helper reads NUL-delimited Python paths directly from the Git index;
+- pre-commit: `piped: true` enforces stop-on-failure order across the partial-stage guard, staged Ruff formatter and explicit restage of only those files, whole-project Ruff lint, then mypy. Full pytest and build remain outside the hook. The version-locked installer validates Lefthook's generated hook, adds the official `--no-stage-fixed` run flag, and scopes `MISE_TRUSTED_CONFIG_PATHS` to this hook process without persisting global trust, while the formatter helper reads NUL-delimited Python paths directly from the Git index;
 - Ubuntu CI through the same `mise run ci` entry, immutable action SHAs, and Renovate coverage for mise, PEP 621, uv lock artifacts, and Actions. Lockfile maintenance remains explicitly disabled.
 
 A new library includes `py.typed`. A new CLI keeps printing and argument handling in thin `src/<module>/cli.py` code and places tested behavior in `core.py`.

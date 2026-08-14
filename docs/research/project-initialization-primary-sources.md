@@ -251,7 +251,7 @@ uv run --locked python -m build --installer=uv
 - `stage_fixed` 默认是 `false`，只对 `pre-commit` 生效。设为 `true` 后，Lefthook 在 command/script 完成后自动调用 `git add`：有 command-level `files` 时使用其结果，否则使用 `{staged_files}`，并继续应用 `glob`/`exclude` filters。[`stage_fixed`](https://lefthook.dev/configuration/stage_fixed/)
 - Lefthook 默认顺序执行 commands/scripts，`parallel: true` 才并发；需要可审计顺序时可用 `priority`，其中正整数按升序执行，未设置或 `0` 的项最后执行。新的 `jobs` 列表也会按声明顺序追加 unnamed jobs，`piped: true` 可显式表达串行流水线。[`parallel`](https://lefthook.dev/configuration/parallel/) · [`priority`](https://lefthook.dev/configuration/priority/) · [`jobs`](https://lefthook.dev/configuration/jobs/)
 
-**工程推论与建议：** `stage_fixed` 最终调用 `git add`，所以同一文件同时存在 staged 与 unstaged 修改时，它可能把原本未暂存的工作区内容一并加入提交。Skill 必须在 formatter 之前检测这种 partial-staging 情况并中止；不能把 `stage_fixed: true` 本身当作保护。pre-commit 应显式串行化为“partial-stage guard → staged formatter + `stage_fixed` → staged lint → project-level quick check”，不要只依赖 YAML map 的视觉顺序，也不要设置 `parallel: true`。
+**工程推论与建议：** `stage_fixed` 最终调用 `git add`，所以同一文件同时存在 staged 与 unstaged 修改时，它可能把原本未暂存的工作区内容一并加入提交。Skill 必须让 partial-stage guard 看到真实工作树，再由 formatter 从 Git index 读取 NUL 分隔路径并只重暂存这些文件；不能把 `stage_fixed: true` 本身当作保护。pre-commit 应显式串行化为“partial-stage guard → staged formatter + explicit restage → staged lint → project-level quick check”，不要设置 `parallel: true`。
 
 ### GitHub Actions 中的 mise
 
@@ -283,7 +283,7 @@ uv run --locked python -m build --installer=uv
 | `mise install`                                   | 下载、解压或编译工具到 mise data/cache；不负责修改 shell rc                                   |
 | `mise run <task>`                                | 运行 task 声明的任意命令；可能自动准备工具，副作用由 task 和 tool installer 决定              |
 | `lefthook install`                               | 配置缺失时创建空 config；写 `.git/hooks/`                                                     |
-| `stage_fixed: true`                              | 对筛选后的文件调用 `git add`，改变 index                                                      |
+| staged formatter helper                          | 读取 index 中的 NUL 分隔路径，格式化并显式 `git add --` 精确文件，改变工作树与 index          |
 | `jdx/mise-action`                                | 下载 action、mise 与工具，写 runner cache/tool directories，并把环境提供给后续 workflow steps |
 | 提交 `.github/renovate.json`                     | 只增加仓库配置；不会自动安装或授权 Renovate，是否运行取决于已安装 App 或 self-hosted 调度     |
 | Renovate mise lockfile maintenance（若显式启用） | 可执行 `mise lock --bump` 并更新 `mise.lock`；属于受管理员控制的 unsafe execution             |

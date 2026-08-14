@@ -18,7 +18,10 @@ if git_path.returncode != 0:
 
 hook = Path(git_path.stdout.strip()).resolve() / "pre-commit"
 generated = 'call_lefthook run "pre-commit" "$@"'
-safe = 'call_lefthook run "pre-commit" --no-stage-fixed "$@"'
+safe = (
+    'export MISE_TRUSTED_CONFIG_PATHS="$(git rev-parse --show-toplevel)"; '
+    'call_lefthook run "pre-commit" --no-stage-fixed "$@"'
+)
 source = hook.read_text(encoding="utf-8")
 
 if safe in source:

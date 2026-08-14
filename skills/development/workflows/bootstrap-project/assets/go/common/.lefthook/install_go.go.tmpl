@@ -30,7 +30,7 @@ func main() {
 	}
 
 	generated := `call_lefthook run "pre-commit" "$@"`
-	safe := `call_lefthook run "pre-commit" --no-stage-fixed "$@"`
+	safe := `export MISE_TRUSTED_CONFIG_PATHS="$(git rev-parse --show-toplevel)"; call_lefthook run "pre-commit" --no-stage-fixed "$@"`
 	text := string(source)
 	if strings.Contains(text, safe) {
 		return

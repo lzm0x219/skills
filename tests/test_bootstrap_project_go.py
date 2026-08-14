@@ -381,7 +381,7 @@ class BootstrapProjectGoTests(unittest.TestCase):
             "install",
             "format",
             "format-check",
-            "modules-check",
+            "check",
             "lint",
             "test",
             "build",
@@ -438,7 +438,9 @@ class BootstrapProjectGoTests(unittest.TestCase):
                     hook = cwd / ".git" / "hooks" / "pre-commit"
                     hook.parent.mkdir(parents=True, exist_ok=True)
                     hook.write_text(
-                        '#!/bin/sh\\ncall_lefthook run "pre-commit" --no-stage-fixed "$@"\\n',
+                        '#!/bin/sh\\nexport MISE_TRUSTED_CONFIG_PATHS="$(git rev-parse '
+                        '--show-toplevel)"; call_lefthook run "pre-commit" '
+                        '--no-stage-fixed "$@"\\n',
                         encoding="utf-8",
                     )
                     hook.chmod(0o755)

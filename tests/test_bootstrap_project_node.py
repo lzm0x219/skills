@@ -110,6 +110,29 @@ class BootstrapNodeTest(unittest.TestCase):
         self.assertEqual(VERSIONS, report["versions"])
         self.assertTrue(report["changes"]["created"])
 
+    def test_lock_dependency_and_hook_failures_are_partial(self) -> None:
+        failures = (
+            ["exec", "--", "pnpm", "install", "--lockfile-only"],
+            ["exec", "--", "pnpm", "install", "--frozen-lockfile"],
+            ["exec", "--", "node", ".lefthook/install-node.mjs"],
+        )
+        for failed in failures:
+            with self.subTest(failed=failed):
+                result = self.invoke_new(
+                    "library",
+                    "sample-library",
+                    fail_on=" ".join(failed),
+                )
+                report = result["report"]
+
+                self.assertNotEqual(0, result["completed"].returncode)
+                self.assertEqual("partial", report["status"])
+                self.assertEqual(
+                    [str(result["fake_mise"]), *failed],
+                    report["failed_command"],
+                )
+                self.assertIsNotNone(report["recovery"])
+
     def test_generated_package_excludes_rejected_tooling(self) -> None:
         result = self.invoke_new("library", "sample-library")
 
@@ -316,7 +339,8 @@ class BootstrapNodeTest(unittest.TestCase):
                     hook = cwd / ".git" / "hooks" / "pre-commit"
                     hook.parent.mkdir(parents=True, exist_ok=True)
                     hook.write_text(
-                        'LEFTHOOK installed\\ncall_lefthook run "pre-commit" '
+                        'LEFTHOOK installed\\nexport MISE_TRUSTED_CONFIG_PATHS="$(git '
+                        'rev-parse --show-toplevel)"; call_lefthook run "pre-commit" '
                         '--no-stage-fixed "$@"\\n',
                         encoding="utf-8",
                     )
@@ -399,6 +423,7 @@ class BootstrapNodeTest(unittest.TestCase):
         )
         self.assertIn('spawnSync("lefthook", ["install", "--force"]', installer)
         self.assertIn("--no-stage-fixed", installer)
+        self.assertIn("MISE_TRUSTED_CONFIG_PATHS", installer)
         self.assertTrue((target / ".github" / "renovate.json").is_file())
         self.assertTrue((target / "pnpm-lock.yaml").is_file())
 

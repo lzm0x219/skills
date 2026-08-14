@@ -1,0 +1,24 @@
+#!/bin/sh
+set -eu
+
+lefthook install --force
+
+hooks_path=$(git rev-parse --git-path hooks)
+hook="$hooks_path/pre-commit"
+generated='call_lefthook run "pre-commit" "$@"'
+safe='export MISE_TRUSTED_CONFIG_PATHS="$(git rev-parse --show-toplevel)"; call_lefthook run "pre-commit" --no-stage-fixed "$@"'
+
+if grep -F "$safe" "$hook" >/dev/null 2>&1; then
+  exit 0
+fi
+if ! grep -F "$generated" "$hook" >/dev/null 2>&1; then
+  echo "Lefthook pre-commit output changed; refusing an unknown patch." >&2
+  exit 1
+fi
+
+temporary=$(mktemp "${hook}.XXXXXX")
+trap 'rm -f "$temporary"' EXIT HUP INT TERM
+sed 's|call_lefthook run "pre-commit" "$@"|export MISE_TRUSTED_CONFIG_PATHS="$(git rev-parse --show-toplevel)"; call_lefthook run "pre-commit" --no-stage-fixed "$@"|' "$hook" > "$temporary"
+chmod 755 "$temporary"
+mv "$temporary" "$hook"
+trap - EXIT HUP INT TERM

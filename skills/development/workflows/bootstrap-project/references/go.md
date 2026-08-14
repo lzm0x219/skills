@@ -35,12 +35,12 @@ Existing mode never runs `go mod init`, never rewrites `go.mod`, `go.sum`, sourc
 - `install`: `go mod download`;
 - `format`: recursively apply `gofmt -w` to non-vendored Go source;
 - `format-check`: run `gofmt -d` over every non-vendored Go source without changing it;
-- `modules-check`: `go mod tidy -diff`;
+- `check`: `go mod tidy -diff`;
 - `lint`: `go vet -mod=readonly ./...`;
 - `test`: `go test -mod=readonly -count=1 ./...`;
 - `build`: `go build -mod=readonly ./...` over a library or multi-package thin-CLI layout, so no executable is written into the repository;
 - serial `ci`: install, module check, format check, vet, test, then build;
-- pre-commit: `piped: true` enforces stop-on-failure order across the partial-stage guard, staged gofmt and explicit restage, module metadata check, then vet. Full test and build remain outside the hook. The version-locked installer validates Lefthook's generated hook and adds the official `--no-stage-fixed` run flag; the staged helper reads NUL-delimited paths directly from the Git index;
+- pre-commit: `piped: true` enforces stop-on-failure order across the partial-stage guard, staged gofmt and explicit restage, module metadata check, then vet. Full test and build remain outside the hook. The version-locked installer validates Lefthook's generated hook, adds the official `--no-stage-fixed` run flag, and scopes `MISE_TRUSTED_CONFIG_PATHS` to this hook process without persisting global trust; the staged helper reads NUL-delimited paths directly from the Git index;
 - Ubuntu CI through the same `mise run ci` entry, immutable action SHAs, and Renovate coverage for mise, Go modules, Go directives, and Actions. Lockfile maintenance remains explicitly disabled; `go.sum` is checksum metadata, not a lockfile-maintenance target.
 
 `GOTOOLCHAIN=local` prevents implicit toolchain downloads and `GOWORK=off` keeps the boundary on the selected single module. Go commands still use host or runner build, module, and temporary caches outside the repository.
