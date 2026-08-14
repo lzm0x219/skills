@@ -175,26 +175,52 @@ uv run --locked python -m build --installer=uv
 
 ## Go
 
-### 官方事实
+### 核对日版本与原生骨架边界
 
-- Go 官方下载 JSON 在核对日把 **go1.26.6** 标为 stable。[Download JSON](https://go.dev/dl/?mode=json)
-- `go mod init [module-path]` 只初始化并写入新的 `go.mod`，现有 `go.mod` 会导致失败；它不会生成 application 或 library source。[Go Modules Reference](https://go.dev/ref/mod#go-mod-init)
-- Go 官方教程对 library 与 executable 都先运行 `go mod init`，然后由作者创建 `.go` source；可执行命令必须使用 `package main`。因此 Go 原生初始化器没有 `--lib` / `--bin` 形态模板。[Create a Go module](https://go.dev/doc/tutorial/create-module) · [How to Write Go Code](https://go.dev/doc/code)
-- `gofmt -w` 覆盖不合规文件；`gofmt -d` 输出 diff、不改源码，并在格式不同的时候返回非零退出码。只用 `gofmt -l` 会列文件但不会因差异自动失败。[gofmt command](https://pkg.go.dev/cmd/gofmt) · [official `gofmt` source](https://go.dev/src/cmd/gofmt/gofmt.go)
-- `go build` 构建 packages；构建单个 main package 时默认可能在当前目录写 executable，而构建多个 package 或非-main package 时丢弃结果并主要充当 build check。[`go` command](https://pkg.go.dev/cmd/go)
-- `go test` 编译并执行每个 package 的测试 binary，并在构建测试时运行一组高置信度 `go vet` 检查；显式 `go vet ./...` 可作为单独入口。[`go` command: test](https://pkg.go.dev/cmd/go)
-- module-aware build/test/list/vet 等命令读取 dependency graph。默认通常表现为 `-mod=readonly`，发现需要改变 `go.mod` 时失败；`-mod=mod` 则允许更新 `go.mod`/`go.sum`。`go mod tidy` 明确用于修改 module metadata 使其与源码匹配。[Go Modules Reference](https://go.dev/ref/mod#build-commands)
+- Go 官方下载 JSON 在核对日把 **go1.26.6** 标为 stable；Lefthook 官方 latest release 是 **v2.1.10**。两者都只是核对日快照，生成时仍应解析后写 exact pin。[Go Download JSON](https://go.dev/dl/?mode=json) · [Lefthook v2.1.10](https://github.com/evilmartians/lefthook/releases/tag/v2.1.10)
+- `go mod init [module-path]` 只在当前目录初始化并写入新的 `go.mod`；现有 `go.mod` 会导致失败。module path 是发布与 import identity，不应从任意目录名静默猜测。[Go Modules Reference](https://go.dev/ref/mod#go-mod-init)
+- Go 官方教程对 library 与 executable 都先运行 `go mod init`，再由作者创建 `.go` source；可执行命令必须使用 `package main`。因此 Go 没有类似 `--lib` / `--bin` 的官方源码脚手架，library 的 package、CLI 的 `main.go` 与 smoke test 都属于 Skill 模板，而不是 `go mod init` 的输出。[Create a Go module](https://go.dev/doc/tutorial/create-module) · [How to Write Go Code](https://go.dev/doc/code)
+- 最小 library 可在 module root 提供一个非 `main` package 和对应 `_test.go`；最小 CLI 可在 root 提供 `package main`、`func main()` 与同 package smoke test。官方只在同时包含 library 与 commands 或有多个 commands 时推荐 `cmd/<name>/`，这仍是 layout convention，不是 `go mod init` 的默认输出。[Organizing a Go module](https://go.dev/doc/modules/layout)
 
-### 文件副作用
+### 格式、分析、测试与构建
 
-- **修改项目文件：** `go mod init`、`go mod tidy`、`gofmt -w`、`go fmt`；`go generate` 会运行任意 generator，意图就是创建或更新 source。
-- **源码只读、可作 CI 门：** `gofmt -d .`；`go vet -mod=readonly ./...`；`go test -mod=readonly ./...`。它们会写共享 build/module/test cache，测试与 cgo/build tools 也可能有其他副作用。
-- **构建入口需谨慎：** `go build ./...` 适合作为 package-wide build check，通常把产物放入 cache；对单个 main package 直接 `go build` 可能在项目目录写 executable。[`go` command](https://pkg.go.dev/cmd/go)
+- `gofmt -w` 会覆盖不合规 source；Go 1.26.6 的 `gofmt -d` 输出 diff、不改 source，并在格式不同时通过 `errFormattingDiffers` 返回退出码 1。`gofmt -l` 只列文件，不具备这个差异退出码语义。[gofmt command](https://pkg.go.dev/cmd/gofmt) · [Go 1.26 `gofmt` source](https://go.dev/src/cmd/gofmt/gofmt.go)
+- `go vet` 报告编译器未必捕获的可疑结构；命中问题或调用错误时返回非零，但官方明确说明它依赖 heuristics，不能证明程序正确。[`cmd/vet`](https://pkg.go.dev/cmd/vet)
+- `go test ./...` 会为每个 package 编译并运行独立 test binary，并在构建测试时运行一组高置信度 vet checks；package-list mode 会缓存成功结果。测试代码本身是可执行代码，可能写任意文件、访问网络或启动子进程。[`go` command: test](https://pkg.go.dev/cmd/go)
+- `go build` 会编译 packages 与 dependencies，但不 install。直接构建单个 `main` package 时，默认会把 executable 写到当前目录；构建多个 packages 或单个非-main package 时结果通常只进入 build cache/临时目录。若门禁必须保证仓库无 binary artifact，应显式 `-o` 到临时目录，而不是仅凭 `./...` 推断无写入。[`go` command: build](https://pkg.go.dev/cmd/go)
+- module-aware 的 build/test/vet 默认通常按 `-mod=readonly` 工作；显式设置该值会在需要改 `go.mod` 时失败，但仍可能下载依赖并写 module cache。`-mod=mod` 可更新 `go.mod`，`go mod tidy` 会增删 `go.mod` requirements 与 `go.sum` entries；Go 1.26 的 `go mod tidy -diff` 才是只输出必要 metadata diff、差异时非零的只读门禁。[Go Modules Reference](https://go.dev/ref/mod#build-commands) · [`go mod tidy`](https://go.dev/ref/mod#go-mod-tidy)
+
+建议的公共任务边界是：本地修复用 `gofmt -w .`；CI 串行执行 `gofmt -d .`、`go mod tidy -diff`、`go vet -mod=readonly ./...`、`go test -mod=readonly ./...`，并让 build task 把 `go build -mod=readonly -o <temporary-directory>/ ./...` 的产物放到仓库外。临时目录的创建和删除应由确定性 helper 负责，不能把 shell-specific `$TMPDIR` 直接固化为跨平台契约。
+
+### mise、Lefthook 与 GitHub Actions 锁定
+
+- `mise.toml` 应 exact pin `go = "1.26.6"` 与 `lefthook = "2.1.10"`，并生成、提交 `mise.lock`；`go = "1.26"` 在 mise 中表示该 minor line 的最新版本，不是 exact patch。Go 自身的 `GOTOOLCHAIN=auto` 还可能依据 `go.mod` 的 `go` / `toolchain` directive 查找或下载较新 toolchain；若基线要求只运行 mise pin，应设置 `GOTOOLCHAIN = "local"`，让不兼容约束直接失败。[mise Go](https://mise.jdx.dev/lang/go.html) · [mise lockfile](https://mise.jdx.dev/dev-tools/mise-lock.html) · [Go Toolchains](https://go.dev/doc/toolchain)
+- `lefthook install` 会把配置的 hooks 安装进 `.git/hooks/`；修改 `lefthook.yml` 后无需重装。`stage_fixed` 默认 `false`，设为 `true` 会自动 `git add` formatter 处理过的文件，因此有部分暂存安全要求的基线不应启用它，仍需在 formatter 前拒绝同文件 staged/unstaged overlap。[Lefthook install](https://lefthook.dev/usage/commands/install/) · [`stage_fixed`](https://lefthook.dev/configuration/stage_fixed/)
+- workflow 可使用唯一 setup path：`actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1`，再用 `jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5`、显式 `version: 2026.8.5` 安装项目工具，最后只调用 `mise run ci`；存在 `mise.lock` 时 action 会执行 locked install。无需再加入 `actions/setup-go` 形成第二套 Go 安装来源。[checkout v7.0.1](https://github.com/actions/checkout/releases/tag/v7.0.1) · [checkout pinned commit](https://github.com/actions/checkout/commit/3d3c42e5aac5ba805825da76410c181273ba90b1) · [mise-action v4.2.5](https://github.com/jdx/mise-action/releases/tag/v4.2.5) · [mise-action pinned commit](https://github.com/jdx/mise-action/commit/3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518) · [mise v2026.8.5](https://github.com/jdx/mise/releases/tag/v2026.8.5)
+
+### Renovate 的 Go、mise 与 Actions 支持
+
+- `gomod` manager 默认匹配所有 `go.mod`，提取 `go`、`toolchain`、direct/indirect requirements、replacements 与 Go 1.24+ `tool` dependencies。它默认不升级表示最低兼容版本的 `go` directive，但会跟踪表示建议精确工具链的 `toolchain` directive；普通 dependency update 可更新 `go.sum` artifact。[Renovate `gomod`](https://docs.renovatebot.com/modules/manager/gomod/)
+- `mise` manager 默认匹配标准 `mise.toml` 变体，能提取 `[tools]` / task tools，并在存在 `mise.lock` 时更新 locked version。它支持 `mise.lock` 的 lockfile maintenance，但要求已有 lockfile，并通过受 Renovate execution/trust policy 约束的外部 `mise` 命令执行。[Renovate `mise`](https://docs.renovatebot.com/modules/manager/mise/)
+- `github-actions` manager 默认匹配 `.github/workflows/*.yml` 等 workflow/action 文件，能更新 `uses:` 中的 action refs 与 digest；完整 SHA 后必须保留 `# v7.0.1` 一类可识别版本注释，裸 SHA 默认不会获得版本更新。这样既保持不可变执行目标，也让 updater 保留版本意图。[Renovate `github-actions`](https://docs.renovatebot.com/modules/manager/github-actions/)
+- `lockFileMaintenance` 全局默认关闭，支持清单包含 `mise.lock`，不包含 `go.sum`；因此关闭它不妨碍常规 Go dependency PR 更新 `go.mod`/`go.sum`。首版 `.github/renovate.json` 应保持 `{ "lockFileMaintenance": { "enabled": false } }`，不要把 `go.sum` 描述为 Go lockfile。[Renovate lock file maintenance](https://docs.renovatebot.com/configuration-options/#lockfilemaintenance)
+
+### 文件副作用总结
+
+| 操作                                                | 受版本控制文件与其他磁盘副作用                                                                                                                                          |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `go mod init` / `go mod tidy`                       | 分别创建 `go.mod`，或更新 `go.mod` / `go.sum`；`go mod tidy -diff` 只读 metadata，但解析过程仍可能使用网络和 module cache                                               |
+| `gofmt -w` / `go fmt`                               | 改写 source；`gofmt -d` 对 source 只读，Go 1.26 在差异时返回 1                                                                                                          |
+| `go vet -mod=readonly ./...`                        | 对 project metadata/source 只读；会编译分析并写 build/module cache，cgo 或外部 build tools 可能引入额外副作用                                                           |
+| `go test -mod=readonly ./...`                       | 对 metadata 默认只读，但写 build/module/test cache；测试代码可产生任意副作用                                                                                            |
+| `go build -mod=readonly ...`                        | 写 build/module cache；单个 `main` package 默认还可能在当前目录写 executable，显式 `-o` 到仓库外才能控制 artifact 位置                                                  |
+| `mise install` / `lefthook install` / `mise run ci` | 前者下载工具并写 mise data/cache；Lefthook 写 `.git/hooks/`；CI 又会产生上述 Go cache、临时 build artifact 与测试自身副作用                                             |
+| `actions/checkout` / `jdx/mise-action`              | checkout 写 runner workspace；mise-action 下载 action、mise 与项目工具并写 runner tool/cache directories。workflow 不改 project source 不等于 runner 文件系统完全无写入 |
 
 ### 对 Skill 的建议
 
-- 先要求 module path 与项目形态。执行 `go mod init` 后，由 Skill 生成一个无业务语义的 `package main` 或 library package 以及 smoke test；这部分是 Skill 模板，不是 Go initializer 输出。
-- 本地修复任务使用 `gofmt -w`；CI 使用 `gofmt -d .` 并依赖非零退出码，同时为 dependency-sensitive commands 显式设置 `-mod=readonly`，让意外 metadata 漂移失败。
+- 先确认 module path 与 library/CLI 形态，再运行 exact mise Go 下的 `go mod init` 并生成无业务语义的 source 与真实 smoke test。既有 `go.mod`、`go.work`、`.go-version`、asdf 或自定义 build system 应先进入保留/冲突判断，不能重新初始化或静默增加第二个版本来源。
+- hook 只承担快速 staged formatter 与只读 vet；完整 test/build 留给公共 mise tasks 和 CI。部分暂存 guard 必须先于 formatter，formatter 只处理并重新暂存精确的 staged `.go` 文件，避免把同文件未暂存内容带入 commit。
 
 ## Issue #6：Zig 项目基线工具链核验
 

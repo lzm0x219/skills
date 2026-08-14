@@ -1,0 +1,46 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+)
+
+func main() {
+	install := exec.Command("lefthook", "install", "--force")
+	install.Stdout = os.Stdout
+	install.Stderr = os.Stderr
+	if err := install.Run(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	hooksPath, err := exec.Command("git", "rev-parse", "--git-path", "hooks").Output()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	hook := filepath.Join(strings.TrimSpace(string(hooksPath)), "pre-commit")
+	source, err := os.ReadFile(hook)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	generated := `call_lefthook run "pre-commit" "$@"`
+	safe := `call_lefthook run "pre-commit" --no-stage-fixed "$@"`
+	text := string(source)
+	if strings.Contains(text, safe) {
+		return
+	}
+	if !strings.Contains(text, generated) {
+		fmt.Fprintln(os.Stderr, "Lefthook pre-commit output changed; refusing an unknown patch.")
+		os.Exit(1)
+	}
+	if err := os.WriteFile(hook, []byte(strings.Replace(text, generated, safe, 1)), 0o755); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}

@@ -1,0 +1,25 @@
+Status: completed
+Target: /tmp/sample-go-cli
+Mode: new
+Stack: Go
+Shape: CLI
+Versions: Go and Lefthook use the confirmed exact versions.
+
+Changes:
+- created: module, tested library behavior, thin `cmd/sample-go-cli` entry, mise tasks, Lefthook, CI, and Renovate
+- modified: none
+- preserved: none
+
+Conflicts:
+- none
+
+Verification:
+- `go test ./...` — passed
+- `go run ./cmd/sample-go-cli` smoke — passed
+- `mise run ci` — passed
+
+Failed command:
+- none
+
+Next step:
+- none

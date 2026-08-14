@@ -23,6 +23,8 @@
         "node-rejected-tool-migrations-blocked",
         "python-pep621-src-layout-preserved",
         "python-alternative-tool-migrations-blocked",
+        "go-module-path-and-package-layout-preserved",
+        "go-workspace-and-nested-modules-blocked",
         "no-global-shell-mutation"
       ]
     }

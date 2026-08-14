@@ -1,0 +1,53 @@
+[settings]
+lockfile = true
+lockfile_platforms = ["linux-x64", "linux-arm64", "macos-x64", "macos-arm64"]
+
+[tools]
+go = "{{GO_VERSION}}"
+lefthook = "{{LEFTHOOK_VERSION}}"
+
+[env]
+GOTOOLCHAIN = "local"
+GOWORK = "off"
+
+[hooks]
+postinstall = "go run .lefthook/install_go.go"
+
+[tasks.install]
+description = "Download the module graph"
+run = "go mod download"
+
+[tasks.format]
+description = "Format every Go source file with gofmt"
+run = "go run .lefthook/format_all_go.go"
+
+[tasks.format-check]
+description = "Check Go formatting without changing sources"
+run = "go run .lefthook/check_gofmt.go"
+
+[tasks.modules-check]
+description = "Check go.mod and go.sum without changing them"
+run = "go mod tidy -diff"
+
+[tasks.lint]
+description = "Report suspicious Go constructs"
+run = "go vet -mod=readonly ./..."
+
+[tasks.test]
+description = "Run every Go test without reusing test results"
+run = "go test -mod=readonly -count=1 ./..."
+
+[tasks.build]
+description = "Build every Go package"
+run = "go build -mod=readonly ./..."
+
+[tasks.ci]
+description = "Run the complete project quality gate"
+run = [
+  { task = "install" },
+  { task = "modules-check" },
+  { task = "format-check" },
+  { task = "lint" },
+  { task = "test" },
+  { task = "build" },
+]
