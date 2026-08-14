@@ -1,0 +1,24 @@
+Status: completed
+Target: /tmp/sample_cli
+Mode: new
+Stack: Zig
+Shape: CLI/application
+Versions: exact confirmed Zig and Lefthook pins.
+
+Changes:
+- created: CLI source, build manifests, mise baseline, Lefthook, CI, Renovate, README, ignore rules, and EditorConfig.
+- modified: none.
+- preserved: official zig init package fingerprint.
+
+Conflicts:
+- none.
+
+Verification:
+- mise run ci — passed.
+- addRunArtifact smoke test — passed.
+
+Failed command:
+- none.
+
+Next step:
+- none.

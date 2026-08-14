@@ -46,6 +46,18 @@ ALLOWED_CAPABILITY_KEYS = {
 ALLOWED_WORKSPACE_ACCESS_KEYS = {"current", "planned"}
 REQUIRED_CASES_BY_SKILL = {
     "bootstrap-project": {
+        "new-zig-library": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "new-zig-cli": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "zig-verification-failure": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
         "existing-zig-planning": {
             "category": "positive-trigger",
             "invocation": "explicit",

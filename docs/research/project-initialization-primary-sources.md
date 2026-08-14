@@ -145,6 +145,72 @@
 - 先要求 module path 与项目形态。执行 `go mod init` 后，由 Skill 生成一个无业务语义的 `package main` 或 library package 以及 smoke test；这部分是 Skill 模板，不是 Go initializer 输出。
 - 本地修复任务使用 `gofmt -w`；CI 使用 `gofmt -d .` 并依赖非零退出码，同时为 dependency-sensitive commands 显式设置 `-mod=readonly`，让意外 metadata 漂移失败。
 
+## Issue #6：Zig 项目基线工具链核验
+
+本节只服务于 `bootstrap-project` 的 Zig vertical slice。版本和 moving tag 的解析结果是 **2026-08-14 快照**；实现中应保留版本刷新入口，不能把本节当作永久最新值。
+
+### 版本快照与 Zig 命令语义
+
+- Zig 官网 Download 页面把 development build `master` 与 tagged release 分开列出；核对日最新稳定 tagged release 是 **0.16.0**，发布日期为 2026-04-13。[Zig Downloads](https://ziglang.org/download/) · [0.16.0 release notes](https://ziglang.org/download/0.16.0/release-notes.html)
+- `zig init` 在当前目录创建 `build.zig`、`build.zig.zon`、`src/main.zig`、`src/root.zig`；当前官方输出没有 library/CLI 形态参数，而是同时生成 executable 和 library 示例。0.16.0 源码另提供 `--minimal`，只生成 ZON 和最小 `build.zig`，它同样不是 library/CLI shape selector。[Zig Overview](https://ziglang.org/learn/overview/) · [Zig 0.16.0 CLI source](https://codeberg.org/ziglang/zig/src/tag/0.16.0/src/main.zig) · [official init template](https://codeberg.org/ziglang/zig/src/tag/0.16.0/lib/init/build.zig)
+- `zig fmt` 会原地修改源码；`zig fmt --check .` 是不覆盖源码的格式门。`zig build` 执行 `build.zig` 声明的 DAG，默认 main step 是 Install step；被安装的 artifact 通常写到 `zig-out/`，构建缓存写到 `.zig-cache/`。[Zig 0.16.0 Language Reference](https://ziglang.org/documentation/0.16.0/) · [Build System: Installing Build Artifacts](https://ziglang.org/learn/build-system/#Installing-Build-Artifacts)
+- `zig test foo.zig` 会编译并运行该 source file 的 test declarations。构建脚本中的测试则分为 Compile 和 Run 两步；如果没有用 `addRunArtifact` 建立运行边，测试只被编译而不会执行。因此 `zig build test` 是否真正运行测试取决于项目的 `build.zig`。[Build System: Testing](https://ziglang.org/learn/build-system/#Testing)
+
+**工程建议：** 新项目可先运行官方 `zig init`，再按已确认的 library 或 CLI 形态窄幅清理另一套示例；既有项目不得重新运行 initializer。生成的 `build.zig` 必须让 `test` step 依赖 `addRunArtifact`，并以真实 smoke test 证明 runner 被执行。
+
+### mise 项目工具、任务与 CI 语法
+
+- 核对日 mise 最新 release 是 **2026.8.5**；`mise.toml` 的 `[tools]` 表用于声明项目工具，例如 `zig = "0.16.0"` 和 `lefthook = "2.1.10"`。`mise use` 会安装工具并创建或修改项目 `mise.toml`；直接编辑配置后运行 `mise install`，工具会被下载、解压或编译到 mise data directory，默认是 `~/.local/share/mise/installs/`。[mise latest release API](https://api.github.com/repos/jdx/mise/releases/latest) · [Dev Tools](https://mise.jdx.dev/dev-tools/) · [`mise install`](https://mise.jdx.dev/cli/install.html)
+- TOML task 的当前语法是 `[tasks.<name>]` 加 `run = "..."`，入口为 `mise run <name>`。`depends = [...]` 会先调度依赖，mise 会在可能时并行执行依赖；因此它表达依赖关系，不保证列表逐项串行。[Tasks](https://mise.jdx.dev/tasks/) · [Task Configuration: `depends`](https://mise.jdx.dev/tasks/task-configuration.html#depends) · [`mise run`](https://mise.jdx.dev/cli/run.html)
+- `run` 也可接受 command/task-reference 数组；数组元素顺序执行，任一失败即停止，`{ task = "test" }` 可调用另一个 task，而 `{ tasks = ["lint", "test"] }` 才显式并发。这是需要确定顺序的 `ci` 聚合入口。[Task Configuration: `run`](https://mise.jdx.dev/tasks/task-configuration.html#run) · [TOML Tasks: Run command](https://mise.jdx.dev/tasks/toml-tasks.html#run-command)
+- 未做 shell activation 时仍可用 `mise exec -- <command>` 或 `mise run <task>` 获得项目工具环境；这适合 Skill 和 CI，且不需要静默修改用户的 shell rc 文件。[Getting Started](https://mise.jdx.dev/getting-started.html)
+
+**工程建议：** Skill 直接结构化写入 `[tools]` 和 `[tasks]`，不调用会隐式修改 global config 的 `mise use --global`。Zig slice 的公共入口应为 `format`、`format-check`、`lint`、`check`、`test`、`build`、`ci`；每个任务必须执行真实命令。`ci` 应只调用不会改写受版本控制文件的任务，不能调用 `format`；使用 `run = [{ task = "format-check" }, ...]` 明确串行、失败即停，不用会自动并行调度的 `depends` 表达质量门顺序。
+
+### Lefthook 的 staged 文件、重暂存与执行顺序
+
+- 核对日 Lefthook 最新 release 是 **2.1.10**。`lefthook install` 会在配置不存在时创建空的 `lefthook.yml`，并把已配置 hooks 安装到 `.git/hooks/`；修改配置后无需重新安装，因为 hook 每次运行都会读取配置。非 npm 安装方式在 clone 后需要显式执行 `lefthook install`；随后可用 `lefthook check-install` 验证，已安装且同步返回 `0`，缺失或需同步返回 `1`。[Lefthook latest release API](https://api.github.com/repos/evilmartians/lefthook/releases/latest) · [`lefthook install`](https://lefthook.dev/usage/commands/install/) · [`lefthook check-install`](https://lefthook.dev/usage/commands/check-install/) · [What is Lefthook?](https://lefthook.dev/)
+- `{staged_files}` 会展开为当前准备提交的文件；`{files}` 则来自 hook-level 或 command-level 自定义 `files` shell command。文件列表过长时 Lefthook 会拆成多条命令顺序执行；给模板加引号会影响每个路径的 quoting。[`run`](https://lefthook.dev/configuration/run/) · [hook-level `files`](https://lefthook.dev/configuration/files-global/)
+- `stage_fixed` 默认是 `false`，只对 `pre-commit` 生效。设为 `true` 后，Lefthook 在 command/script 完成后自动调用 `git add`：有 command-level `files` 时使用其结果，否则使用 `{staged_files}`，并继续应用 `glob`/`exclude` filters。[`stage_fixed`](https://lefthook.dev/configuration/stage_fixed/)
+- Lefthook 默认顺序执行 commands/scripts，`parallel: true` 才并发；需要可审计顺序时可用 `priority`，其中正整数按升序执行，未设置或 `0` 的项最后执行。新的 `jobs` 列表也会按声明顺序追加 unnamed jobs，`piped: true` 可显式表达串行流水线。[`parallel`](https://lefthook.dev/configuration/parallel/) · [`priority`](https://lefthook.dev/configuration/priority/) · [`jobs`](https://lefthook.dev/configuration/jobs/)
+
+**工程推论与建议：** `stage_fixed` 最终调用 `git add`，所以同一文件同时存在 staged 与 unstaged 修改时，它可能把原本未暂存的工作区内容一并加入提交。Skill 必须在 formatter 之前检测这种 partial-staging 情况并中止；不能把 `stage_fixed: true` 本身当作保护。pre-commit 应显式串行化为“partial-stage guard → staged formatter + `stage_fixed` → staged lint → project-level quick check”，不要只依赖 YAML map 的视觉顺序，也不要设置 `parallel: true`。
+
+### GitHub Actions 中的 mise
+
+- mise 的 CI 文档推荐使用项目维护方提供的 `jdx/mise-action`，它负责安装 mise 和配置声明的工具。该页面的示例仍显示 `@v3`，但 action 官方仓库当前 README 已使用 `@v4`；v4 release notes 说明 v3 使用的 Node.js 20 runtime 已被 GitHub 弃用，应迁移到 Node.js 24 runtime 的 v4。[mise Continuous Integration](https://mise.jdx.dev/continuous-integration.html) · [mise-action README](https://github.com/jdx/mise-action/blob/main/README.md) · [mise-action v4.0.0](https://github.com/jdx/mise-action/releases/tag/v4.0.0)
+- 核对日 `mise-action` 最新 release 是 **v4.2.5**；official moving tag `v4` 与 `v4.2.5` 都解析到完整 commit SHA **`3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518`**。[latest release API](https://api.github.com/repos/jdx/mise-action/releases/latest) · [`v4` Git ref API](https://api.github.com/repos/jdx/mise-action/git/ref/tags/v4) · [resolved commit](https://github.com/jdx/mise-action/commit/3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518)
+- action 的当前默认值是安装 latest mise、运行 `mise install`、启用 mise cache，并把工具环境提供给后续 steps；因此即使 workflow 本身不改源码，setup step 也会下载 action、mise 和工具，并写 runner tool/cache 目录。[mise-action `action.yml`](https://github.com/jdx/mise-action/blob/v4.2.5/action.yml) · [mise-action README](https://github.com/jdx/mise-action/blob/v4.2.5/README.md)
+- GitHub 安全文档称 full-length commit SHA 是引用 action 的唯一 immutable release 方式；tag 可移动。GitHub 同时提醒，固定 SHA 不会自动获得更新。[GitHub Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use#using-third-party-actions)
+
+**工程建议：** 生成 `uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5`，并显式设置 `version: 2026.8.5`，随后只运行与本地相同的 `mise run ci`。SHA 和注释必须成对保留，便于 Renovate 的 `github-actions` manager 跟踪 tag。
+
+### Renovate 的配置位置与 managers
+
+- `.github/renovate.json` 是 Renovate 官方支持的 repository config 位置；典型起点是 `{"extends":["config:recommended"]}`。提交配置文件不会替用户安装或授权 GitHub App，自托管实例也必须由管理员把仓库纳入运行范围。[Installing and Onboarding: Configuration location](https://docs.renovatebot.com/getting-started/installing-onboarding/#configuration-location) · [Shareable Config Presets](https://docs.renovatebot.com/config-presets/)
+- `mise` manager 默认识别 `mise.toml` 等标准路径，读取顶层 `[tools]` 和 `tasks.*.tools`。其当前 registry snapshot 明确把 `zig` 标为受支持的 short name；因此 Zig compiler pin 通过 `mise` manager 更新。[Renovate `mise` manager](https://docs.renovatebot.com/modules/manager/mise/)
+- 当前官方 managers 清单没有 Zig 或 `build.zig.zon` 原生 manager；所以不能把“Renovate 能更新 `mise.toml` 中的 Zig”扩大成“Renovate 能管理 ZON package dependencies”。后者若进入范围，需要单独设计和验证 custom manager。[Renovate Managers](https://docs.renovatebot.com/modules/manager/)
+- `github-actions` manager 默认扫描 `.github/workflows/**/*.yml|yaml` 等 workflow/action 文件。对 `uses:` 的 SHA pin，只要旁边保留版本 tag 注释，它会按该 tag 更新 commit SHA；没有版本注释的 bare SHA 默认禁用更新，因为 Renovate 无法判断其所属 tag/branch。[Renovate `github-actions` manager](https://docs.renovatebot.com/modules/manager/github-actions/)
+- mise lockfile maintenance 可能运行 `mise lock --bump`，官方把它放在 unsafe execution 边界：self-hosted 管理员需显式允许 `mise`，且现有 `mise.lock` 是前提。[Renovate `mise` manager: Lock file support](https://docs.renovatebot.com/modules/manager/mise/#lock-file-support)
+
+**工程建议：** 初始 `.github/renovate.json` 使用 `config:recommended`、semantic commits 和 `dependencies` label；不启用 automerge、auto-approve、schedule 或 lockfile maintenance。GitHub Action 仍由 workflow 中的 SHA + tag comment 表达，不需要额外 manager 配置。Skill 只写配置文件并报告“Renovate 尚未授权”，不得声称 bot 已启用。
+
+### 副作用总表
+
+| 操作                                             | 可预期副作用                                                                                  |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| `zig init`                                       | 创建或写入 build manifest 与 `src/` 示例                                                      |
+| `zig fmt .`                                      | 改写 Zig 源码                                                                                 |
+| `zig fmt --check .`                              | 不改源码；读取 source tree                                                                    |
+| `zig build` / 正确连接的 `zig build test`        | 写 `.zig-cache/`；build 通常写 `zig-out/`；test/build steps 可执行项目代码                    |
+| `mise install`                                   | 下载、解压或编译工具到 mise data/cache；不负责修改 shell rc                                   |
+| `mise run <task>`                                | 运行 task 声明的任意命令；可能自动准备工具，副作用由 task 和 tool installer 决定              |
+| `lefthook install`                               | 配置缺失时创建空 config；写 `.git/hooks/`                                                     |
+| `stage_fixed: true`                              | 对筛选后的文件调用 `git add`，改变 index                                                      |
+| `jdx/mise-action`                                | 下载 action、mise 与工具，写 runner cache/tool directories，并把环境提供给后续 workflow steps |
+| 提交 `.github/renovate.json`                     | 只增加仓库配置；不会自动安装或授权 Renovate，是否运行取决于已安装 App 或 self-hosted 调度     |
+| Renovate mise lockfile maintenance（若显式启用） | 可执行 `mise lock --bump` 并更新 `mise.lock`；属于受管理员控制的 unsafe execution             |
+
 ## 跨技术栈的事实边界与设计建议
 
 ### 可以统一的流程
@@ -169,7 +235,7 @@
 
 ## 未覆盖与待验证项
 
-- 本文未选择 mise、Lefthook、GitHub Actions 的具体版本或配置，也未研究不同 package manager（npm/pnpm/yarn/bun）、Python manager/backend、framework initializer 的组合；这些应在 Skill 的工具层另行调查。
+- Issue #6 已核验 Zig 所需的 mise、Lefthook、GitHub Actions 和 Renovate 边界；其他技术栈的 package manager（npm/pnpm/yarn/bun）、Python manager/backend、framework initializer 组合仍需在相应 vertical slice 实现前另行调查。
 - 没有在五种最新工具链上逐一执行所有命令并记录精确生成文件快照；initializer 模板和 CLI 参数仍须由实现测试锁定，并在版本升级时刷新 fixture。
 - 没有证明任一测试命令对运行环境无副作用。测试、build script、lifecycle script、generator 与 compiler plugin 都能运行项目代码；Skill 只能保护自身生成的命令和版本控制文件边界。
 - TypeScript 7.0 的 compiler API 生态仍处过渡期；实现前必须重新检查 `typescript-eslint`、framework 和 bundler 的官方兼容范围。

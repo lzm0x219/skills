@@ -1,7 +1,7 @@
 interface:
   display_name: "Bootstrap Project"
-  short_description: "Plan safe project scaffolds and development baselines"
-  default_prompt: "Use $bootstrap-project to inspect this target and prepare a safe initialization plan without writing files."
+  short_description: "Create safe project scaffolds and development baselines"
+  default_prompt: "Use $bootstrap-project to inspect this target, plan its baseline, and apply a supported conflict-free initialization."
 
 policy:
   allow_implicit_invocation: false

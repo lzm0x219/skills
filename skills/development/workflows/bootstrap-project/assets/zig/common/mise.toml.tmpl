@@ -1,0 +1,50 @@
+[settings]
+lockfile = true
+lockfile_platforms = ["linux-x64", "linux-arm64", "macos-x64", "macos-arm64"]
+
+[tools]
+zig = "{{ZIG_VERSION}}"
+lefthook = "{{LEFTHOOK_VERSION}}"
+
+[hooks]
+postinstall = "lefthook install --force"
+
+[tasks.format]
+description = "Format Zig sources"
+run = "zig fmt build.zig src"
+
+[tasks.format-check]
+description = "Check Zig formatting without changing sources"
+run = "zig fmt --check build.zig src"
+
+[tasks.lint]
+description = "Run Zig AST checks"
+run = """
+set -eu
+zig ast-check build.zig
+for file in src/*.zig; do
+  zig ast-check "$file"
+done
+"""
+
+[tasks.check]
+description = "Compile project and test artifacts without running tests"
+run = "zig build check"
+
+[tasks.test]
+description = "Compile and execute Zig tests"
+run = "zig build test"
+
+[tasks.build]
+description = "Build installable project artifacts"
+run = "zig build"
+
+[tasks.ci]
+description = "Run the complete project quality gate"
+run = [
+  { task = "format-check" },
+  { task = "lint" },
+  { task = "check" },
+  { task = "test" },
+  { task = "build" },
+]
