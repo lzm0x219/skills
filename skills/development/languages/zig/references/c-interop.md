@@ -1,6 +1,6 @@
 # Zig and C interoperability boundaries
 
-Use the target Zig version established in `SKILL.md`. When neither the user nor the repository provides a version, query the Zig website in real time and use the current latest stable release. Verify `@cImport`, `zig translate-c`, the Build API, C ABI, and linker options against that target version.
+Use the target Zig version established in `SKILL.md`. Verify `@cImport`, `zig translate-c`, the Build API, C ABI, and linker options against that target version.
 
 ## Choose a binding approach
 

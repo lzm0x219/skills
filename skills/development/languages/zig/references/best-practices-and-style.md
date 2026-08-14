@@ -2,7 +2,7 @@
 
 ## Resolve the target version first
 
-Use the target Zig version or supported range already established in `SKILL.md`: an explicit user requirement takes precedence, followed by the repository or project toolchain; when neither supplies a version, query the Zig website in real time and use the current latest stable release. For multi-version projects, check both the minimum supported release and the latest stable release within the supported range. Do not mistake a minimum version for an exact pin or substitute master/nightly for the latest stable release.
+Use the target Zig version or supported range already established in `SKILL.md`.
 
 For the target version, read the corresponding language reference's Style Guide, standard library documentation, release notes, compiler-bundled source, and `zig fmt`/CLI behavior. If the Style Guide is absent or does not cover the question, derive conventions from the official source for the same version. Do not let rules from another version override the target version.
 

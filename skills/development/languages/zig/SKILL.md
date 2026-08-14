@@ -39,18 +39,9 @@ When reporting a version-sensitive conclusion, state the target version, the bas
 - When writing, refactoring, or reviewing Zig code, or when the user asks about best practices, coding style, runtime safety, or illegal behavior boundaries, read [Coding best practices and style](references/best-practices-and-style.md).
 - When modifying `build.zig`, `build.zig.zon`, dependencies, package metadata, version constraints, or the Zig version, read [Builds, dependencies, and version migrations](references/build-packages-and-migrations.md).
 - When using C headers, C libraries, `@cImport`, `zig translate-c`, `extern`, callbacks, or data across an ABI, read [C interoperability boundaries](references/c-interop.md).
+- When profiling, benchmarking, or optimizing compile time, binary size, memory, throughput, or latency, read [Measurement-driven performance optimization](references/performance-optimization.md).
 
 Complete this step after performing the checks required by the detailed rules and reflecting every applicable boundary in the design, implementation, and verification plan.
-
-### Design ownership and failure paths
-
-- Define the public contract, error behavior, allocation strategy, and lifetime boundaries before implementation.
-- Make the owner and release mechanism of every allocation explicit. Prefer caller-provided allocators at reusable boundaries, and pair cleanup with resource acquisition using `defer` or `errdefer`.
-- Distinguish borrowed slices from owned slices through names, documentation, or return types. Copy data when it must outlive its backing storage.
-- Keep error unions meaningful and handle expected failures explicitly. Use `catch unreachable` only for invariants already proven at that location.
-- Use optionals for absence and error unions for failure; preserve that distinction across adapters and public APIs.
-
-Complete this step when every return value, allocation, borrowed view, error, and cleanup path has an explicit owner and a testable contract.
 
 ### Make build and test evidence explicit
 
@@ -60,15 +51,6 @@ Complete this step when every return value, allocation, borrowed view, error, an
 - Before dependency resolution, downloads, global toolchain changes, package publication, or other out-of-scope external side effects, make the impact explicit and confirm authorization.
 
 Complete this step when the build steps, test execution path, dependency side effects, and success criteria can all be explained.
-
-### Apply measurement-driven performance optimization
-
-- Establish a reproducible performance baseline first, fixing the Zig version, target, optimization mode, inputs, warm-up procedure, execution environment, and sampling method.
-- Locate the bottleneck before proposing a change; vary one major factor at a time while retaining correctness tests.
-- Repeat measurements under the same conditions and report the distribution or variance rather than comparing only the single fastest result.
-- Treat compile time, binary size, memory, throughput, and latency as separate metrics; optimize only the metrics the user cares about and that have been measured.
-
-Claim a performance improvement only when the baseline, bottleneck evidence, post-change measurements, and correctness regression results are all available.
 
 ### Implement the smallest compatible change
 

@@ -1,6 +1,6 @@
 # Zig builds, dependencies, and version migrations
 
-Use the target Zig version established in `SKILL.md`. When neither the user nor the repository provides a version, query the Zig website in real time and use the current latest stable release. Base every Build API, manifest, dependency, and migration decision below on that target version.
+Use the target Zig version established in `SKILL.md`. Base every Build API, manifest, dependency, and migration decision below on that target version.
 
 ## Discover the build contract
 

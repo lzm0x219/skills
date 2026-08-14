@@ -20,10 +20,9 @@
       "read \\[Coding best practices and style\\]",
       "read \\[Builds, dependencies, and version migrations\\]",
       "read \\[C interoperability boundaries\\]",
-      "Make the owner and release mechanism of every allocation explicit",
+      "read \\[Measurement-driven performance optimization\\]",
       "Treat `build.zig` as executable project code",
       "report tests as passing only after the artifact actually runs and succeeds",
-      "Establish a reproducible performance baseline",
       "successful cross-compilation does not prove correctness on the target runtime",
       "official release verification script",
       "toolchain smoke script"
