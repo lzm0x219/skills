@@ -145,6 +145,44 @@ REQUIRED_CASES_BY_SKILL = {
             "invocation": "explicit",
         },
     },
+    "sell-product-in-china": {
+        "strategy-only-stage-boundary": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "strategy-deliverable-write": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "full-pack-stage-gates": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "missing-image-tool": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+        "high-risk-claims-blocked": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+        "untrusted-markdown-rendering": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+        "unapproved-publication": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+        "clothing-out-of-scope": {
+            "category": "out-of-scope",
+            "invocation": "explicit",
+        },
+        "unrelated-prose-no-trigger": {
+            "category": "out-of-scope",
+            "invocation": "implicit",
+        },
+    },
     "juanjuan-illustrations": {
         "plan-only-shot-list": {
             "category": "positive-trigger",

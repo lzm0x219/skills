@@ -1,0 +1,2 @@
+-r requirements.txt
+WeasyPrint==69.0

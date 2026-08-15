@@ -29,6 +29,33 @@
       ]
     },
     {
+      "id": "sell-product-in-china",
+      "kind": "composite",
+      "status": "existing",
+      "entrypoint": "skills/ecommerce/sell-product-in-china/SKILL.md",
+      "invocation": "model",
+      "inputs": [
+        "product-materials",
+        "task-scope",
+        "target-market",
+        "platform",
+        "output-directory"
+      ],
+      "workspace_access": {
+        "current": "target-write",
+        "planned": "target-write-with-stage-gates-and-deliverable-manifest"
+      },
+      "safety_boundaries": [
+        "facts-marketing-and-hypotheses-separated",
+        "high-risk-category-compliance-gate",
+        "untrusted-markdown-review-before-render",
+        "no-dependency-auto-install",
+        "no-missing-image-capability-claims",
+        "no-existing-output-overwrite-without-authorization",
+        "no-external-publication-without-authorization"
+      ]
+    },
+    {
       "id": "juanjuan-illustrations",
       "kind": "composite",
       "status": "existing",

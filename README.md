@@ -21,6 +21,14 @@ When you are unsure whether to use a skill, start with the boundaries below. Exp
 - **Visual evaluation:** [`evals/juanjuan-illustrations.visual.md`](evals/juanjuan-illustrations.visual.md) defines live image, source-fidelity, action, text, and artifact gates
 - **Artifact validation:** `python3 skills/creative/juanjuan-illustrations/scripts/validate_artifact.py <image-path>` checks the PNG and same-name prompt record before delivery
 
+### E-commerce
+
+**[`sell-product-in-china`](skills/ecommerce/sell-product-in-china/SKILL.md)** · `$sell-product-in-china`
+
+- **Good for:** researching or improving non-apparel products for the Chinese market and producing a staged sales-strategy, PDP, product-image, and channel-native social asset pack
+- **Not for:** apparel products, inventing product facts or regulated claims, treating hypotheses as proven demand, rendering unsafe Markdown, or publishing listings, posts, and ads without separate authorization
+- **Deterministic helpers:** a read-only environment check, Markdown-to-PDF renderer with explicit overwrite control, and image normalizer with explicit overwrite control
+
 ### Engineering
 
 **[`dsa-design`](skills/development/engineering/dsa-design/SKILL.md)** · `$dsa-design`
@@ -101,7 +109,7 @@ Install all skills from this repository to all agents (skips prompts):
 npx skills add lzm0x219/skills --all
 ```
 
-Replace `napi-rs` with `bootstrap-project`, `dsa-design`, `juanjuan-illustrations`, `mise`, or `zig` as needed. Check what is installed:
+Replace `napi-rs` with `bootstrap-project`, `dsa-design`, `juanjuan-illustrations`, `mise`, `sell-product-in-china`, or `zig` as needed. Check what is installed:
 
 ```sh
 npx skills list
@@ -117,6 +125,7 @@ Invocation syntax varies by agent. Many tools accept an explicit `$skill-name` m
 
 ```text
 $napi-rs Review this addon's async, lifetime, and release boundaries without changing code.
+$sell-product-in-china 只为这个新品制作中国市场商品销售战略，先不要生成商详图片。
 $juanjuan-illustrations Plan three Juanjuan article illustrations for this Chinese article without generating images yet.
 $mise Design reproducible tools, environment variables, and a test task for this project without modifying files.
 $bootstrap-project Inspect this existing project and prepare its initialization plan without writing files.
@@ -136,6 +145,7 @@ The repository keeps each portable skill in a leaf directory under `skills/`, gr
 .
 ├── skills/
 │   ├── creative/juanjuan-illustrations/
+│   ├── ecommerce/sell-product-in-china/
 │   └── development/
 │       ├── engineering/dsa-design/
 │       ├── framework/napi-rs/
@@ -144,12 +154,12 @@ The repository keeps each portable skill in a leaf directory under `skills/`, gr
 │       └── workflows/bootstrap-project/
 ├── capabilities/map.json
 ├── evals/
-│   ├── fixtures/{bootstrap-project,dsa-design,juanjuan-illustrations,mise,napi-rs,zig}/
-│   ├── workspaces/bootstrap-project/
-│   └── {bootstrap-project,dsa-design,juanjuan-illustrations,mise,napi-rs,zig}.behavior.json
+│   ├── fixtures/{bootstrap-project,dsa-design,juanjuan-illustrations,mise,napi-rs,sell-product-in-china,zig}/
+│   ├── workspaces/{bootstrap-project,sell-product-in-china}/
+│   └── {bootstrap-project,dsa-design,juanjuan-illustrations,mise,napi-rs,sell-product-in-china,zig}.behavior.json
 ├── docs/behavior-evals.md
 ├── scripts/{run_behavior_evals,run_workspace_evals,validate_skills}.py
-├── tests/test_{run_behavior_evals,run_workspace_evals,validate_skills}.py
+├── tests/test_{run_behavior_evals,run_workspace_evals,sell_product_in_china,validate_skills}.py
 └── .github/workflows/validate.yml
 ```
 
@@ -158,6 +168,7 @@ Each path has one role:
 | Path                                 | Responsibility                                                                |
 | ------------------------------------ | ----------------------------------------------------------------------------- |
 | `skills/creative/<skill>/`           | Leaf package for a creative-production skill                                  |
+| `skills/ecommerce/<skill>/`          | Leaf package for e-commerce strategy and production workflows                 |
 | `skills/development/<area>/<skill>/` | Leaf package for a development skill, grouped by engineering area             |
 | `skills/**/SKILL.md`                 | Portable entrypoint and discovery metadata for Agent Skills-compatible agents |
 | `skills/**/agents/openai.yaml`       | Optional Codex UI metadata, default prompt, and implicit-invocation policy    |
@@ -188,11 +199,11 @@ Validation is split into four layers. Each layer answers a different question:
 | Zig official release check         | The official index currently identifies one latest stable release and its versioned documentation links are reachable | The compiler or a project works on any host, target, or future release                |
 | Zig toolchain smoke                | The selected local compiler formats the fixture and its build-system test artifact actually executes                  | A real project, unsupported compiler, or target-specific runtime works                |
 
-GitHub Actions runs static validation, runner unit tests, and fixed-answer regression. Default CI does not call a model or access official documentation and download websites.
+GitHub Actions tests the minimum and latest compatible `sell-product-in-china` dependency versions, then runs static validation, runner unit tests, and fixed-answer regression. Default CI does not call a model or access official documentation websites.
 
 ## Run local checks
 
-Run the offline checks before you commit. These commands use only repository files and the Python standard library:
+Run the offline checks before you commit. The checks do not install dependencies; install the requirements of a changed Skill first when you want its dependency-backed tests to run instead of skip:
 
 ```sh
 python3 scripts/validate_skills.py
@@ -201,6 +212,8 @@ python3 scripts/run_behavior_evals.py \
   --skill bootstrap-project --answers evals/fixtures/bootstrap-project
 python3 scripts/run_behavior_evals.py \
   --skill dsa-design --answers evals/fixtures/dsa-design
+python3 scripts/run_behavior_evals.py \
+  --skill sell-product-in-china --answers evals/fixtures/sell-product-in-china
 python3 scripts/run_behavior_evals.py \
   --skill juanjuan-illustrations --answers evals/fixtures/juanjuan-illustrations
 python3 scripts/run_behavior_evals.py \
@@ -215,6 +228,7 @@ Live behavior evaluation currently uses an authenticated Codex CLI and sends eva
 
 ```sh
 python3 scripts/run_behavior_evals.py --skill dsa-design
+python3 scripts/run_behavior_evals.py --skill sell-product-in-china
 python3 scripts/run_behavior_evals.py --skill bootstrap-project
 python3 scripts/run_behavior_evals.py --skill juanjuan-illustrations
 python3 scripts/run_behavior_evals.py --skill napi-rs
