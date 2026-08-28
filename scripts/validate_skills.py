@@ -205,12 +205,24 @@ REQUIRED_CASES_BY_SKILL = {
             "invocation": "explicit",
         },
     },
-    "ink-wash-editorial-reframe": {
+    "ink-wash-reframe": {
         "reference-image-reframe": {
             "category": "positive-trigger",
             "invocation": "explicit",
         },
         "exact-text-two-stage": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "detail-priorities-preservation": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "no-text-no-safe-strip": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "secondary-details-soft-edges": {
             "category": "positive-trigger",
             "invocation": "explicit",
         },

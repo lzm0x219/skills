@@ -1,7 +1,0 @@
-interface:
-  display_name: "米白水墨重构"
-  short_description: "显式调用，按参考图制作留白水墨扁平图文重构方案与排版质检"
-  default_prompt: "使用 $ink-wash-editorial-reframe 为这张参考图制作米白水墨扁平重构方案。"
-
-policy:
-  allow_implicit_invocation: false

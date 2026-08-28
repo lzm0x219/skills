@@ -77,12 +77,19 @@
       ]
     },
     {
-      "id": "ink-wash-editorial-reframe",
+      "id": "ink-wash-reframe",
       "kind": "composite",
       "status": "existing",
-      "entrypoint": "skills/creative/ink-wash-editorial-reframe/SKILL.md",
+      "entrypoint": "skills/creative/ink-wash-reframe/SKILL.md",
       "invocation": "manual",
-      "inputs": ["reference-image", "mode", "exact-text", "output-directory"],
+      "inputs": [
+        "reference-image",
+        "mode",
+        "exact-text",
+        "text-area-mode",
+        "detail-priorities",
+        "output-directory"
+      ],
       "workspace_access": {
         "current": "target-write",
         "planned": "target-write-with-reference-fact-card-and-text-qa"
@@ -90,6 +97,9 @@
       "safety_boundaries": [
         "explicit-invocation-only",
         "reference-image-required",
+        "source-specific-detail-priorities",
+        "text-area-mode-is-explicit-or-derived",
+        "secondary-details-without-universal-hard-outlines",
         "no-signature-watermark-or-logo-copying",
         "no-rights-clearance-claims",
         "exact-text-two-stage",

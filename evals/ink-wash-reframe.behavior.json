@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "skill": "ink-wash-editorial-reframe",
+  "skill": "ink-wash-reframe",
   "automated": true,
   "execution": {
     "mode": "codex-cli",
@@ -10,8 +10,11 @@
   "source_assertions": {
     "required_regex": [
       "disable-model-invocation: true",
-      "只在用户显式调用 `\\$ink-wash-editorial-reframe`",
+      "只在用户显式调用 `\\$ink-wash-reframe`",
       "画面取证卡",
+      "P0 核心结构",
+      "P1 识别细节",
+      "text_area",
       "无字底图 → 后期排版 → 逐字核对",
       "不编造英文标题",
       "不要保留或复刻签名、水印、Logo"
@@ -54,6 +57,63 @@
             "生成阶段.*不能保证|不能保证.*拼写"
           ],
           "forbidden_regex": ["已生成"]
+        }
+      }
+    },
+    {
+      "id": "detail-priorities-preservation",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "把这张竖版江南河道照改成米白水墨扁平插画。必须留下石拱桥的砌块分组、两侧屋檐的节奏、右侧红门和台阶、以及水中的建筑倒影带；不要画成写实素描。",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "画面取证卡",
+            "P0.*核心结构|核心结构.*P0",
+            "P1.*识别细节|识别细节.*P1",
+            "砌块.*分组|石拱桥.*砌块",
+            "屋檐.*节奏",
+            "红门.*台阶|台阶.*红门",
+            "倒影",
+            "低对比.*(?:块面|色组|墨痕)|(?:块面|色组|墨痕).*低对比"
+          ],
+          "forbidden_regex": ["(?m)^.*将.*全部删除.*细节", "(?m)^使用写实素描"]
+        }
+      }
+    },
+    {
+      "id": "no-text-no-safe-strip",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "把这张横版山景照片改为米白水墨扁平插画，不要标题、短句或额外文字，也没有要求预留排版区域。保留山脊、茶田和桥。",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "text_area.*none|文字区域.*none",
+            "不.*预留.*(?:文字安全区|底部文字带)|不.*创建.*(?:文字安全区|底部文字带)",
+            "无字",
+            "山脊.*茶田.*桥|茶田.*山脊.*桥|桥.*山脊.*茶田"
+          ],
+          "forbidden_regex": ["(?m)^.*预留底部.*文字安全区"]
+        }
+      }
+    },
+    {
+      "id": "secondary-details-soft-edges",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "把这张竖版街景照片重构为米白水墨扁平插画。门面、台阶和路面透视是核心结构；绿色雨篷、蓝色自行车和三盆陶盆植物必须仍可辨认。不要把雨篷和自行车画成黑色外轮廓。",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "P0.*(?:门面|台阶|路面)|核心结构.*(?:门面|台阶|路面)",
+            "P1.*(?:雨篷|自行车|陶盆)|识别细节.*(?:雨篷|自行车|陶盆)",
+            "雨篷",
+            "自行车",
+            "不.*(?:连续|闭合).*深色.*(?:边线|描边)|不.*(?:连续|闭合).*(?:边线|描边).*(?:深色|黑色)",
+            "低对比.*(?:块面|色组|淡墨)|(?:块面|色组|淡墨).*低对比"
+          ],
+          "forbidden_regex": ["(?m)^.*黑色外轮廓"]
         }
       }
     },
