@@ -205,6 +205,28 @@ REQUIRED_CASES_BY_SKILL = {
             "invocation": "explicit",
         },
     },
+    "ink-wash-editorial-reframe": {
+        "reference-image-reframe": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "exact-text-two-stage": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "missing-reference-boundary": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+        "third-party-rights-boundary": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+        "technical-diagram-out-of-scope": {
+            "category": "out-of-scope",
+            "invocation": "explicit",
+        },
+    },
     "napi-rs": {
         "out-of-scope-direct-answer": {
             "category": "out-of-scope",

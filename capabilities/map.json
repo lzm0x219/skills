@@ -75,6 +75,27 @@
         "no-existing-asset-overwrite",
         "professional-diagrams-out-of-scope"
       ]
+    },
+    {
+      "id": "ink-wash-editorial-reframe",
+      "kind": "composite",
+      "status": "existing",
+      "entrypoint": "skills/creative/ink-wash-editorial-reframe/SKILL.md",
+      "invocation": "manual",
+      "inputs": ["reference-image", "mode", "exact-text", "output-directory"],
+      "workspace_access": {
+        "current": "target-write",
+        "planned": "target-write-with-reference-fact-card-and-text-qa"
+      },
+      "safety_boundaries": [
+        "explicit-invocation-only",
+        "reference-image-required",
+        "no-signature-watermark-or-logo-copying",
+        "no-rights-clearance-claims",
+        "exact-text-two-stage",
+        "no-existing-asset-overwrite",
+        "professional-diagrams-out-of-scope"
+      ]
     }
   ]
 }
