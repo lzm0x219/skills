@@ -12,19 +12,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Test sell-product-in-china minimum dependency versions
+      - name: Test china-commerce-asset-pack minimum dependency versions
         run: |
           python3 -m pip install 'Markdown==3.10.2' 'Pillow==12.0.0'
-          python3 -m unittest discover -s tests -p 'test_sell_product_in_china.py'
-      - name: Install latest compatible sell-product-in-china dependencies
-        run: python3 -m pip install --upgrade --requirement skills/ecommerce/sell-product-in-china/requirements.txt
+          python3 -m unittest discover -s tests -p 'test_china_commerce_asset_pack.py'
+      - name: Install latest compatible china-commerce-asset-pack dependencies
+        run: python3 -m pip install --upgrade --requirement skills/commerce/china-commerce-asset-pack/requirements.txt
       - name: Run repository validation
         run: |
           python3 scripts/validate_skills.py
           python3 -m unittest discover -s tests -p 'test_*.py'
           python3 scripts/run_behavior_evals.py --skill bootstrap-project --answers evals/fixtures/bootstrap-project
           python3 scripts/run_behavior_evals.py --skill dsa-design --answers evals/fixtures/dsa-design
-          python3 scripts/run_behavior_evals.py --skill sell-product-in-china --answers evals/fixtures/sell-product-in-china
+          python3 scripts/run_behavior_evals.py --skill china-commerce-asset-pack --answers evals/fixtures/china-commerce-asset-pack
           python3 scripts/run_behavior_evals.py --skill napi-rs --answers evals/fixtures/napi-rs
           python3 scripts/run_behavior_evals.py --skill mise --answers evals/fixtures/mise
           python3 scripts/run_behavior_evals.py --skill zig --answers evals/fixtures/zig

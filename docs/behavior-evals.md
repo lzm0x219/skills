@@ -34,7 +34,7 @@ python3 scripts/run_behavior_evals.py \
 python3 scripts/run_behavior_evals.py \
   --skill dsa-design --answers evals/fixtures/dsa-design
 python3 scripts/run_behavior_evals.py \
-  --skill sell-product-in-china --answers evals/fixtures/sell-product-in-china
+  --skill china-commerce-asset-pack --answers evals/fixtures/china-commerce-asset-pack
 python3 scripts/run_behavior_evals.py \
   --skill napi-rs --answers evals/fixtures/napi-rs
 python3 scripts/run_behavior_evals.py \
@@ -55,7 +55,7 @@ Omit `--answers` to make the runner use an authenticated Codex CLI:
 
 ```sh
 python3 scripts/run_behavior_evals.py --skill dsa-design
-python3 scripts/run_behavior_evals.py --skill sell-product-in-china
+python3 scripts/run_behavior_evals.py --skill china-commerce-asset-pack
 python3 scripts/run_behavior_evals.py --skill bootstrap-project
 python3 scripts/run_behavior_evals.py --skill napi-rs
 python3 scripts/run_behavior_evals.py --skill mise
@@ -125,10 +125,10 @@ The dated five-stack evidence, platform limits, and tool side effects are record
 - Material Top-K decisions compare options and wait for a choice when unauthorized
 - Delegated user choices do not pause for option selection
 
-`sell-product-in-china` covers:
+`china-commerce-asset-pack` covers:
 
 - Strategy-only requests stop before product-image production
-- Full asset-pack requests preserve strategy, copy, and visual-master stage gates
+- Full asset-pack requests preserve brand-decision, product-page conversion, and channel-distribution stage gates
 - Apparel requests are identified as outside the Skill's current scope
 - Missing image-generation capability degrades to copy, prompts, and a production checklist without false completion claims
 - High-risk product claims remain blocked until facts and current official rules are verified

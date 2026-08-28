@@ -80,7 +80,7 @@ def find_browser(explicit: Path | None = None) -> Path | None:
         resolved = explicit.expanduser()
         return resolved if resolved.is_file() else None
 
-    env_path = os.environ.get("SELL_PRODUCT_IN_CHINA_CHROME", "").strip()
+    env_path = os.environ.get("CHINA_COMMERCE_ASSET_PACK_CHROME", "").strip()
     if env_path:
         candidate = Path(env_path).expanduser()
         if candidate.is_file():
@@ -116,7 +116,7 @@ def render_pdf_with_browser(
     timeout: float = CHROME_RENDER_TIMEOUT_SECONDS,
 ) -> tuple[bool, str]:
     """Render one local HTML file with the isolated production browser flags."""
-    with tempfile.TemporaryDirectory(prefix="sell-product-in-china-chrome-") as profile:
+    with tempfile.TemporaryDirectory(prefix="china-commerce-asset-pack-chrome-") as profile:
         render_environment = os.environ.copy()
         render_environment.update(
             {
@@ -154,7 +154,7 @@ def render_pdf_with_browser(
 
 def browser_usable(browser: Path, timeout: float = 15) -> bool:
     """Verify that the browser can render a minimal local HTML file to PDF."""
-    with tempfile.TemporaryDirectory(prefix="sell-product-in-china-browser-probe-") as directory:
+    with tempfile.TemporaryDirectory(prefix="china-commerce-asset-pack-browser-probe-") as directory:
         probe_root = Path(directory)
         html_path = probe_root / "probe.html"
         output_path = probe_root / "probe.pdf"

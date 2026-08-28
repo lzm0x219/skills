@@ -94,8 +94,8 @@ Text (verbatim):
 
 ```bash
 python scripts/normalize_images.py \
-  --input-dir "03-分屏商详" \
-  --output-dir "03-分屏商详-1080x1440" \
+  --input-dir "02-商品页成交/02-商详图片-待归一化" \
+  --output-dir "02-商品页成交/02-商详图片" \
   --width 1080 --height 1440
 ```
 

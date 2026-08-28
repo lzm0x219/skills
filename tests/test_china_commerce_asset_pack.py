@@ -20,7 +20,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILL = ROOT / "skills" / "ecommerce" / "sell-product-in-china"
+SKILL = ROOT / "skills" / "commerce" / "china-commerce-asset-pack"
 PNG_1X1 = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
 )
@@ -51,7 +51,7 @@ def load_script(name: str) -> types.ModuleType:
     path = SKILL / "scripts" / f"{name}.py"
     return _load_module(
         path,
-        f"sell_product_in_china_{name}",
+        f"china_commerce_asset_pack_{name}",
         add_parent_to_sys_path=True,
     )
 
@@ -61,7 +61,7 @@ def load_repository_script(name: str) -> types.ModuleType:
     return _load_module(path, f"repository_{name}")
 
 
-class SellProductInChinaTest(unittest.TestCase):
+class ChinaCommerceAssetPackTest(unittest.TestCase):
     def test_pdf_style_tokens_keep_body_text_accessible(self) -> None:
         styles = load_script("pdf_styles")
         tokens = dict(
@@ -226,11 +226,11 @@ class SellProductInChinaTest(unittest.TestCase):
         runner = load_repository_script("run_workspace_evals")
 
         entry = runner.load_behavior_case(
-            "sell-product-in-china",
+            "china-commerce-asset-pack",
             "strategy-deliverable-write",
         )
         input_directory, changes = runner.load_workspace_expectation(
-            "sell-product-in-china",
+            "china-commerce-asset-pack",
             "strategy-deliverable-write",
         )
 
@@ -961,7 +961,7 @@ class SellProductInChinaTest(unittest.TestCase):
 
         notice = renderer.build_signature_html()
 
-        self.assertIn("sell-product-in-china Skill", notice)
+        self.assertIn("china-commerce-asset-pack Skill", notice)
         self.assertNotIn("Jiaran", notice)
         self.assertNotIn("evadebot", notice)
         self.assertNotIn("c.aoao.ai", notice)

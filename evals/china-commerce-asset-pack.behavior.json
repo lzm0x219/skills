@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "skill": "sell-product-in-china",
+  "skill": "china-commerce-asset-pack",
   "automated": true,
   "execution": {
     "mode": "codex-cli",
@@ -10,17 +10,18 @@
   "source_assertions": {
     "required_regex": [
       "默认停在当前阶段门",
+      "三层交付",
+      "品牌方决策",
+      "商品页成交",
+      "多渠道传播",
       "不得自动安装",
-      "未经审查的 Markdown",
-      "Chrome 是规范引擎",
-      "Pillow",
-      "PNG、JPEG 或 WebP",
       "没有图像工具",
       "高风险品类",
       "暂不适用于服装类商品",
       "明确区分三类内容：可核验事实、可用营销表达、待验证商业假设",
       "不自动发布",
-      "00-电商素材包清单\\.md"
+      "00-电商素材包清单\\.md",
+      "operation-boundaries\\.md"
     ],
     "forbidden_regex": [
       "嘉然|Jiaran|evadebot|c\\.aoao\\.ai",
@@ -76,10 +77,10 @@
       "expected": {
         "assertions": {
           "required_regex": [
-            "(?:战略|报告).*(?:确认|阶段门)",
-            "(?:商详文字|文案).*(?:确认|选择)",
+            "品牌方决策.*(?:确认|阶段门)",
+            "商品页成交.*(?:确认|选择)",
             "(?:视觉母版|首屏).*(?:确认|通过)",
-            "社媒素材包",
+            "多渠道传播",
             "00-电商素材包清单\\.md"
           ],
           "forbidden_regex": ["(?:已完成|已生成).*全套", "(?:无需|不需要).*确认"]
@@ -181,7 +182,7 @@
       "expected": {
         "assertions": {
           "required_regex": ["今天.*风.*出去走走"],
-          "forbidden_regex": ["电商|商品销售战略|SKU|商详|社媒素材包", "sell-product-in-china"]
+          "forbidden_regex": ["电商|商品销售战略|SKU|商详|社媒素材包", "china-commerce-asset-pack"]
         }
       }
     }

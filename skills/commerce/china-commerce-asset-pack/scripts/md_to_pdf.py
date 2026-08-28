@@ -214,10 +214,10 @@ def meta_html(meta: list[tuple[str, str]]) -> str:
 
 
 def build_signature_html() -> str:
-    """Return the fixed sell-product-in-china generation notice."""
+    """Return the fixed China Commerce Asset Pack generation notice."""
     return """
 <section class="tool-signature">
-  <p>本报告由 sell-product-in-china Skill 协助生成</p>
+  <p>本报告由 china-commerce-asset-pack Skill 协助生成</p>
 </section>
 """
 
@@ -482,7 +482,7 @@ def main() -> int:
         snapshot_parent.mkdir(parents=True, exist_ok=True)
         resources_directory = Path(
             tempfile.mkdtemp(
-                prefix=".sell-product-in-china-resources-",
+                prefix=".china-commerce-asset-pack-resources-",
                 dir=snapshot_parent,
             )
         )
@@ -502,7 +502,7 @@ def main() -> int:
             if not keep_resources:
                 shutil.rmtree(resources_directory, ignore_errors=True)
     with tempfile.TemporaryDirectory(
-        prefix="sell-product-in-china-resources-"
+        prefix="china-commerce-asset-pack-resources-"
     ) as resources_directory:
         return _render_report(
             args,

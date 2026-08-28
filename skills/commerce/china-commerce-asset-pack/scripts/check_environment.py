@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Report sell-product-in-china runtime availability without installing anything."""
+"""Report China Commerce Asset Pack runtime availability without installing anything."""
 
 from __future__ import annotations
 
@@ -44,7 +44,7 @@ def weasyprint_usable() -> bool:
         "and pdf.rstrip().endswith(b'%%EOF') else 1)"
     )
     try:
-        with tempfile.TemporaryDirectory(prefix="sell-product-in-china-weasy-probe-") as directory:
+        with tempfile.TemporaryDirectory(prefix="china-commerce-asset-pack-weasy-probe-") as directory:
             probe_environment = os.environ.copy()
             for variable in ("PYTHONHOME", "PYTHONINSPECT", "PYTHONPATH"):
                 probe_environment.pop(variable, None)
@@ -64,7 +64,7 @@ def weasyprint_usable() -> bool:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Check sell-product-in-china dependencies without modifying the system."
+        description="Check china-commerce-asset-pack dependencies without modifying the system."
     )
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON.")
     parser.add_argument(
@@ -126,7 +126,7 @@ def main() -> int:
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))
     else:
-        print(f"sell-product-in-china environment: {overall.upper()}")
+        print(f"china-commerce-asset-pack environment: {overall.upper()}")
         print(f"Python >= 3.11: {'OK' if python_ok else 'MISSING'} ({result['python']['version']})")
         print(
             f"Markdown 3.10.x: {'OK' if markdown_ok else 'MISSING/INCOMPATIBLE'} "

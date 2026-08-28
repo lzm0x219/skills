@@ -145,7 +145,7 @@ REQUIRED_CASES_BY_SKILL = {
             "invocation": "explicit",
         },
     },
-    "sell-product-in-china": {
+    "china-commerce-asset-pack": {
         "strategy-only-stage-boundary": {
             "category": "positive-trigger",
             "invocation": "explicit",

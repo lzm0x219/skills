@@ -134,7 +134,7 @@ Markdown 中位于第一条 H1 后的连续引用块视作封面元信息，不�
 
 - 默认副标题为「中国市场新品销售策略」；
 - 封面默认只显示生成日期，用户指定报告署名时再使用 `--author`；
-- 报告末尾固定保留工具生成说明：`本报告由 sell-product-in-china Skill 协助生成`；
+- 报告末尾固定保留工具生成说明：`本报告由 china-commerce-asset-pack Skill 协助生成`；
 - 使用者通过 `--author` 指定的报告署名显示在封面，不得伪造客户、机构或第三方署名；
 - 对外 PDF 不出现外部方法来源、内部工作过程或本地绝对路径。
 
@@ -142,8 +142,8 @@ Markdown 中位于第一条 H1 后的连续引用块视作封面元信息，不�
 
 ```bash
 python3 scripts/md_to_pdf.py \
-  "01-商品销售战略/商品销售战略报告.md" \
-  "01-商品销售战略/商品销售战略报告.pdf" \
+  "01-品牌方决策/商品销售战略报告.md" \
+  "01-品牌方决策/商品销售战略报告.pdf" \
   --date YYYY-MM-DD
 ```
 
@@ -160,7 +160,7 @@ python3 scripts/md_to_pdf.py \
 - `--html-output`：保留用于排查的中间 HTML；若报告含本地图片，同时保留 HTML 引用的私有图片快照；
 - `--keep-html`：保留临时 HTML；若报告含本地图片，同时保留 HTML 引用的私有图片快照。
 
-默认只使用 Chrome，不因机器环境不同自动切换排版引擎。Chrome 可通过 macOS、Linux 和 Windows 的常见安装位置自动发现，也可以用 `SELL_PRODUCT_IN_CHINA_CHROME` 指定。只有明确接受不同排版结果并安装 `requirements-weasyprint.txt` 后，才传 `--engine weasyprint`。
+默认只使用 Chrome，不因机器环境不同自动切换排版引擎。Chrome 可通过 macOS、Linux 和 Windows 的常见安装位置自动发现，也可以用 `CHINA_COMMERCE_ASSET_PACK_CHROME` 指定。只有明确接受不同排版结果并安装 `requirements-weasyprint.txt` 后，才传 `--engine weasyprint`。
 
 Chrome helper 使用一次性隔离环境；macOS 下启用 mock keychain，Linux 下使用基础密码存储，渲染不应请求浏览器密码或系统钥匙串权限。若仍出现权限窗口，停止批量渲染并报告受管浏览器策略或本机浏览器异常，不要要求用户输入钥匙串密码。报告内的 PNG、JPEG 和 WebP 会先验证并复制到私有资源快照；Chrome 与显式 WeasyPrint 都只读取该快照。WeasyPrint 在带超时的一次性子进程中运行。
 

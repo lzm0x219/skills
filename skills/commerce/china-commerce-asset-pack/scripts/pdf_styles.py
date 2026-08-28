@@ -1,4 +1,4 @@
-"""Static print styles for the sell-product-in-china PDF report."""
+"""Static print styles for the China Commerce Asset Pack PDF report."""
 
 from __future__ import annotations
 

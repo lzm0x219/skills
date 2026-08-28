@@ -1,0 +1,7 @@
+interface:
+  display_name: "中国电商素材包"
+  short_description: "将非服装商品整理为品牌方决策、商品页成交与多渠道传播资产"
+  default_prompt: "使用 $china-commerce-asset-pack 为这个商品制作完整中国电商素材包：先交付供品牌方决策的销售战略报告及 PDF，确认后制作商品页成交所需的商详文字与分屏图片，最后提供小红书、私域、朋友圈和公众号传播素材；如指定特殊平台，再叠加平台适配。"
+
+policy:
+  allow_implicit_invocation: true

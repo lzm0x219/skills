@@ -47,7 +47,7 @@ def _render_with_chrome(request: RenderRequest, timeout: float) -> RenderResult:
 
 def _render_with_weasyprint(request: RenderRequest, timeout: float) -> RenderResult:
     request.output_path.unlink(missing_ok=True)
-    with tempfile.TemporaryDirectory(prefix="sell-product-in-china-weasy-") as runtime_home:
+    with tempfile.TemporaryDirectory(prefix="china-commerce-asset-pack-weasy-") as runtime_home:
         environment = os.environ.copy()
         for variable in ("PYTHONHOME", "PYTHONINSPECT", "PYTHONPATH"):
             environment.pop(variable, None)

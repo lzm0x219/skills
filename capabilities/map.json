@@ -29,10 +29,10 @@
       ]
     },
     {
-      "id": "sell-product-in-china",
+      "id": "china-commerce-asset-pack",
       "kind": "composite",
       "status": "existing",
-      "entrypoint": "skills/ecommerce/sell-product-in-china/SKILL.md",
+      "entrypoint": "skills/commerce/china-commerce-asset-pack/SKILL.md",
       "invocation": "model",
       "inputs": [
         "product-materials",
