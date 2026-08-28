@@ -1,7 +1,7 @@
 interface:
   display_name: "卷卷正文配图"
   short_description: "显式调用卷卷角色，为中文正文规划、生成或编辑怀旧手绘插图"
-  default_prompt: "Use $juanjuan-illustrations 为这篇中文文章规划卷卷正文配图。"
+  default_prompt: "使用 $juanjuan-illustrations 为这篇中文文章规划卷卷正文配图。"
 
 policy:
   allow_implicit_invocation: false

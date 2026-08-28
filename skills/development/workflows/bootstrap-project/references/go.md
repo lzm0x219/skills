@@ -1,16 +1,16 @@
-# Go bootstrap adapter
+# Go 项目初始化适配器
 
-Use the Go adapter for one Go module that is either a library or CLI/application. New mode accepts only an absent or empty target. Existing mode accepts only the exact root of a Git repository with repository-local `.git` metadata.
+此 Go 适配器适用于一个作为库或 CLI/应用的 Go module。新建模式仅接受不存在或为空的目标目录；已有模式仅接受带有仓库本地 `.git` 元数据的 Git 仓库精确根目录。
 
-## Resolve versions, module, and shape
+## 确定版本、模块与形态
 
-Use the standard version priority: explicit user choice, then an exact existing repository constraint, then the current stable release verified from the responsible official source on the execution date. The packaged baseline was verified on 2026-08-14 with Go `1.26.6`, Lefthook `2.1.10`, and mise `2026.8.5`; treat these values as dated evidence.
+采用标准版本优先级：用户明确选择，其次是已有仓库的精确约束，最后是执行当日从负责的官方来源验证的当前稳定版本。随包基线于 2026-08-14 验证：Go `1.26.6`、Lefthook `2.1.10`、mise `2026.8.5`；这些值仅为带日期的证据。
 
-New mode requires an exact Go version, exact Lefthook version, valid module path, lowercase project name, and `library` or `cli`. Existing mode preserves the module path from `go.mod`; its exact Go version may come from an explicit choice, existing mise pin, exact `toolchain` directive, or patch-level `go` directive. Every source must remain compatible with the `go` directive.
+新建模式需要精确 Go 版本、精确 Lefthook 版本、有效 module path、小写项目名和 `library` 或 `cli`。已有模式保留 `go.mod` 中的 module path；其精确 Go 版本可来自用户明确选择、已有 mise pin、精确 `toolchain` directive 或 patch-level `go` directive。所有来源必须与 `go` directive 兼容。
 
-## Run the adapter
+## 运行适配器
 
-Use a fresh report path outside the target:
+在目标目录之外使用新的报告路径：
 
 ```sh
 python3 <skill-directory>/scripts/bootstrap_go.py \
@@ -24,27 +24,27 @@ python3 <skill-directory>/scripts/bootstrap_go.py \
   --report <absolute-report-path>
 ```
 
-For existing mode, omit `--name` and `--module-path`; `--shape` is optional but must agree when supplied. `--go-version` may be omitted only when an exact recognized repository constraint already resolves it.
+已有模式省略 `--name` 和 `--module-path`；`--shape` 可选，但提供时必须一致。仅当已有仓库约束已识别并精确确定 Go 版本时，才可省略 `--go-version`。
 
-New mode initializes Git without a commit, installs the exact mise tools, invokes official `go mod init`, validates that its only new file is `go.mod`, writes the selected minimal source and test skeleton, runs `go mod tidy`, installs Lefthook, and runs `mise run ci`.
+新建模式初始化 Git 但不创建 commit，安装精确 mise 工具，调用官方 `go mod init`，验证它唯一新增的文件是 `go.mod`，写入选定的最小源码和测试骨架，运行 `go mod tidy`，安装 Lefthook，然后运行 `mise run ci`。
 
-Existing mode never runs `go mod init`, never rewrites `go.mod`, `go.sum`, sources, tests, README, or package layout, and uses `go mod tidy -diff` as its read-only module check. It accepts one module and one package boundary. A recognized CLI has one `cmd/<name>` thin entry plus a testable library package, which also prevents a single-main `go build` from writing an executable into the repository. Go workspaces, nested modules, asdf, Husky, pre-commit, custom hooks, and unknown baseline destinations are blocking conflicts.
+已有模式绝不运行 `go mod init`，绝不重写 `go.mod`、`go.sum`、源码、测试、README 或包布局，并将 `go mod tidy -diff` 作为只读模块检查。它只接受一个 module 和一个包边界。已识别的 CLI 由一个薄的 `cmd/<name>` 入口与可测试库包组成，这也防止单一 `main` 的 `go build` 将可执行文件写入仓库。Go workspace、嵌套 module、asdf、Husky、pre-commit、自定义 hooks 和未知基线目标均为阻塞冲突。
 
-## Generated quality baseline
+## 生成的质量基线
 
-- `install`: `go mod download`;
-- `format`: recursively apply `gofmt -w` to non-vendored Go source;
-- `format-check`: run `gofmt -d` over every non-vendored Go source without changing it;
-- `check`: `go mod tidy -diff`;
-- `lint`: `go vet -mod=readonly ./...`;
-- `test`: `go test -mod=readonly -count=1 ./...`;
-- `build`: `go build -mod=readonly ./...` over a library or multi-package thin-CLI layout, so no executable is written into the repository;
-- serial `ci`: install, module check, format check, vet, test, then build;
-- pre-commit: `piped: true` enforces stop-on-failure order across the partial-stage guard, staged gofmt and explicit restage, module metadata check, then vet. Full test and build remain outside the hook. The version-locked installer validates Lefthook's generated hook, adds the official `--no-stage-fixed` run flag, and scopes `MISE_TRUSTED_CONFIG_PATHS` to this hook process without persisting global trust; the staged helper reads NUL-delimited paths directly from the Git index;
-- Ubuntu CI through the same `mise run ci` entry, immutable action SHAs, and Renovate coverage for mise, Go modules, Go directives, and Actions. Lockfile maintenance remains explicitly disabled; `go.sum` is checksum metadata, not a lockfile-maintenance target.
+- `install`：`go mod download`；
+- `format`：对所有非 vendored Go 源码递归执行 `gofmt -w`；
+- `format-check`：对所有非 vendored Go 源码运行 `gofmt -d`，不修改文件；
+- `check`：`go mod tidy -diff`；
+- `lint`：`go vet -mod=readonly ./...`；
+- `test`：`go test -mod=readonly -count=1 ./...`；
+- `build`：针对库或多包薄 CLI 布局执行 `go build -mod=readonly ./...`，避免把可执行文件写入仓库；
+- 串行 `ci`：install、模块检查、格式检查、vet、test，最后 build；
+- pre-commit：`piped: true` 使部分暂存防护、暂存的 gofmt 与显式重新暂存、模块元数据检查、再到 vet 按失败即停顺序执行。完整 test 与 build 不放入 hook。版本锁定的安装器会验证 Lefthook 生成的 hook，加入官方 `--no-stage-fixed` 运行参数，并将 `MISE_TRUSTED_CONFIG_PATHS` 限定到该 hook 进程而不持久化全局信任；暂存辅助脚本直接从 Git index 读取 NUL 分隔路径；
+- Ubuntu CI 通过相同的 `mise run ci` 入口、不可变 action SHA，以及对 mise、Go modules、Go directives 和 Actions 的 Renovate 覆盖。明确禁用 lockfile maintenance；`go.sum` 是校验和元数据，不是 lockfile maintenance 目标。
 
-`GOTOOLCHAIN=local` prevents implicit toolchain downloads and `GOWORK=off` keeps the boundary on the selected single module. Go commands still use host or runner build, module, and temporary caches outside the repository.
+`GOTOOLCHAIN=local` 阻止隐式下载工具链，`GOWORK=off` 使边界保持在选定的单一 module。Go 命令仍使用仓库外的主机或 runner build、module 和临时缓存。
 
-## Failure semantics
+## 失败语义
 
-`blocked` means a target, module, version, VCS, manager, hook, shape, source layout, or destination conflict prevented apply. `partial` means a known write or external command failed; retain the report, exact failed command, and partial changes. `completed` requires an installed hook, exact mise lock, a tidy module, a successful full gate, and—for new mode—an empty Git history.
+`blocked` 表示目标、module、版本、VCS、manager、hook、形态、源码布局或目标路径冲突阻止了应用。 `partial` 表示已知写入或外部命令失败；保留报告、精确失败命令和部分变更。 `completed` 要求已安装 hook、精确 mise lock、整洁的 module、成功的完整质量门，以及新建模式下为空的 Git history。

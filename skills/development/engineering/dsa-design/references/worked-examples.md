@@ -1,54 +1,54 @@
-# Worked examples
+# 校准示例
 
-Use these examples to calibrate output depth. Do not copy the choices before rechecking the current need.
+用这些示例校准输出深度。重新检查当前需求后再作选择，不能直接复制示例结论。
 
-## Small CRUD lookup
+## 小型 CRUD 查找
 
-Need: store about ten configuration records and fetch them by ID.
+**需求**：保存约十条配置记录并按 ID 获取。
 
-Analysis:
+**分析**：
 
-- A linear array is simplest. Lookup is `O(n)`, but `n` is small with a clear upper bound.
-- When the key set is fixed at compile time and every key must exist, prefer a record, struct, or enum-indexed array.
-- When the key set or entries must grow and shrink at runtime, a hash map provides expected `O(1)` lookup.
-- Trees or custom indexes are not worth considering as candidates.
+- Linear array 最简单，查找为 `O(n)`，但 `n` 很小且上界明确。
+- 键在编译期固定且每个键都必须存在时，优先 record、struct 或 enum 索引数组。
+- 键集合或条目需要运行时增减时，hash map 提供期望 `O(1)` 查找。
+- 不值得把 tree 或自定义索引列为候选。
 
-Output: keep it short. Choose among array, record/struct, and map based on whether keys are fixed and entries are dynamic. Do not pause implementation for this internal choice; if the user did not explicitly ask for code, do not attach a full implementation.
+**输出**：保持简短。根据键是否固定、条目是否动态，在 array、record／struct 和 map 中选择。这个内部选择不需要暂停实施；用户未明确要求代码时，不附完整实现。
 
-## Zi Wei Dou Shu charting engine
+## 紫微斗数排盘引擎
 
-Need: design a charting engine with twelve palaces, placement rules, rule dependencies, multiple schools, and explainable results.
+**需求**：设计一个包含十二宫、安置规则、规则依赖、多流派和可解释结果的排盘引擎。
 
-Viable candidates:
+**可行候选**：
 
-1. Represent the fixed twelve-palace cycle with length-12 arrays and modular arithmetic, precomputing stable palace relationships.
-2. Add bitset rows when relational set operations are frequent and the language supports efficient bit operations.
-3. Use a general graph only when relations become dynamic, user-defined, or need general graph traversal.
+1. 以长度为 12 的数组和模运算表示固定十二宫循环，并预计算稳定的宫位关系。
+2. 当关系集合操作频繁且语言支持高效位操作时，增加 bitset rows。
+3. 只有关系变为动态、用户自定义或需要通用图遍历时才使用 general graph。
 
-For rule execution, compare a "rule registry plus direct ordering" with a "dependency DAG plus topological sort". Recommend a DAG only when real rule dependencies require ordering or cycle detection.
+规则执行应比较“规则注册表加直接排序”和“依赖 DAG 加 topological sort”；只有真实规则依赖需要排序或环检测时才建议 DAG。
 
-Treat explainability as part of correctness: return or record the rule, inputs, and rationale for every derived result. Treat school differences as interface decisions and wait for user confirmation before implementing.
+把可解释性视为正确性的一部分：为每个推导结果返回或记录规则、输入与理由。流派差异属于接口决策，实施前等待用户确认。
 
-## Dynamic task scheduler
+## 动态任务调度器
 
-Need: support insert, priority update, cancel, and extract-highest-priority task.
+**需求**：支持插入、更新优先级、取消和取出最高优先级任务。
 
-Viable candidates:
+**可行候选**：
 
-1. Binary heap plus key-to-position map: extract-max and updates are efficient, but the position-map invariant raises implementation cost.
-2. Balanced ordered map keyed by priority and sequence: when the language provides one, ordered updates can complete in `O(log n)`.
-3. Sorted array: good for small, read-heavy workloads; insert and cancel remain `O(n)`.
+1. Binary heap 加 key-to-position map：取最大和更新高效，但位置 map 不变量提高实现成本。
+2. 以优先级和序列为键的 balanced ordered map：语言提供时，可在 `O(log n)` 完成有序更新。
+3. Sorted array：适合小规模、读多写少工作负载；插入与取消仍为 `O(n)`。
 
-Recommend based on real scale, update frequency, cancel frequency, stable-ordering requirements, and standard-library support. Because candidates change invariants and maintenance cost, present options and wait for the user to choose.
+根据真实规模、更新和取消频率、稳定排序要求及标准库支持建议。候选会改变不变量和维护成本，因此应列出方案并等待用户选择。
 
-## Top-K over an untrusted event stream
+## 不可信事件流上的 Top-K
 
-Need: continuously receive events from a public interface and track the most frequent K keys; keys are user-controlled and the number of unique keys may be large.
+**需求**：持续接收公共接口事件，追踪频率最高的 K 个键；键由用户控制，唯一键数量可能很大。
 
-Viable candidates:
+**可行候选**：
 
-1. Exact hash-map counts, sorted at the end: exact and simple, but memory grows with unique keys.
-2. Exact hash-map counts plus a heap of size K: reduces final sort cost, but still does not bound the count table's memory.
-3. Count-Min Sketch plus a Top-K candidate set: memory-bounded and streaming-friendly, but results have quantifiable error.
+1. 精确 hash-map 计数，最后排序：精确且简单，但内存随唯一键增长。
+2. 精确 hash-map 计数加大小为 K 的 heap：降低最终排序成本，但不限制计数表内存。
+3. Count-Min Sketch 加 Top-K 候选集合：内存有界、适合 streaming，但结果有可量化误差。
 
-Before recommending, determine whether exact results are required, the maximum unique-key count, memory budget, and event rate. Regardless of option, consider hash-collision defenses, key-length limits, resource quotas, and overload policy. If exactness versus bounded memory implies different interface semantics, wait for the user to choose first.
+建议前确认是否需要精确结果、最大唯一键数、内存预算和事件速率。无论选择何种方案，都应考虑哈希冲突防护、键长度限制、资源配额和过载策略。若精确性与有界内存意味着不同接口语义，等待用户选择。

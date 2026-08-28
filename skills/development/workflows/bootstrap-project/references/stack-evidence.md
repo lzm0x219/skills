@@ -1,23 +1,23 @@
-# Stack evidence
+# 技术栈证据
 
-Read this reference only when the user did not explicitly name the stack or when an existing target must be checked for conflicting evidence.
+仅当用户未明确指定技术栈，或必须检查已有目标是否存在冲突证据时，才阅读本参考。
 
-## Evidence priority
+## 证据优先级
 
-Prefer committed manifests and toolchain constraints over source extensions, documentation prose, generated caches, installed hooks, or directory names. A manifest is evidence for a stack; it does not by itself prove library versus CLI/application shape.
+优先采用已提交的 manifests 与 toolchain constraints，而非源码扩展名、文档散文、生成缓存、已安装 hooks 或目录名。manifest 是某个技术栈的证据；它本身不能证明是 library 还是 CLI/application。
 
-| Stack              | Primary evidence                               | Shape evidence                                                                                |
-| ------------------ | ---------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Zig                | `build.zig.zon`, `build.zig`                   | Exported modules suggest library; an installed executable artifact suggests CLI/application   |
-| Rust               | `Cargo.toml`, optional `rust-toolchain.toml`   | `[lib]` or `src/lib.rs` suggests library; `[[bin]]` or `src/main.rs` suggests CLI/application |
-| TypeScript/Node.js | `package.json`, `tsconfig.json`, pnpm lockfile | `exports` suggests library; `bin` suggests CLI/application                                    |
-| Python             | `pyproject.toml`, uv lockfile                  | Import package metadata suggests library; project scripts suggest CLI/application             |
-| Go                 | `go.mod`                                       | Importable packages suggest library; `package main` suggests CLI/application                  |
+| 技术栈             | 主要证据                                       | 形态证据                                                                              |
+| ------------------ | ---------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Zig                | `build.zig.zon`、`build.zig`                   | 导出的 modules 表明 library；已安装的 executable artifact 表明 CLI/application        |
+| Rust               | `Cargo.toml`、可选的 `rust-toolchain.toml`     | `[lib]` 或 `src/lib.rs` 表明 library；`[[bin]]` 或 `src/main.rs` 表明 CLI/application |
+| TypeScript/Node.js | `package.json`、`tsconfig.json`、pnpm lockfile | `exports` 表明 library；`bin` 表明 CLI/application                                    |
+| Python             | `pyproject.toml`、uv lockfile                  | import package metadata 表明 library；project scripts 表明 CLI/application            |
+| Go                 | `go.mod`                                       | 可 import packages 表明 library；`package main` 表明 CLI/application                  |
 
-## Ambiguity rules
+## 歧义规则
 
-- Treat two primary manifests from different stacks as ambiguous unless the user names the target subproject.
-- Treat multiple workspace members, packages, or modules as a monorepo boundary that requires an exact target.
-- Treat README claims as supporting evidence only.
-- Ignore build outputs, caches, virtual environments, vendored dependencies, and generated hook shims when identifying the stack.
-- Preserve a declared version even when a newer stable release exists; report disagreement between primary manifests and environment-manager pins.
+- 除非用户指定目标 subproject，否则将来自不同技术栈的两个主要 manifests 视为歧义。
+- 将多个 workspace members、packages 或 modules 视为需要精确目标的 monorepo 边界。
+- README 声明仅为辅助证据。
+- 识别技术栈时，忽略 build outputs、caches、virtual environments、vendored dependencies 和生成的 hook shims。
+- 即使存在更新稳定版本也保留已声明版本；报告主要 manifests 与 environment-manager pins 的不一致。

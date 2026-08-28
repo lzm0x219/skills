@@ -7,30 +7,30 @@
 从 `character-dna.md` 注入当前身份不变量，从 `style-dna.md` 注入当前风格约束；不要在本文件维护第二份角色清单。
 
 ```text
-Use case: editorial illustration with strict identity and source fidelity
-Asset type: near-16:9 Chinese article body illustration
-Reference image: Use the provided Juanjuan reference as the strict identity, costume, palette, proportion, and medium reference. Do not redesign the character.
-Identity block: <copy the current identity invariants from character-dna.md without summarizing or improvising>
+用途：严格保持角色身份与来源忠实度的编辑插图
+资产类型：接近 16:9 的中文文章正文插图
+参考图：将提供的卷卷参考图作为身份、服装、配色、比例与媒介的严格参考，不重新设计角色。
+身份块：<从 character-dna.md 原样复制当前身份不变量，不概括或即兴改写>
 
-Source core claim: <core_claim>
-Exact source terms: <exact_terms>
-Unsupported inferences to avoid: <unsupported_inferences>
+来源核心判断：<core_claim>
+来源精确术语：<exact_terms>
+须避免的无依据推断：<unsupported_inferences>
 
-Physical metaphor: <one readable object-action metaphor>
-Character action: <one exact action Juanjuan must perform>
-Required body contacts: <body part -> exact object; use none only when truly irrelevant>
-Required object counts: <exact counts>
-Required relationships and directions: <exact matching, sequence, direction, or separation>
-Required traceable paths: <start -> intermediate -> end, or none>
+物理隐喻：<一个可读的物件—动作隐喻>
+角色动作：<卷卷必须完成的一个精确动作>
+必要身体接触：<身体部位 -> 精确物件；仅确实无关时写 none>
+必要物件数量：<精确数量>
+必要关系与方向：<精确匹配、顺序、方向或隔离>
+必须可追踪的路径：<起点 -> 中间点 -> 终点，或 none>
 
-Composition: <single scene / before-after / light path / 2–4 panel comic>. Use one focal action, asymmetric depth, generous negative space, and a main subject occupying about 40–65% of the frame.
-Scene elements: <2–5 necessary elements only>
+构图：<单一场景 / 前后对比 / 轻量路径 / 2–4 格漫画>。使用一个焦点动作、非对称景深、充足留白，主体约占画面 40–65%。
+场景元素：<仅 2–5 个必要元素>
 
-Allowed Chinese labels: <exact 0–5 label whitelist>
-Source script: <traditional / simplified / mixed / none>. Preserve the source script exactly. Render no title, paragraph, explanation, watermark, signature, or other text.
+允许的中文标签：<精确的 0–5 个标签白名单>
+来源文字体系：<traditional / simplified / mixed / none>。严格保留来源文字体系，不渲染标题、段落、解释、水印、签名或其他文字。
 
-Visual style block: <copy the relevant style-dna constraints>
-Avoid: identity drift, passive mascot posing, substituted actions, wrong counts, broken paths, unsupported symbolism, PPT cards, left-center-right teaching boards, regular grids, dense diagrams, flat vectors, 3D, photography, anime rendering, or extra text.
+视觉风格块：<复制相关 style-dna 约束>
+避免：身份漂移、被动吉祥物姿势、替代动作、错误数量、断裂路径、无依据象征、PPT 卡片、左中右教学板、规则网格、密集图表、扁平矢量、3D、摄影、动漫渲染或额外文字。
 ```
 
 ## 关键文字的两阶段流程
@@ -43,25 +43,25 @@ Avoid: identity drift, passive mascot posing, substituted actions, wrong counts,
 ## 局部编辑模板
 
 ```text
-Edit the provided illustration. Change only: <precise edit>. Preserve every other character feature, object, count, relationship, path, label, position, aspect ratio, paper texture, and color. Do not add new text, props, characters, titles, logos, signatures, or watermarks.
+编辑提供的插图。仅修改：<精确修改项>。保留其余所有角色特征、物件、数量、关系、路径、标签、位置、纵横比、纸张纹理和颜色。不得添加新文字、道具、角色、标题、Logo、签名或水印。
 ```
 
 ## 加入精确文字
 
 ```text
-Edit the provided no-text illustration. Add only the exact text “<allowed label>” at <location>, preserving its original Traditional or Simplified Chinese form. Add no other characters, title, callout, underline, logo, signature, or watermark. Preserve everything else exactly.
+编辑提供的无字插图。仅在 <location> 添加精确文字“<allowed label>”，保留其原有繁体或简体形式。不得添加其他字符、标题、标注、下划线、Logo、签名或水印，其余内容完全保留。
 ```
 
 ## 去除错误文字
 
 ```text
-Edit the provided illustration. Remove only the text “<exact text>” and its attached underline or callout. Reconstruct the same warm cream paper and subtle grain behind it. Preserve everything else exactly. Do not add replacement text or new objects.
+编辑提供的插图。仅移除文字“<exact text>”及其附属下划线或标注。重建其后的暖奶油纸面和细微颗粒感。其余内容完全保留，不添加替代文字或新物件。
 ```
 
 ## 身份漂移时重生成
 
 ```text
-Regenerate the illustration from the Juanjuan reference. Preserve the approved source fact card, action, constraints and composition, but restore the complete identity block copied from character-dna.md. Do not patch the drifted character or reinterpret the design.
+基于卷卷参考图重新生成插图。保留已批准的来源事实卡、动作、约束和构图，但恢复从 character-dna.md 复制的完整身份块。不要修补漂移角色，也不要重新诠释设计。
 ```
 
 ## 同名记录模板

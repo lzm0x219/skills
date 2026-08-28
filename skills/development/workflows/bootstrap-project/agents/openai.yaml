@@ -1,7 +1,7 @@
 interface:
-  display_name: "Bootstrap Project"
-  short_description: "Create safe project scaffolds and development baselines"
-  default_prompt: "Use $bootstrap-project to inspect this target, plan its baseline, and apply a supported conflict-free initialization."
+  display_name: "项目初始化"
+  short_description: "创建安全、可审阅且不破坏既有文件的项目脚手架和开发基线"
+  default_prompt: "使用 $bootstrap-project 检查目标、规划基线，并应用受支持且无冲突的初始化。"
 
 policy:
   allow_implicit_invocation: false

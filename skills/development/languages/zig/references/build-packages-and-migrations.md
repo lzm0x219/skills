@@ -1,51 +1,51 @@
-# Zig builds, dependencies, and version migrations
+# Zig 构建、依赖与版本迁移
 
-Use the target Zig version established in `SKILL.md`. Base every Build API, manifest, dependency, and migration decision below on that target version.
+使用 `SKILL.md` 中确定的目标 Zig 版本。下文的每项 Build API、清单、依赖和迁移决策都必须以该目标版本为依据。
 
-## Discover the build contract
+## 识别构建契约
 
-- Confirm the Zig version before reading `build.zig`, `build.zig.zon`, and version-pinning files.
-- Treat `build.zig` as executable code. Before running an untrusted build, inspect dependencies, system commands, generation steps, and possible network or filesystem side effects.
-- After reviewing the trust boundary, use the target version's `zig build --help` to obtain the steps and `-D` options actually declared by the project. This command also loads `build.zig`, so it is not a safe probe for an unreviewed project. A step named `test` is not a built-in promise that the step exists or runs tests.
-- Keep the build graph declarative: use it to connect artifacts, modules, generated inputs, dependencies, tests, runs, and installation while keeping domain logic in ordinary Zig modules.
+- 在读取 `build.zig`、`build.zig.zon` 和版本锁定文件前，先确认 Zig 版本。
+- 将 `build.zig` 视为可执行代码。运行不受信任的构建前，检查依赖、系统命令、生成步骤，以及可能的网络或文件系统副作用。
+- 审查信任边界后，使用目标版本的 `zig build --help` 获取项目实际声明的步骤和 `-D` 选项。该命令同样会加载 `build.zig`，因此不是检查未经审查项目的安全探针。名为 `test` 的步骤并不天然保证该步骤存在或会运行测试。
+- 保持构建图的声明性：用它连接产物、模块、生成输入、依赖、测试、运行和安装，同时将领域逻辑留在普通 Zig 模块中。
 
-## Confirm that tests actually execute
+## 确认测试确实执行
 
-1. Locate where the test artifact is created.
-2. Locate the step that runs the artifact; verify against the target Build API that it runs the test artifact rather than merely compiling it.
-3. Confirm that the named step invoked by the user depends on the run step.
-4. After running it, record `compiled`, `executed`, and `passed` separately.
+1. 定位测试产物的创建位置。
+2. 定位运行该产物的步骤；根据目标 Build API 核验它运行的是测试产物而非仅进行编译。
+3. 确认用户调用的具名步骤依赖于该运行步骤。
+4. 运行后分别记录 `compiled`、`executed` 与 `passed`。
 
-If the run edge is missing, report that the tests compiled but did not execute, and propose the smallest version-matched build-graph correction.
+如果缺少运行边，报告测试已编译但未执行，并提出最小、且与版本匹配的构建图修正。
 
-## Modify dependencies and `build.zig.zon`
+## 修改依赖和 `build.zig.zon`
 
-- Confirm the dependency source, version or revision, license, expected module, target support, and supply-chain boundary first.
-- Treat `build.zig.zon` fields, hash rules, and `zig fetch` options as version-sensitive. Check the target version's `zig fetch --help`, language reference, release notes, or source first.
-- Generate or verify dependency hashes with the target-version toolchain. Do not guess them manually or reuse an unverified manifest fragment produced by another Zig version.
-- Explain side effects before running a command that can access the network, write caches, or modify the manifest; obtain confirmation when the request has not authorized those effects.
-- Preserve the existing dependency-pinning strategy. When updating one dependency, do not opportunistically update unrelated dependencies or rewrite the whole manifest.
-- After a change, verify dependency resolution with an isolated or clean cache. Use cache options supported by the target version and preserve the user's global cache.
+- 先确认依赖来源、版本或修订版本、许可证、预期模块、目标支持和供应链边界。
+- `build.zig.zon` 字段、哈希规则和 `zig fetch` 选项都与版本相关。先查看目标版本的 `zig fetch --help`、语言参考、发行说明或源码。
+- 使用目标版本工具链生成或验证依赖哈希。不要手动猜测，也不要复用由其他 Zig 版本生成但未经验证的清单片段。
+- 运行可能访问网络、写入缓存或修改清单的命令前，说明副作用；若请求未授权这些影响，先取得确认。
+- 保留既有的依赖锁定策略。更新一个依赖时，不要顺带更新无关依赖或重写整份清单。
+- 变更后，在隔离或干净缓存中验证依赖解析。使用目标版本支持的缓存选项，并保留用户的全局缓存。
 
-A dependency change is complete only after its source, integrity, module wiring, clean resolution, and project tests have all been verified.
+依赖变更仅在其来源、完整性、模块接线、干净解析和项目测试均已验证后才算完成。
 
-## Perform a Zig version migration
+## 执行 Zig 版本迁移
 
-Migrate only when the user explicitly requests it:
+仅在用户明确要求时迁移：
 
-1. Record the current and target Zig versions, every version-pinning location, supported targets, and the CI matrix.
-2. Read the official release notes across the version span and list changes to the language, standard library, Build API, `build.zig.zon`, C ABI, and tool options.
-3. Reproduce and classify failures with the target compiler before beginning unrelated refactoring.
-4. Update version pins, the manifest, build graph, and source in the smallest coherent increments; keep either an explainable failure or green verification result for each increment.
-5. For multi-version support, prefer capability detection and make the support window explicit. If only the target version remains supported, remove compatibility branches that are no longer needed.
-6. With the target version, complete formatting, compilation, test execution, target builds, and runtime verification on available platforms.
+1. 记录当前与目标 Zig 版本、所有版本锁定位置、支持目标及 CI 矩阵。
+2. 阅读跨越该版本区间的官方发行说明，列出语言、标准库、Build API、`build.zig.zon`、C ABI 和工具选项的变化。
+3. 开始无关重构前，先用目标编译器复现并分类失败。
+4. 以最小、连贯的增量更新版本锁定、清单、构建图和源码；每个增量都要保留可解释的失败，或绿色验证结果。
+5. 支持多版本时，优先能力检测，并明确支持窗口。若只支持目标版本，则删除不再需要的兼容分支。
+6. 使用目标版本完成格式化、编译、测试执行、目标构建，以及可用平台上的运行时验证。
 
-The migration report should list breaking changes, the compatibility strategy, command evidence, unverified targets, and the boundary required to roll back to the old toolchain.
+迁移报告应列出破坏性变更、兼容策略、命令证据、未验证目标，以及回滚到旧工具链所需的边界。
 
-## Package and publish
+## 打包与发布
 
-- Check the package name, version, exported modules, included paths, license files, and generated artifacts. Exclude caches, secrets, and local machine paths.
-- From a clean checkout with an isolated cache, verify that a consumer can resolve the dependency, import the public module, and run a minimal program.
-- Publication and remote tag creation are external side effects. Confirm the target, version, credential source, and authorization before performing them.
+- 检查包名、版本、导出模块、包含路径、许可证文件和生成产物。排除缓存、密钥和本机路径。
+- 在干净检出和隔离缓存中，验证消费者可以解析依赖、导入公共模块并运行最小程序。
+- 发布和创建远程标签属于外部副作用。执行前确认目标、版本、凭据来源和授权。
 
-Use the target version's [build system guide](https://ziglang.org/learn/build-system/), [language reference](https://ziglang.org/documentation/), and release notes as the authority for concrete Build API and manifest fields.
+具体 Build API 与清单字段，以目标版本的[构建系统指南](https://ziglang.org/learn/build-system/)、[语言参考](https://ziglang.org/documentation/)和发行说明为准。

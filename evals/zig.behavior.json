@@ -5,26 +5,26 @@
   "execution": {
     "mode": "codex-cli",
     "runner": "scripts/run_behavior_evals.py",
-    "description": "The runner executes prompts through an authenticated Codex CLI and scores them with deterministic output assertions."
+    "description": "运行器通过已认证的 Codex CLI 执行提示，并以确定性的输出断言评分。"
   },
   "source_assertions": {
     "required_regex": [
-      "Determine the task's target Zig version or supported range",
-      "Distinguish the minimum version, supported range, active compiler version, and formatter version",
-      "when neither the user nor the repository specifies a version, query the Zig website and use the latest stable release at that time",
-      "do not use a version number from memory or treat master/nightly as the \"latest version\"",
-      "Do not let another version's Style Guide override the target version's rules",
-      "`zig build --help` also loads the build graph",
-      "runtime safety, or illegal behavior boundaries",
-      "When the request is unrelated to Zig source, build configuration, toolchains, or diagnostics",
-      "read \\[Coding best practices and style\\]",
-      "read \\[Builds, dependencies, and version migrations\\]",
-      "read \\[C interoperability boundaries\\]",
-      "read \\[Measurement-driven performance optimization\\]",
-      "Treat `build.zig` as executable project code",
-      "report tests as passing only after the artifact actually runs and succeeds",
-      "successful cross-compilation does not prove correctness on the target runtime",
-      "official release verification script",
+      "确定任务目标 Zig 版本或支持范围",
+      "区分最低版本、支持范围、当前编译器版本和 formatter 版本",
+      "用户与仓库都未指定版本时，查询 Zig 官网",
+      "不使用记忆中的版本号，也不将 master/nightly 视为“最新版本”",
+      "不要让其他版本的 Style Guide 覆盖目标版本规则",
+      "`zig build --help` 也会加载构建图",
+      "运行时安全或非法行为边界",
+      "请求与 Zig 源码、构建配置、toolchains 或 diagnostics 无关时",
+      "读取 \\[编码最佳实践与风格\\]",
+      "读取 \\[构建、依赖与版本迁移\\]",
+      "读取 \\[C 互操作边界\\]",
+      "读取 \\[以测量驱动性能优化\\]",
+      "将 `build.zig` 视为可执行项目代码",
+      "只有产物实际运行并成功后，才报告测试通过",
+      "交叉编译成功不能证明目标运行时正确",
+      "官方发布验证脚本",
       "toolchain smoke script"
     ],
     "forbidden_regex": [

@@ -212,8 +212,8 @@ class ValidateSkillsTest(unittest.TestCase):
             source = skill_path.read_text(encoding="utf-8")
             skill_path.write_text(
                 source.replace(
-                    "Do not assume a specific repository",
-                    "Only supports the repolex repository",
+                    "不要假定特定仓库",
+                    "仅支持 repolex 仓库",
                     1,
                 ),
                 encoding="utf-8",
@@ -229,11 +229,11 @@ class ValidateSkillsTest(unittest.TestCase):
     def test_source_assertions_lock_napi_safety_rules(self) -> None:
         mutations = {
             "official-docs routing": (
-                "When CLI, Cargo features, target platforms, WASI, publishing, or migration are involved, always treat the current official pages as authoritative.",
+                "涉及 CLI、Cargo features、目标平台、WASI、发布或迁移时，始终以当前官方页面为准。",
                 "",
             ),
             "publish authorization boundary": (
-                "Do not run them without the user's explicit authorization.",
+                "未经用户明确授权不得执行。",
                 "",
             ),
         }

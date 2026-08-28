@@ -1,12 +1,12 @@
-# Zig performance measurement and optimization
+# Zig 性能测量与优化
 
-Use the target Zig version established in `SKILL.md`.
+使用 `SKILL.md` 中确定的目标 Zig 版本。
 
-## Measure before optimizing
+## 优化前先测量
 
-- Establish a reproducible performance baseline first, fixing the Zig version, target, optimization mode, inputs, warm-up procedure, execution environment, and sampling method.
-- Locate the bottleneck before proposing a change; vary one major factor at a time while retaining correctness tests.
-- Repeat measurements under the same conditions and report the distribution or variance rather than comparing only the single fastest result.
-- Treat compile time, binary size, memory, throughput, and latency as separate metrics; optimize only the metrics the user cares about and that have been measured.
+- 先建立可复现的性能基线，固定 Zig 版本、目标、优化模式、输入、预热过程、执行环境和采样方法。
+- 提出改动前先定位瓶颈；每次只改变一个主要因素，同时保留正确性测试。
+- 在相同条件下重复测量，并报告分布或方差，而非只比较单次最快结果。
+- 将编译时间、二进制体积、内存、吞吐量和延迟视为独立指标；仅优化用户关心且已被测量的指标。
 
-Claim a performance improvement only when the baseline, bottleneck evidence, post-change measurements, and correctness regression results are all available.
+只有在具备基线、瓶颈证据、变更后测量和正确性回归结果时，才能宣称性能得到提升。

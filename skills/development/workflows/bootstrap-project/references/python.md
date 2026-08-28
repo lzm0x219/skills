@@ -1,16 +1,16 @@
-# Python bootstrap adapter
+# Python 项目初始化适配器
 
-Use the Python adapter for one packaged Python project that is either a library or CLI/application. New mode accepts only an absent or empty target. Existing mode accepts only the exact root of a Git repository with repository-local `.git` metadata.
+此 Python 适配器适用于一个作为库或 CLI/应用的已打包 Python project。新建模式仅接受不存在或为空的目标目录；已有模式仅接受带有仓库本地 `.git` 元数据的 Git 仓库精确根目录。
 
-## Resolve versions and shape
+## 确定版本与形态
 
-Use the standard version priority: explicit user choice, then an exact existing project constraint, then the current stable release verified from the responsible official source on the execution date. The packaged baseline was verified on 2026-08-14 with Python `3.14.7`, uv `0.12.4`, uv build backend `0.12.4`, build `1.5.0`, mypy `2.3.0`, pytest `9.1.1`, Ruff `0.16.3`, Lefthook `2.1.10`, and mise `2026.8.5`; treat these values as dated evidence. Do not select build `1.5.1`, which PyPI has yanked.
+采用标准版本优先级：用户明确选择，其次是已有 project 的精确约束，最后是执行当日从负责的官方来源验证的当前稳定版本。随包基线于 2026-08-14 验证：Python `3.14.7`、uv `0.12.4`、uv build backend `0.12.4`、build `1.5.0`、mypy `2.3.0`、pytest `9.1.1`、Ruff `0.16.3`、Lefthook `2.1.10` 和 mise `2026.8.5`；这些值仅为带日期的证据。不要选择 PyPI 已 yank 的 build `1.5.1`。
 
-New mode requires an exact version for every listed tool and dependency, a valid normalized Python distribution name, and `library` or `cli`. Existing mode derives its name and shape from PEP 621 metadata and a recognized `src` layout. Its exact Python version comes from `.python-version` and must satisfy `project.requires-python`; explicit arguments must agree with existing exact pins.
+新建模式要求每个所列工具和依赖都有精确版本、有效且已规范化的 Python distribution name，以及 `library` 或 `cli`。已有模式从 PEP 621 metadata 与已识别的 `src` 布局推导名称和形态。其精确 Python 版本来自 `.python-version`，并且必须满足 `project.requires-python`；显式参数必须与已有精确 pins 一致。
 
-## Run the adapter
+## 运行适配器
 
-Use a fresh report path outside the target:
+在目标目录之外使用新的报告路径：
 
 ```sh
 python3 <skill-directory>/scripts/bootstrap_python.py \
@@ -28,26 +28,26 @@ python3 <skill-directory>/scripts/bootstrap_python.py \
   --report <absolute-report-path>
 ```
 
-For existing mode, omit `--name`. Dependency version arguments may be omitted only when the same exact versions already exist in the recognized `pyproject.toml`. `--shape` is optional but must agree when supplied.
+已有模式省略 `--name`。仅当已识别 `pyproject.toml` 中已有同一精确版本时，才可省略依赖版本参数。 `--shape` 可选，但提供时必须一致。
 
-New mode initializes Git without a commit, installs the exact mise tools, invokes official `uv init --lib` or packaged `uv init --app`, validates its known output boundary, replaces only those generated files with the selected minimal templates, locks and syncs exact dependencies, installs Lefthook, and runs `mise run ci`. The exact patch-level Python pin belongs to mise and `.python-version`, even when uv's default initializer would write only a minor version.
+新建模式初始化 Git 但不创建 commit，安装精确 mise 工具，调用官方 `uv init --lib` 或已打包的 `uv init --app`，验证其已知输出边界，仅替换这些生成文件为选定的最小 templates，锁定并同步精确依赖，安装 Lefthook，并运行 `mise run ci`。即使 uv 的默认 initializer 只会写入 minor version，精确 patch-level Python pin 也属于 mise 和 `.python-version`。
 
-Existing mode never runs `uv init` and never rewrites `pyproject.toml`, `uv.lock`, `.python-version`, sources, tests, or README. It accepts only PEP 621 metadata with the recognized uv build backend, exact development dependency pins, Ruff, strict mypy, pytest configuration, a current locked uv environment, and a library or thin-CLI `src` layout. Poetry, PDM, Pipenv, asdf, Husky, pre-commit, legacy setup files, nested projects, custom hooks, and unknown baseline destinations are blocking conflicts.
+已有模式绝不运行 `uv init`，绝不重写 `pyproject.toml`、`uv.lock`、`.python-version`、源码、测试或 README。它仅接受 PEP 621 metadata、已识别的 uv build backend、精确 development dependency pins、Ruff、严格 mypy、pytest 配置、当前已锁定的 uv environment，以及 library 或薄 CLI 的 `src` 布局。Poetry、PDM、Pipenv、asdf、Husky、pre-commit、legacy setup files、嵌套 projects、自定义 hooks 和未知基线目标均为阻塞冲突。
 
-## Generated quality baseline
+## 生成的质量基线
 
-- `install`: `uv sync --locked --all-groups`;
-- `format` and `format-check`: Ruff format, with check mode read-only;
-- `lint`: Ruff check with no cache;
-- `check`: strict mypy over `src` and `tests`, with its cache disabled;
-- `test`: pytest with its cache provider disabled;
-- `build`: `python -m build --installer=uv` through the locked uv environment;
-- serial `ci`: locked sync, format-check, lint, check, test, then build;
-- pre-commit: `piped: true` enforces stop-on-failure order across the partial-stage guard, staged Ruff formatter and explicit restage of only those files, whole-project Ruff lint, then mypy. Full pytest and build remain outside the hook. The version-locked installer validates Lefthook's generated hook, adds the official `--no-stage-fixed` run flag, and scopes `MISE_TRUSTED_CONFIG_PATHS` to this hook process without persisting global trust, while the formatter helper reads NUL-delimited Python paths directly from the Git index;
-- Ubuntu CI through the same `mise run ci` entry, immutable action SHAs, and Renovate coverage for mise, PEP 621, uv lock artifacts, and Actions. Lockfile maintenance remains explicitly disabled.
+- `install`：`uv sync --locked --all-groups`；
+- `format` 和 `format-check`：Ruff format；check mode 只读；
+- `lint`：禁用 cache 的 Ruff check；
+- `check`：在 `src` 与 `tests` 上严格运行 mypy，并禁用其 cache；
+- `test`：禁用 cache provider 的 pytest；
+- `build`：通过已锁定 uv environment 运行 `python -m build --installer=uv`；
+- 串行 `ci`：locked sync、format-check、lint、check、test，最后 build；
+- pre-commit：`piped: true` 让部分暂存防护、暂存 Ruff formatter 及只对这些文件的显式重新暂存、全项目 Ruff lint、再到 mypy 按失败即停顺序执行。完整 pytest 和 build 不放入 hook。版本锁定的安装器验证 Lefthook 生成的 hook，加入官方 `--no-stage-fixed` 运行参数，并将 `MISE_TRUSTED_CONFIG_PATHS` 限定到该 hook 进程而不持久化全局信任；formatter helper 直接从 Git index 读取 NUL 分隔的 Python 路径；
+- Ubuntu CI 通过相同的 `mise run ci` 入口、不可变 action SHA，以及对 mise、PEP 621、uv lock artifacts 和 Actions 的 Renovate 覆盖。明确禁用 lockfile maintenance。
 
-A new library includes `py.typed`. A new CLI keeps printing and argument handling in thin `src/<module>/cli.py` code and places tested behavior in `core.py`.
+新的 library 包含 `py.typed`。新的 CLI 将打印和参数处理置于薄的 `src/<module>/cli.py` 代码，并将经测试行为置于 `core.py`。
 
-## Failure semantics
+## 失败语义
 
-`blocked` means a target, package boundary, version, VCS, manager, hook, shape, metadata, lockfile, or destination conflict prevented apply. `partial` means a known write or external command failed; retain the report, exact failed command, and partial changes. `completed` requires an installed hook, exact mise and uv lockfiles, a successful full gate, and—for new mode—an empty Git history.
+`blocked` 表示目标、package 边界、版本、VCS、manager、hook、形态、metadata、lockfile 或目标路径冲突阻止了应用。 `partial` 表示已知写入或外部命令失败；保留报告、精确失败命令和部分变更。 `completed` 要求已安装 hook、精确 mise 与 uv lockfiles、成功的完整质量门，以及新建模式下为空的 Git history。

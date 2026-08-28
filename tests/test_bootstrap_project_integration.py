@@ -64,7 +64,7 @@ class BootstrapProjectIntegrationTests(unittest.TestCase):
     def test_skill_entrypoint_uses_progressive_disclosure(self) -> None:
         source = (SKILL / "SKILL.md").read_text(encoding="utf-8")
         self.assertLessEqual(len(source.splitlines()), 100)
-        self.assertIn("read exactly one stack reference completely", source)
+        self.assertIn("完整读取且只读取一个技术栈 reference", source)
         for reference in (
             "stack-evidence.md",
             "zig.md",

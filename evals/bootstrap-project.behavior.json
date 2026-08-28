@@ -5,23 +5,23 @@
   "execution": {
     "mode": "codex-cli",
     "runner": "scripts/run_behavior_evals.py",
-    "description": "The answer runner checks apply, planning, and safety decisions; isolated unit and workspace runners verify target mutations."
+    "description": "回答运行器检查实施、规划和安全决策；隔离的单元与 workspace 运行器验证目标改动。"
   },
   "source_assertions": {
     "required_regex": [
       "disable-model-invocation: true",
-      "supported new or strictly recognized existing Zig, Rust, TypeScript/Node.js, Python, and Go projects",
+      "受支持的新项目或严格识别的已有 Zig、Rust、TypeScript/Node.js、Python 和 Go 项目",
       "scripts/bootstrap_zig.py",
       "scripts/baseline_existing_zig.py",
       "scripts/bootstrap_rust.py",
       "scripts/bootstrap_node.py",
       "scripts/bootstrap_python.py",
       "scripts/bootstrap_go.py",
-      "read exactly one stack reference completely",
+      "完整读取且只读取一个技术栈 reference",
       "references/reporting.md",
       "create.*merge.*preserve.*conflict",
-      "user-specified version, then existing constraint, then current stable",
-      "Never describe inspection or planning as successful initialization"
+      "用户指定版本、既有约束、执行日从权威来源核查的当前稳定版本",
+      "绝不将检查或规划描述为成功初始化"
     ],
     "forbidden_regex": ["(?i:matharts|ziwei-atlas|repolex|only supports the ziwei repository)"]
   },

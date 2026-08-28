@@ -17,8 +17,8 @@ disable-model-invocation: true
 1. 始终读取 `references/character-dna.md`，并查看 `assets/juanjuan-character-reference-v3.png`。
 2. 规划构图时读取 `references/style-dna.md` 和 `references/composition-patterns.md`。
 3. 生成或编辑图片时再读取 `references/prompt-template.md` 和 `references/qa-checklist.md`。
-4. 用户只要求规划时，只输出 shot list。Do not generate images when the user asks for planning only.
-5. 用户要求公开发布、商业授权或商品制作时，先说明当前参考图仅用于内部视觉验证，最终母版与商用权利仍待确认。Do not claim that the character is original, rights-cleared, or safe for commercial use.
+4. 用户只要求规划时，只输出 shot list；不得生成图片。
+5. 用户要求公开发布、商业授权或商品制作时，先说明当前参考图仅用于内部视觉验证，最终母版与商用权利仍待确认；不得声称角色已原创登记、已清权或可安全商用。
 6. 没有可用图像生成或编辑工具时，输出可直接执行的逐图提示词和明确的工具阻塞，不要声称已经生成图片。
 
 ## 工作流

@@ -1,54 +1,54 @@
-# Verify and report
+# 验证与报告
 
-Read this reference only after the selected adapter has returned or apply has been skipped. Use the selected stack reference as the source of stack-specific completion gates.
+仅在选定适配器已返回或跳过 apply 后阅读本参考。以选定技术栈参考为技术栈特定完成门的来源。
 
-## Interpret status
+## 解读状态
 
-- `blocked`: a conflict prevented apply; report the unresolved decision and confirm whether external commands ran.
-- `planned`: the user requested planning only or the resolved shape has no packaged adapter.
-- `partial`: writing began and an initializer, install, lock, hook, or quality command failed; retain the target and exact failed command.
-- `completed`: the selected adapter, installed hook, stack completion gates, and `mise run ci` all passed.
+- `blocked`：冲突阻止 apply；报告未解决决策并确认是否运行过外部命令。
+- `planned`：用户只请求规划，或已确定的形态没有随包适配器。
+- `partial`：写入已经开始，但 initializer、install、lock、hook 或 quality command 失败；保留目标和精确失败命令。
+- `completed`：选定适配器、已安装 hook、技术栈完成门和 `mise run ci` 全部通过。
 
-## Check common evidence
+## 检查公共证据
 
-Verify the adapter report against the target rather than trusting its status alone:
+根据目标核验适配器报告，而不是只信任其状态：
 
-- Exact managed versions and lockfiles agree with recognized project constraints;
-- Public mise tasks and the serial `ci` entry are present and execute real commands;
-- Lefthook installs the ordered partial-stage guard, staged formatter and restage, lint, and quick check without full test or build;
-- The Ubuntu workflow uses immutable action SHAs and calls `mise run ci` once;
-- `.github/renovate.json` extends the recommended preset without automerge and explicitly disables lockfile maintenance;
-- New mode creates no Git commit; existing mode preserves every file promised by the selected reference;
-- Cache and build artifacts remain untracked, while expected side effects are reported accurately.
+- 精确的受管版本和 lockfiles 与已识别的 project constraints 一致；
+- 公共 mise tasks 与串行 `ci` 入口存在，并执行真实命令；
+- Lefthook 安装有序的部分暂存防护、暂存 formatter 及重新暂存、lint 和快速 check，而不含完整 test 或 build；
+- Ubuntu workflow 使用不可变 action SHA，并且仅调用一次 `mise run ci`；
+- `.github/renovate.json` 扩展 recommended preset，没有 automerge，并明确禁用 lockfile maintenance；
+- 新建模式不创建 Git commit；已有模式保留选定参考承诺保留的每个文件；
+- caches 与 build artifacts 保持未跟踪，而预期副作用被准确报告。
 
-On `partial`, preserve evidence, report recovery, and leave cleanup to the user. On `blocked`, distinguish inspection from execution. A failed or unrun gate cannot produce `completed`.
+在 `partial` 时，保留证据、报告恢复步骤，并将清理留给用户。在 `blocked` 时，区分 inspection 和 execution。失败或未运行的质量门不能产生 `completed`。
 
-## Return the result
+## 返回结果
 
 ```text
-Status: completed | partial | planned | blocked
-Target: <absolute path>
-Mode: new | existing
-Stack: Zig | Rust | TypeScript/Node.js | Python | Go | unresolved
-Shape: library | CLI/application | unresolved
-Versions: <value, precedence branch, evidence>
+状态：completed | partial | planned | blocked
+目标：<absolute path>
+模式：new | existing
+技术栈：Zig | Rust | TypeScript/Node.js | Python | Go | unresolved
+形态：library | CLI/application | unresolved
+版本：<value, precedence branch, evidence>
 
-Changes:
-- created: <paths, or none>
-- modified: <paths, or none>
-- preserved: <paths, or none>
+变更：
+- 创建：<paths, or none>
+- 修改：<paths, or none>
+- 保留：<paths, or none>
 
-Conflicts:
+冲突：
 - <decision needed, or none>
 
-Verification:
+验证：
 - <command> — <passed|failed|not run>
 
-Failed command:
+失败命令：
 - <exact argv, or none>
 
-Next step:
+下一步：
 - <recovery command, adapter boundary, or none>
 ```
 
-Finish only when every field is supported by the adapter report, target inspection, or an explicit `not run` value.
+只有在每个字段均得到适配器报告、目标检查或明确的 `not run` 支持时，才可完成。

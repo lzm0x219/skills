@@ -1,88 +1,85 @@
 ---
 name: zig
-description: "Build, modify, debug, test, optimize, migrate, and review Zig applications and libraries. Use for `.zig` source, coding style, API design, `build.zig`, `build.zig.zon`, dependencies, the Zig build system, `comptime`, allocators and ownership, error unions, C interoperability, cross-compilation, performance diagnostics, compiler diagnostics, and Zig package maintenance. Coding style, best practices, syntax, standard library APIs, Build API, compiler options, and target behavior must match the target Zig version; when neither the user nor the repository specifies a version, query the Zig website and use the latest stable release at that time."
+description: 构建、修改、调试、测试、优化、迁移和审查 Zig 应用与库。适用于 `.zig` 源码、编码风格、API 设计、`build.zig`、`build.zig.zon`、依赖、Zig 构建系统、`comptime`、allocator 与所有权、error unions、C 互操作、交叉编译、性能和编译器诊断以及 Zig package 维护。编码风格、最佳实践、语法、标准库 API、Build API、编译器选项和目标行为必须匹配目标 Zig 版本；用户与仓库都未指定版本时，查询 Zig 官网并使用当时最新稳定版。
 ---
 
-# Zig development
+# Zig 开发
 
-## General workflow
+## 通用工作流
 
-### Establish the repository and version boundaries
+### 确定仓库与版本边界
 
-- Before proposing changes, read the repository instructions, `git status`, `build.zig`, `build.zig.zon`, version-pinning files, adjacent source, and tests.
-- Determine the task's target Zig version or supported range in this order: an explicit user requirement; otherwise repository version pins, manifest constraints, CI configuration, or the project toolchain; when none of that evidence exists, query the official Zig [Download](https://ziglang.org/download/) or [Learn](https://ziglang.org/learn/) page and use the latest stable release at that time.
-- Distinguish the minimum version, supported range, active compiler version, and formatter version. A lower bound such as `minimum_zig_version` is not an exact pin. When a project supports multiple versions, preserve its CI matrix and select an explicit compiler for each verification run. By default, verify at least the minimum supported release and the latest stable release within the supported range.
-- Use the formatter version specified by the repository. When none is specified separately, run `zig fmt` with the compiler used for the current verification. If different compilers produce different formatting, follow the repository-specified version and report the difference.
-- When there is no version evidence, do not use a version number from memory or treat master/nightly as the "latest version"; target master/nightly only when the user explicitly requests a development release.
-- When Zig is available locally, compare `zig version` with the target version. If the local version conflicts with the user or repository version, treat it as a different environment rather than migrating the project automatically.
-- If the official website is unavailable and there is no other version evidence, report that the latest stable release could not be verified and request version information instead of silently falling back to a historical release.
-- Preserve the compiler versions and existing conventions supported by the project. Treat a newer local compiler as a different environment, not as a reason to migrate the project automatically.
-- When the request is unrelated to Zig source, build configuration, toolchains, or diagnostics, complete it directly without introducing Zig-specific process.
+- 提出改动前，读取仓库指引、`git status`、`build.zig`、`build.zig.zon`、版本固定文件、相邻源码和测试。
+- 按此顺序确定任务目标 Zig 版本或支持范围：用户显式要求；否则仓库版本固定、manifest 约束、CI 配置或项目 toolchain；均无证据时，查询官方 [Download](https://ziglang.org/download/) 或 [Learn](https://ziglang.org/learn/) 页面，并使用当时最新稳定版。
+- 区分最低版本、支持范围、当前编译器版本和 formatter 版本。`minimum_zig_version` 一类下界不是精确固定版本。项目支持多个版本时保留 CI 矩阵，并为每次验证选择明确编译器；默认至少验证最低支持版和支持范围内最新稳定版。
+- 使用仓库指定的 formatter 版本；未单独指定时，用当前验证编译器运行 `zig fmt`。不同编译器格式化结果不同则遵循仓库指定版本并报告差异。
+- 没有版本证据时，不使用记忆中的版本号，也不将 master/nightly 视为“最新版本”；只在用户明确要求开发版时才以 master/nightly 为目标。
+- 本地存在 Zig 时，将 `zig version` 与目标版本比较。本地版本与用户或仓库版本冲突时，把它视为不同环境，不自动迁移项目。
+- 官方网站不可用且没有其他版本证据时，报告无法验证最新稳定版并请求版本信息，不静默回退到历史版本。
+- 请求与 Zig 源码、构建配置、toolchains 或 diagnostics 无关时，直接完成请求，不引入 Zig 专属流程。
 
-Complete this step when the target files, supported version range, active compiler, formatter version, version evidence, existing command entrypoints, and request scope are all explicit.
+完成条件：目标文件、支持版本范围、当前编译器、formatter 版本、版本证据、既有命令入口与请求范围均已明确。
 
-### Use version-matched evidence
+### 使用版本匹配的证据
 
-For exact syntax, standard library APIs, Build API, compiler options, target behavior, or version compatibility, rely on official evidence that matches the target version:
+精确语法、标准库 API、Build API、编译器选项、目标行为或版本兼容性必须依赖与目标版本匹配的官方证据：
 
-- Use `zig env` and the standard library source bundled with the installed compiler to verify the toolchain actually in use.
-- To confirm the current stable release on the official website, run the [official release verification script](scripts/verify-official-release.mjs); add `--verify-links` before publishing or refreshing version data. This network check proves only the state of the official index and links at query time.
-- For a stable release, use the target version's [language reference](https://ziglang.org/documentation/), its Style Guide, standard library documentation, release notes, and compiler-bundled source. Use master documentation only when the user explicitly targets master. Do not let another version's Style Guide override the target version's rules.
-- Use the official [build system guide](https://ziglang.org/learn/build-system/) for concepts, then verify the API against the target compiler; the Build API evolves continuously.
-- Use `zig <command> --help` and the build steps and options declared by the project instead of applying options remembered from another version.
-- When the language reference is insufficient, inspect the official Zig source and label conclusions derived from source as implementation details.
+- 使用 `zig env` 与已安装编译器附带的标准库源码确认实际 toolchain。
+- 确认官网当前稳定版时运行 [官方发布验证脚本](scripts/verify-official-release.mjs)；发布或刷新版本数据前加 `--verify-links`。此联网检查只证明查询时的官方索引和链接状态。
+- 稳定版使用目标版本的 [语言参考](https://ziglang.org/documentation/)、Style Guide、标准库文档、发布说明和编译器附带源码；只有用户目标为 master 时才使用 master 文档。不要让其他版本的 Style Guide 覆盖目标版本规则。
+- 使用官方 [构建系统指南](https://ziglang.org/learn/build-system/) 理解概念，再用目标编译器验证 API；Build API 持续演进。
+- 使用 `zig <command> --help` 与项目声明的 build steps/options，不套用其他版本记忆中的选项。
+- 语言参考不足时检查官方 Zig 源码，并将由源码得出的结论标为实现细节。
 
-When reporting a version-sensitive conclusion, state the target version, the basis for choosing it, and the documentation source, and distinguish verified facts, engineering defaults, and migration recommendations.
+报告版本敏感结论时，说明目标版本、选择依据和文档来源，并区分已验证事实、工程默认值和迁移建议。
 
-### Load task-specific rules
+### 按任务读取规则
 
-- When writing, refactoring, or reviewing Zig code, or when the user asks about best practices, coding style, runtime safety, or illegal behavior boundaries, read [Coding best practices and style](references/best-practices-and-style.md).
-- When modifying `build.zig`, `build.zig.zon`, dependencies, package metadata, version constraints, or the Zig version, read [Builds, dependencies, and version migrations](references/build-packages-and-migrations.md).
-- When using C headers, C libraries, `@cImport`, `zig translate-c`, `extern`, callbacks, or data across an ABI, read [C interoperability boundaries](references/c-interop.md).
-- When profiling, benchmarking, or optimizing compile time, binary size, memory, throughput, or latency, read [Measurement-driven performance optimization](references/performance-optimization.md).
+- 编写、重构或审查 Zig 代码，或涉及最佳实践、编码风格、运行时安全或非法行为边界时，读取 [编码最佳实践与风格](references/best-practices-and-style.md)。
+- 修改 `build.zig`、`build.zig.zon`、依赖、package metadata、版本约束或 Zig 版本时，读取 [构建、依赖与版本迁移](references/build-packages-and-migrations.md)。
+- 使用 C headers、C libraries、`@cImport`、`zig translate-c`、`extern`、callbacks 或 ABI 间数据时，读取 [C 互操作边界](references/c-interop.md)。
+- profile、benchmark 或优化编译时间、二进制大小、内存、吞吐或延迟时，读取 [以测量驱动性能优化](references/performance-optimization.md)。
 
-Complete this step after performing the checks required by the detailed rules and reflecting every applicable boundary in the design, implementation, and verification plan.
+完成条件：已完成细则要求的检查，并在设计、实现和验证计划中体现每项适用边界。
 
-### Make build and test evidence explicit
+### 明确构建与测试证据
 
-- Treat `build.zig` as executable project code; `zig build --help` also loads the build graph. For an untrusted project, inspect build scripts, dependency declarations, and every reachable system-command step before running any `zig build` subcommand.
-- Derive step names and `-D` options from the current `build.zig` and `zig build --help`, and preserve the project's existing target and optimization option model.
-- Distinguish a test artifact that compiled from one that executed and one that passed. Confirm that the test step depends on the step that runs the artifact; report tests as passing only after the artifact actually runs and succeeds.
-- Before dependency resolution, downloads, global toolchain changes, package publication, or other out-of-scope external side effects, make the impact explicit and confirm authorization.
+- 将 `build.zig` 视为可执行项目代码；`zig build --help` 也会加载构建图。不受信任项目中，运行任何 `zig build` 子命令前先审查构建脚本、依赖声明和每个可达的系统命令步骤。
+- 从当前 `build.zig` 和 `zig build --help` 推导 step 名称和 `-D` 选项，并保留项目既有 target 与 optimization 选项模型。
+- 区分“测试产物已编译”“已执行”和“已通过”。只有产物实际运行并成功后，才报告测试通过；确认 test step 依赖的是运行产物的 step。
+- 依赖解析、下载、全局 toolchain 改动、package publication 或其他范围外外部副作用前，明确影响并确认授权。
 
-Complete this step when the build steps, test execution path, dependency side effects, and success criteria can all be explained.
+完成条件：构建步骤、测试执行路径、依赖副作用与成功标准均可解释。
 
-### Implement the smallest compatible change
+### 实施最小兼容改动
 
-- Follow adjacent code and every applicable rule in [Coding best practices and style](references/best-practices-and-style.md).
-- Keep the first change small enough that one targeted compile or test can reject it quickly.
-- Add tests next to the behavior they protect; cover failure and cleanup paths for allocation or I/O changes.
-- Run `zig fmt` only on modified Zig paths; use `zig fmt --check` for a read-only check.
-- Preserve the existing language version and change boundary unless the request includes a version migration or broad rewrite.
+- 遵循相邻代码与 [编码最佳实践与风格](references/best-practices-and-style.md) 中适用规则。
+- 首个改动应小到可由一次定向编译或测试迅速否决。
+- 测试放在所保护行为附近；allocation 或 I/O 改动覆盖失败与清理路径。
+- 只对修改过的 Zig 路径运行 `zig fmt`；只读检查使用 `zig fmt --check`。
+- 请求未包含版本迁移或大范围重写时，保持既有语言版本和改动边界。
 
-Complete this step when the code, tests, and documentation contain only the smallest compatible change required by the request.
+### 分层扩大验证
 
-### Expand verification in layers
+优先使用仓库既有命令；否则只在项目支持范围内扩大验证：
 
-Prefer the repository's existing commands. Otherwise, expand verification only within the range supported by the project:
+1. 对修改的 Zig 文件运行 `zig fmt --check`。
+2. 运行最小适用的 `zig test`，或运行具名 `zig build` 测试 step 并确认它实际执行测试产物。
+3. 使用项目固定的编译器运行项目构建和其余测试。
+4. 改动影响可移植性、安全、ABI 或性能时，覆盖项目声明的 target 与 optimization 组合。
+5. 在兼容环境运行生成二进制或集成测试。交叉编译成功不能证明目标运行时正确。
 
-1. Run `zig fmt --check` on modified Zig files.
-2. Run the smallest applicable `zig test` command, or run a named `zig build` test step and verify that it actually executes the test artifact.
-3. Run the project build and remaining tests with the compiler pinned by the project.
-4. When a change affects portability, safety, ABI, or performance, cover the target and optimization combinations declared by the project.
-5. Run generated binaries or integration tests in a compatible environment. A successful cross-compilation does not prove correctness on the target runtime.
+验证本 Skill 的最小示例时，对每个代表性 toolchain 运行 [toolchain smoke script](scripts/run-toolchain-smoke.mjs)。它在隔离临时目录检查格式、构建图和真实测试执行，不替代目标仓库的测试矩阵。
 
-When validating this skill's minimal examples, run the [toolchain smoke script](scripts/run-toolchain-smoke.mjs) for each representative toolchain. It checks formatting, the build graph, and actual test execution in an isolated temporary directory; it does not replace the target repository's test matrix.
+分别报告精确 Zig 版本、命令、target、optimization mode 和观察结果；将 `compiled`、`executed`、`passed` 与当前不可用检查分开标记。
 
-Report the exact Zig version, commands, target, optimization mode, and observations. Mark `compiled`, `executed`, `passed`, and currently unavailable checks separately.
+## 诊断顺序
 
-## Diagnostic order
+1. 用项目固定编译器和最小命令复现失败。
+2. 在处理后续错误前，先读取首个因果诊断及其 compile-time reference trace。
+3. 将失败归类为语言语义、版本漂移、所有权／生命周期、`comptime` 求值、构建图、依赖解析、C ABI／链接、目标行为或性能回归。
+4. 缩小失败边界，同时保留相关 allocator、target、optimization mode 和外部依赖。
+5. 行为存在争议时，检查版本匹配的语言参考、本地标准库源码、Build API、发布说明或编译器源码。
+6. 只有证据指向 cache 时才处理；将动作限制在特定项目或隔离 cache 路径，并保留无关产物。
 
-1. Reproduce the failure with the project-pinned compiler and the smallest command.
-2. Read the first causal diagnostic and its compile-time reference trace before addressing later errors.
-3. Classify the failure as language semantics, version drift, ownership/lifetime, `comptime` evaluation, build graph, dependency resolution, C ABI/linking, target behavior, or performance regression.
-4. Narrow the failing boundary while preserving the relevant allocator, target, optimization mode, and external dependencies.
-5. For disputed behavior, check the version-matched language reference, local standard library source, Build API, release notes, or compiler source.
-6. Handle caches only when evidence points to them; scope the action to a specific project or isolated cache path and preserve unrelated artifacts.
-
-Conclude with the root cause, the smallest verified fix, regression coverage, and any platform, runtime, or performance boundary that remains unverified.
+结论包含根因、最小已验证修复、回归覆盖，以及仍未验证的平台、运行时或性能边界。

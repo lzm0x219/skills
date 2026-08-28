@@ -1,6 +1,6 @@
 interface:
-  display_name: "napi-rs general bindings"
-  short_description: "Generic napi-rs Rust Node-API binding workflow"
-  default_prompt: "Use $napi-rs to build, debug, or verify a Rust Node-API addon."
+  display_name: "napi-rs 通用绑定"
+  short_description: "通用 napi-rs Rust Node-API 绑定工作流"
+  default_prompt: "使用 $napi-rs 构建、调试或验证 Rust Node-API addon。"
 policy:
   allow_implicit_invocation: true

@@ -5,13 +5,13 @@
   "execution": {
     "mode": "codex-cli",
     "runner": "scripts/run_behavior_evals.py",
-    "description": "The runner uses an authenticated Codex CLI to execute prompts and scores results with deterministic output assertions."
+    "description": "运行器使用已认证的 Codex CLI 执行提示，并通过确定性的输出断言评分。"
   },
   "source_assertions": {
     "required_regex": [
-      "Run the applicability gate first",
-      "When there is no material DSA choice",
-      "Implement only when the user explicitly asks for code to be written or changed"
+      "先运行适用性门槛",
+      "不存在实质性 DSA 选择",
+      "只有用户明确要求编写或修改代码时才实施"
     ],
     "forbidden_regex": [
       "(?i:repolex|analysistarget|analysisoptions|analysisreport|languagestat|resolvedmode)"
@@ -22,13 +22,13 @@
       "id": "prose-edit-no-trigger",
       "category": "out-of-scope",
       "invocation": "implicit",
-      "prompt": "Change the settings-page button copy from \"Save\" to \"Save changes\". Return only the replacement copy and do not modify files.",
+      "prompt": "将设置页按钮文案从 \"Save\" 改为 \"Save changes\"。只返回替换文案，不修改文件。",
       "expected": {
         "assertions": {
           "required_regex": ["Save changes"],
           "forbidden_regex": [
-            "(?:DSA|data structure|algorithm|complexity)",
-            "(?:data structure|algorithm).*option"
+            "(?:DSA|数据结构|算法|复杂度|data structure|algorithm|complexity)",
+            "(?:数据结构|算法|data structure|algorithm).*(?:方案|option)"
           ]
         }
       }
@@ -37,11 +37,11 @@
       "id": "simple-crud-no-forced-dsa",
       "category": "applicability-gate",
       "invocation": "implicit",
-      "prompt": "Add a method to delete a user by unique ID from the existing in-memory user list. The data set is small and there are no new performance or persistence requirements.",
+      "prompt": "在既有内存用户列表中增加按唯一 ID 删除用户的方法。数据集很小，且没有新的性能或持久化要求。",
       "expected": {
         "assertions": {
-          "required_regex": ["(?:keep|reuse|existing).*list"],
-          "forbidden_regex": ["DSA\\s*choice", "Option\\s*[123]"]
+          "required_regex": ["(?:保留|复用|既有|keep|reuse|existing).*(?:列表|list)"],
+          "forbidden_regex": ["DSA\\s*(?:选择|choice)", "(?:方案|Option)\\s*[123]"]
         }
       }
     },
@@ -49,24 +49,24 @@
       "id": "top-k-material-decision",
       "category": "positive-trigger",
       "invocation": "explicit",
-      "prompt": "Design an interface that returns the top 100 highest-scoring records from the last hour over a continuously growing multi-tens-of-millions event stream. Writes far outnumber reads, and memory has a clear upper bound. Give options first and do not make material trade-offs for me.",
+      "prompt": "设计一个接口：从持续增长、规模数千万级的事件流中返回最近一小时得分最高的前 100 条记录。写入远多于读取，内存有明确上限。先给出方案，不替我作实质性权衡。",
       "expected": {
         "assertions": {
           "required_regex": [
             "Top\\s*-?\\s*(?:K|100)",
-            "exact",
-            "(?:approximate|Space-Saving|Count-Min)",
+            "(?:精确|exact)",
+            "(?:近似|approximate|Space-Saving|Count-Min)",
             "O\\(",
-            "(?:memory|space).*(?:bound|limit|unbounded)",
+            "(?:内存|空间|memory|space).*(?:有界|上限|无界|bound|limit|unbounded)",
             "(?:I/O|IO|disk|database|external state)",
-            "(?:maintain|implementation complexity|operations)",
-            "(?:recommend|prefer).*(?:exact|approximate|Space-Saving|Count-Min)",
-            "(?:when|if).*(?:better|prefer|overtake|switch)",
-            "(?:need|please).*(?:decide|choose)|choose.*semantic"
+            "(?:维护|实现复杂度|操作|maintain|implementation complexity|operations)",
+            "(?:建议|推荐|recommend|prefer).*(?:精确|近似|exact|approximate|Space-Saving|Count-Min)",
+            "(?:当|如果|when|if).*(?:更好|优先|反超|切换|better|prefer|overtake|switch)",
+            "(?:需要|请|need|please).*(?:决定|选择|decide|choose)|choose.*semantic"
           ],
           "forbidden_regex": [
             "```(?:bash|sh|zsh|python|ruby|javascript|typescript|java|kotlin|swift|go|rust|c|cpp|csharp|sql)(?:\\s|\\n)",
-            "(?:directly|immediately).*(?:implement|ship|deploy)"
+            "(?:直接|立即|directly|immediately).*(?:实施|发布|部署|implement|ship|deploy)"
           ]
         }
       }
@@ -75,20 +75,20 @@
       "id": "delegated-choice-no-pause",
       "category": "positive-trigger",
       "invocation": "explicit",
-      "prompt": "Design a query that returns the top 100 highest-scoring records from the last hour over a multi-tens-of-millions event stream. Choose the most suitable option under these constraints; internal data structures and algorithms are yours to decide. Give the final design and verification plan first, without code, and without asking me to choose again.",
+      "prompt": "设计一个查询：从数千万级事件流中返回最近一小时得分最高的前 100 条记录。在这些约束下选择最合适方案；内部数据结构和算法由你决定。先给出最终设计和验证计划，不给代码，也不要再要求我选择。",
       "expected": {
         "assertions": {
           "required_regex": [
             "(?:Space-Saving|Count-Min|ring bucket|min-?heap)",
             "O\\(",
-            "(?:final design|recommend|adopt|use)",
-            "(?:memory|space).*(?:bound|limit)",
-            "verif"
+            "(?:最终设计|建议|采用|使用|final design|recommend|adopt|use)",
+            "(?:内存|空间|memory|space).*(?:有界|上限|bound|limit)",
+            "(?:验证|verif)"
           ],
           "forbidden_regex": [
-            "(?:need|please)\\s+(?:you\\s+)?(?:decide|choose)",
-            "wait.*(?:decision|choice)",
-            "Option\\s*[123]"
+            "(?:需要|请|need|please)\\s+(?:你|you\\s+)?(?:决定|选择|decide|choose)",
+            "(?:等待|wait).*(?:决定|选择|decision|choice)",
+            "(?:方案|Option)\\s*[123]"
           ]
         }
       }

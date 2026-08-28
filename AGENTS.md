@@ -1,17 +1,17 @@
-# Repository Guidelines
+# 仓库指南
 
-This repository contains portable Agent Skills plus the checks that keep their metadata, documentation, and behavior contracts consistent.
+本仓库包含可移植的 Agent Skills，以及保持其元数据、文档与行为契约一致的检查工具。
 
-## Project structure and module organization
+## 项目结构与模块组织
 
-- `skills/<category>/<skill-name>/` contains each skill. Keep the portable entrypoint in `SKILL.md`; place task-specific detail in `references/`, deterministic helpers in `scripts/`, and optional Codex metadata in `agents/openai.yaml`.
-- `evals/<skill-name>.behavior.json` defines source assertions and behavior scenarios. Matching fixed answers belong in `evals/fixtures/<skill-name>/`.
-- `scripts/` contains the Python validators and behavior runner. `tests/` covers those tools with standard-library unit tests.
-- `docs/` explains evaluation design, while `.github/workflows/validate.yml` records the required continuous integration checks.
+- `skills/<category>/<skill-name>/` 存放每个 Skill。可移植入口放在 `SKILL.md`；任务细节放在 `references/`；确定性 helper 放在 `scripts/`；可选 Codex 元数据放在 `agents/openai.yaml`。
+- `evals/<skill-name>.behavior.json` 定义源断言与行为场景；对应固定答案放在 `evals/fixtures/<skill-name>/`。
+- `scripts/` 存放 Python 验证器和行为运行器；`tests/` 用标准库单元测试覆盖它们。
+- `docs/` 说明评测设计；`.github/workflows/validate.yml` 记录必须的持续集成检查。
 
-## Build, test, and development commands
+## 构建、测试与开发命令
 
-There is no build step. Run these offline checks before submitting changes:
+没有构建步骤。提交改动前运行以下离线检查：
 
 ```sh
 oxfmt .
@@ -22,32 +22,32 @@ python3 scripts/run_behavior_evals.py \
   --skill dsa-design --answers evals/fixtures/dsa-design
 ```
 
-`oxfmt .` formats supported files with Oxc; `oxfmt --check .` verifies formatting without writing. Replace `dsa-design` with the skill you changed. Running the behavior command without `--answers` invokes an authenticated Codex service. Use the skill-specific Node.js inventory scripts documented in `README.md` only when refreshing official-document coverage.
+`oxfmt .` 使用 Oxc 格式化支持的文件；`oxfmt --check .` 在不写入时验证格式。将 `dsa-design` 换成改动的 Skill。行为命令未传 `--answers` 时会调用已认证的 Codex 服务。只在刷新官方文档覆盖率时，使用 `README.md` 记录的 Skill 专用 Node.js 清单脚本。
 
-## Coding style and naming conventions
+## 编码风格与命名
 
-Use four-space indentation, `snake_case` functions and variables, and `PascalCase` test classes in Python. Prefer the standard library and type hints already used by nearby code. Name skill directories with lowercase kebab-case, such as `napi-rs`, and keep evaluation files aligned with that name. Markdown headings should be descriptive and sentence-cased. Format supported files with Oxc, follow adjacent Python style, and let validation enforce structural rules.
+Python 使用四空格缩进、`snake_case` 函数和变量、`PascalCase` 测试类。优先使用附近代码已有的标准库和类型注解。Skill 目录使用小写 kebab-case，如 `napi-rs`，评测文件名称与其保持一致。Markdown 标题应描述明确并使用句式大小写。使用 Oxc 格式化支持文件，遵循相邻 Python 风格，并让验证器强制结构规则。
 
-## Testing guidelines
+## 测试指南
 
-Tests use `unittest`. Name files `test_*.py` and methods `test_*`. Add or update unit tests when validator or runner behavior changes. Skill changes should update their behavior contract and fixtures when observable expectations change. Fixed-answer tests validate the runner, not current model quality.
+测试使用 `unittest`；文件命名为 `test_*.py`，方法命名为 `test_*`。验证器或运行器行为改变时补充或更新单元测试。Skill 的可观察行为改变时更新行为契约和 fixtures。固定答案测试验证运行器，不验证当前模型质量。
 
-## Commit and pull request guidelines
+## 提交与 Pull Request 指南
 
-Recent history favors concise Conventional Commit-style subjects, including `docs:`, `feat:`, and scoped forms such as `test(validation):`. Use an imperative summary and keep each commit focused.
+近期历史偏好简洁的 Conventional Commit 风格主题，包括 `docs:`、`feat:` 和 `test(validation):` 等带作用域形式。使用祈使式摘要，每次提交保持聚焦。
 
-Pull requests should explain the affected skill or tool, user-visible behavior, and validation commands run. Link related issues and call out network-backed or live-model checks separately. Include screenshots only when a change affects rendered UI.
+Pull Request 应说明受影响的 Skill 或工具、用户可见行为和已运行的验证命令；关联相关 issue，并单独说明联网或实时模型检查。只有渲染 UI 受影响时才附截图。
 
-## Agent skills
+## Agent Skills
 
 ### Issue tracker
 
-Issues and specs are tracked in this repository's GitHub Issues. See `docs/agents/issue-tracker.md`.
+Issue 和规格使用本仓库 GitHub Issues 跟踪。参见 `docs/agents/issue-tracker.md`。
 
 ### Triage labels
 
-Use the five canonical triage labels. See `docs/agents/triage-labels.md`.
+使用五个规范 triage 标签。参见 `docs/agents/triage-labels.md`。
 
 ### Domain docs
 
-Use the single-context domain layout. See `docs/agents/domain.md`.
+使用单上下文领域文档布局。参见 `docs/agents/domain.md`。

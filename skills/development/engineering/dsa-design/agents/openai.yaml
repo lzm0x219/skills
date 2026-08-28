@@ -1,7 +1,7 @@
 interface:
-  display_name: "DSA Design"
-  short_description: "DSA options and recommendations for real trade-offs"
-  default_prompt: "Use $dsa-design only for requests with material data-structure or algorithm trade-offs: compare necessary options and recommend. If there is no material DSA decision, handle the request normally. Pause only when I have not authorized the choice and it would change a public interface, irreversible persistence, a critical dependency, or product semantics."
+  display_name: "数据结构与算法设计"
+  short_description: "为真实工程权衡提供数据结构与算法方案比较、建议和验证边界"
+  default_prompt: "仅在请求存在实质性数据结构或算法权衡时使用 $dsa-design：比较必要方案并给出建议。若没有实质性 DSA 决策，按常规处理；仅当我未授权且选择会改变公开接口、不可逆持久化、关键依赖或产品语义时暂停。"
 
 policy:
   allow_implicit_invocation: true

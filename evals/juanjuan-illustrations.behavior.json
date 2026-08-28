@@ -12,8 +12,8 @@
       "disable-model-invocation: true",
       "只在用户显式调用 `\\$juanjuan-illustrations`",
       "来源事实卡",
-      "Do not generate images when the user asks for planning only",
-      "Do not claim that the character is original, rights-cleared, or safe for commercial use",
+      "用户只要求规划时，只输出 shot list；不得生成图片",
+      "不得声称角色已原创登记、已清权或可安全商用",
       "01-topic-name\\.prompt\\.md",
       "scripts/validate_artifact\\.py",
       "assets/juanjuan-character-reference-v3\\.png"

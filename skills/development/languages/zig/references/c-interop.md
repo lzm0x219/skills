@@ -1,42 +1,42 @@
-# Zig and C interoperability boundaries
+# Zig 与 C 的互操作边界
 
-Use the target Zig version established in `SKILL.md`. Verify `@cImport`, `zig translate-c`, the Build API, C ABI, and linker options against that target version.
+使用 `SKILL.md` 中确定的目标 Zig 版本。根据该版本核验 `@cImport`、`zig translate-c`、Build API、C ABI 和链接器选项。
 
-## Choose a binding approach
+## 选择绑定方式
 
-- Prefer evaluating `@cImport` when headers must be consumed directly and a consistent include-path and macro environment can be supplied at compile time.
-- Evaluate the target version's `zig translate-c` workflow when the translated output must be inspected, separate `cflags` are required, declarations that cannot be translated automatically need correction, or explicit Zig bindings must be maintained.
-- Treat generated or translated bindings as a boundary layer. Access them through a narrow, handwritten Zig adapter so C representations do not spread throughout the codebase.
-- Record the headers, library, target, ABI, macros, include paths, and generation command. Revalidate the bindings whenever any of them changes.
+- 头文件必须被直接消费，且能在编译期提供一致的 include path 和宏环境时，优先评估 `@cImport`。
+- 需要检查转换输出、要求单独 `cflags`、自动转换不了的声明需要修正，或需要维护显式 Zig 绑定时，评估目标版本的 `zig translate-c` 工作流。
+- 将生成或转换的绑定视为边界层。通过一个窄的、手写的 Zig adapter 访问它们，避免 C 表示渗透到整个代码库。
+- 记录头文件、库、目标、ABI、宏、include path 和生成命令；其中任一变更时，重新验证绑定。
 
-## Model the ABI and data
+## 建模 ABI 与数据
 
-- For every cross-boundary type, verify the calling convention, integer width and signedness, alignment, `extern` layout, enums, bitfields, sentinels, nullable pointers, and string-termination rules.
-- Do not assume that C `long`, `size_t`, enums, or structs have the same layout across targets.
-- Define explicit serialization for stable disk or network formats instead of using native C or Zig memory layouts directly as a protocol.
-- Convert C representations into semantic Zig types inside a narrow adapter, and translate errors and ownership in the same place.
+- 对每个跨边界类型，核验调用约定、整数宽度和有无符号性、对齐、`extern` 布局、枚举、位域、哨兵、可空指针和字符串终止规则。
+- 不要假定 C 的 `long`、`size_t`、枚举或结构体在不同目标上具有相同布局。
+- 对稳定的磁盘或网络格式定义显式序列化，而不要直接把原生 C 或 Zig 内存布局作为协议。
+- 在窄 adapter 内将 C 表示转换为有语义的 Zig 类型，并在同一位置转换错误和所有权。
 
-## Make ownership, lifetimes, and callbacks explicit
+## 明确所有权、生命周期与回调
 
-- For every pointer, buffer, handle, and string, state the allocator, release function, mutability, length, termination convention, and lifetime.
-- Pass Zig-allocated memory to C only when the allocator and ABI contract permits it. Release resources returned by C only with the function designated by that library.
-- A callback must define the owner of its userdata, registration and unregistration order, thread, reentrancy rules, and maximum lifetime. It must not retain an expired stack address or borrowed slice.
-- Cross-thread callbacks may carry only data that meets the thread-safety and lifetime requirements. Translate C status codes, null, `errno`, or library-specific errors into a stable Zig error boundary.
+- 对每个指针、缓冲区、句柄和字符串，说明 allocator、释放函数、可变性、长度、终止约定与生命周期。
+- 只有 allocator 和 ABI 契约允许时，才将 Zig 分配的内存传给 C。C 返回的资源只能使用该库指定的函数释放。
+- 回调必须定义其 `userdata` 的所有者、注册和注销顺序、线程、重入规则和最长生命周期。它不得持有已失效的栈地址或借用切片。
+- 跨线程回调只能携带满足线程安全和生命周期要求的数据。将 C 状态码、null、`errno` 或库特有错误转换为稳定的 Zig 错误边界。
 
-## Configure the build and linker
+## 配置构建与链接器
 
-- Use the target version's Build API to configure include paths, C sources, macros, libc, system libraries, static or dynamic linking, and runtime search paths.
-- Propagate target and optimization options through Zig artifacts, C compilation, and link steps to avoid mixing incompatible ABIs or runtimes.
-- For a system library, record the minimum version and discovery mechanism. For vendored C source, record compiler options and licensing.
+- 使用目标版本的 Build API 配置 include path、C 源文件、宏、libc、系统库、静态或动态链接以及运行时搜索路径。
+- 在 Zig 产物、C 编译和链接步骤中传递目标与优化选项，避免混用不兼容的 ABI 或运行时。
+- 对系统库，记录最低版本和发现机制。对内置的 C 源码，记录编译器选项和许可证。
 
-## Verify the boundary
+## 验证边界
 
-1. Compile the smallest header import or translated binding.
-2. Link a real or controlled test library and verify symbols and ABI.
-3. Run a smoke test in a compatible target environment, covering one successful call and one failure translation.
-4. For resource-owning APIs, cover allocation, release, partial failure, and repeated-call boundaries.
-5. For callbacks, cover registration, invocation, unregistration, failure, and thread/reentrancy constraints.
+1. 编译最小的头文件导入或转换绑定。
+2. 链接真实或受控的测试库，并验证符号与 ABI。
+3. 在兼容的目标环境中运行 smoke test，覆盖一次成功调用和一次失败转换。
+4. 对拥有资源的 API，覆盖分配、释放、部分失败和重复调用边界。
+5. 对回调，覆盖注册、调用、注销、失败以及线程/重入约束。
 
-Compilation or linking alone does not prove runtime ABI correctness. Record compilation, linking, execution, and uncovered targets separately in the report.
+仅能编译或链接不能证明运行时 ABI 正确。报告中应分别记录编译、链接、执行和未覆盖目标。
 
-Use the target version's [C interoperability section](https://ziglang.org/documentation/) and `zig translate-c --help` as the authority for syntax and tool options.
+语法与工具选项以目标版本的 [C 互操作章节](https://ziglang.org/documentation/)和 `zig translate-c --help` 为准。
