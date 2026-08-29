@@ -205,7 +205,7 @@ REQUIRED_CASES_BY_SKILL = {
             "invocation": "explicit",
         },
     },
-    "ink-wash-reframe": {
+    "reference-style-reframe": {
         "reference-image-reframe": {
             "category": "positive-trigger",
             "invocation": "explicit",
@@ -223,6 +223,62 @@ REQUIRED_CASES_BY_SKILL = {
             "invocation": "explicit",
         },
         "secondary-details-soft-edges": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "paper-collage-profile": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "linocut-editorial-profile": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "gongbi-traditional-profile": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "risograph-editorial-profile": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "colored-pencil-storybook-profile": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "folk-papercut-profile": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "minimal-vector-poster-profile": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "portrait-figure-route": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "product-still-life-route": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "dense-narrative-route": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "artist-imitation-boundary": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+        "all-style-profiles-sweep": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "complex-p1-profile-budget": {
+            "category": "positive-trigger",
+            "invocation": "explicit",
+        },
+        "gongbi-suitable-visual-test": {
             "category": "positive-trigger",
             "invocation": "explicit",
         },

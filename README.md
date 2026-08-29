@@ -95,29 +95,32 @@ npx skills use lzm0x219/skills@napi-rs
 
 ## 按目标选择 Skill
 
-| 你要做什么           | Skill                                                                             | 适用任务                                                  | 会得到什么                                        |
-| -------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------- |
-| 设计数据结构与算法   | [`dsa-design`](skills/development/engineering/dsa-design/SKILL.md)                | 正确性、性能或资源边界取决于 DSA 选择                     | 根据数据形态、规模和约束比较方案，说明取舍        |
-| 构建 Rust Node addon | [`napi-rs`](skills/development/framework/napi-rs/SKILL.md)                        | napi-rs 接入、迁移、异步、生命周期、打包与排障            | JavaScript contract、薄绑定层和测试边界           |
-| 开发 Zig 项目        | [`zig`](skills/development/languages/zig/SKILL.md)                                | Zig 源码、`build.zig`、依赖、C 互操作、性能或迁移         | 匹配目标 Zig 版本的方案，以及构建和运行时验证矩阵 |
-| 管理开发环境         | [`mise`](skills/development/tools/mise/SKILL.md)                                  | mise 工具版本、环境变量、tasks、lockfile、CI 或 IDE       | 可复现的工具链、任务入口和版本约束                |
-| 建立项目基线         | [`bootstrap-project`](skills/development/workflows/bootstrap-project/SKILL.md)    | 受支持的 Zig、Rust、TypeScript/Node.js、Python 或 Go 项目 | 初始化计划，或带质量门的受支持项目基线            |
-| 制作中国电商素材     | [`china-commerce-asset-pack`](skills/commerce/china-commerce-asset-pack/SKILL.md) | 非服饰新品上市、商品页优化、种草与私域推广                | 面向品牌决策、商品页成交和多渠道传播的素材包      |
-| 重构水墨图文插画     | [`ink-wash-reframe`](skills/creative/ink-wash-reframe/SKILL.md)                   | 已授权参考图的米白水墨扁平视觉改造                        | 保留题材、构图和色彩关系的图像方案与视觉 QA       |
-| 制作卷卷插图         | [`juanjuan-illustrations`](skills/creative/juanjuan-illustrations/SKILL.md)       | 中文文章、情绪内容与概念隐喻的怀旧手绘插图                | 配图计划、生成或编辑提示，以及 PNG 交付校验       |
+| 你要做什么           | Skill                                                                             | 适用任务                                                           | 会得到什么                                                  |
+| -------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------- |
+| 设计数据结构与算法   | [`dsa-design`](skills/development/engineering/dsa-design/SKILL.md)                | 正确性、性能或资源边界取决于 DSA 选择                              | 根据数据形态、规模和约束比较方案，说明取舍                  |
+| 构建 Rust Node addon | [`napi-rs`](skills/development/framework/napi-rs/SKILL.md)                        | napi-rs 接入、迁移、异步、生命周期、打包与排障                     | JavaScript contract、薄绑定层和测试边界                     |
+| 开发 Zig 项目        | [`zig`](skills/development/languages/zig/SKILL.md)                                | Zig 源码、`build.zig`、依赖、C 互操作、性能或迁移                  | 匹配目标 Zig 版本的方案，以及构建和运行时验证矩阵           |
+| 管理开发环境         | [`mise`](skills/development/tools/mise/SKILL.md)                                  | mise 工具版本、环境变量、tasks、lockfile、CI 或 IDE                | 可复现的工具链、任务入口和版本约束                          |
+| 建立项目基线         | [`bootstrap-project`](skills/development/workflows/bootstrap-project/SKILL.md)    | 受支持的 Zig、Rust、TypeScript/Node.js、Python 或 Go 项目          | 初始化计划，或带质量门的受支持项目基线                      |
+| 制作中国电商素材     | [`china-commerce-asset-pack`](skills/commerce/china-commerce-asset-pack/SKILL.md) | 非服饰新品上市、商品页优化、种草与私域推广                         | 面向品牌决策、商品页成交和多渠道传播的素材包                |
+| 重构多风格图文插画   | [`reference-style-reframe`](skills/creative/reference-style-reframe/SKILL.md)     | 已授权参考图的十种插画风格改造，以及人物、商品、密集叙事的专项取证 | 保留题材、构图、关键细节和场景路由不变量的图像方案与视觉 QA |
+| 制作卷卷插图         | [`juanjuan-illustrations`](skills/creative/juanjuan-illustrations/SKILL.md)       | 中文文章、情绪内容与概念隐喻的怀旧手绘插图                         | 配图计划、生成或编辑提示，以及 PNG 交付校验                 |
 
-`bootstrap-project`、`ink-wash-reframe` 与 `juanjuan-illustrations` 仅限显式手动调用。详情以各 Skill 的 `SKILL.md` 为准。
+`bootstrap-project`、`reference-style-reframe` 与 `juanjuan-illustrations` 仅限显式手动调用。详情以各 Skill 的 `SKILL.md` 为准。
 
 ## 从提示到产物
 
 下面的示例展示了应该怎样描述任务，以及每个 Skill 会把注意力放在哪里。
 
-| 你可以这样说                                                                                 | 会先处理什么                                     | 预期结果                                       |
-| -------------------------------------------------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------- |
-| `$zig 将这个 build.zig 迁移到已确认的 Zig 版本，并区分编译、测试执行和运行时验证。`          | 当前与目标版本、Build API 变化、测试是否真正执行 | 分步迁移方案，以及编译、执行和未验证目标的证据 |
-| `$bootstrap-project 检查这个已有项目，并在不写入文件的前提下准备项目初始化计划。`            | 仓库根目录、技术栈、版本约束、已有工具和冲突     | `planned` 或 `blocked` 报告，不修改项目        |
-| `$china-commerce-asset-pack 只为这个新品制作中国市场商品销售战略，先不要生成商详图片。`      | 商品事实、缺失信息、客群、定价和合规边界         | 供品牌决策使用的销售战略，不越过图片生成阶段   |
-| `$ink-wash-reframe 将这张已授权的旅行照片改造为米白色平面水墨插画；在下方预留英文文案区域。` | 授权、构图、题材、色彩和文字区域                 | 有明确保留要求的图像改造方案与视觉检查点       |
+| 你可以这样说                                                                                     | 会先处理什么                                     | 预期结果                                       |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------ | ---------------------------------------------- |
+| `$zig 将这个 build.zig 迁移到已确认的 Zig 版本，并区分编译、测试执行和运行时验证。`              | 当前与目标版本、Build API 变化、测试是否真正执行 | 分步迁移方案，以及编译、执行和未验证目标的证据 |
+| `$bootstrap-project 检查这个已有项目，并在不写入文件的前提下准备项目初始化计划。`                | 仓库根目录、技术栈、版本约束、已有工具和冲突     | `planned` 或 `blocked` 报告，不修改项目        |
+| `$china-commerce-asset-pack 只为这个新品制作中国市场商品销售战略，先不要生成商详图片。`          | 商品事实、缺失信息、客群、定价和合规边界         | 供品牌决策使用的销售战略，不越过图片生成阶段   |
+| `$reference-style-reframe 将这张已授权的旅行照片按 paper-collage 改造；在下方预留英文文案区域。` | 授权、风格档案、构图、题材、色彩和文字区域       | 有明确保留要求的图像改造方案与视觉检查点       |
+| `$reference-style-reframe 用同一张旅行照片并列测试全部十个风格档案，不加文字。`                  | 统一取证卡、十档风格差异与逐档视觉 QA            | 可横向比较的十张图与档案串味检查               |
+| `$reference-style-reframe 将这张照片按 gongbi-traditional，以 balanced 强度重构。`               | 工笔细线、设色层次、P1 与禁用元素                | 可回查的工笔重构方案与视觉 QA                  |
+| `$reference-style-reframe 将这张三人公园照片按 soft-pastel 重构，保留人数、姿态和服饰色组。`     | 人物场景路由、P0/P1、姿态与细节优先级            | 不凭空换人、改动作或补饰品的重构方案           |
 
 也可以直接调用其他 Skill：
 
@@ -153,7 +156,7 @@ $juanjuan-illustrations 为这篇中文文章规划三张卷卷插图，暂不�
 ```text
 .
 ├── skills/
-│   ├── creative/{ink-wash-reframe,juanjuan-illustrations}/
+│   ├── creative/{reference-style-reframe,juanjuan-illustrations}/
 │   ├── commerce/china-commerce-asset-pack/
 │   └── development/
 │       ├── engineering/dsa-design/

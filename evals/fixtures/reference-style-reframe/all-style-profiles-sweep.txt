@@ -1,0 +1,3 @@
+执行完整档案横向对照：使用同一张附图、同一份画面取证卡和同一组 P0/P1/P2，设置 style_intensity: pronounced，输出十张无字图。桥、屋檐和水面倒影在每张中都必须可辨。
+
+十张分别标为 `ink-wash-flat`、`gongbi-traditional`、`gouache-matte`、`paper-collage`、`soft-pastel`、`linocut-editorial`、`risograph-editorial`、`colored-pencil-storybook`、`folk-papercut` 与 `minimal-vector-poster`。逐张检查档案材料与边缘预算，避免风格串味；不只生成一张。

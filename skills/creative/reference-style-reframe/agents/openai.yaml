@@ -1,0 +1,7 @@
+interface:
+  display_name: "参考图多风格重构"
+  short_description: "显式调用，按参考图重构多种插画风格，并支持人物、商品与密集叙事的专项取证和视觉 QA"
+  default_prompt: "使用 $reference-style-reframe 为这张参考图制作多风格重构方案；选择一个风格档案并按需处理文字区域。"
+
+policy:
+  allow_implicit_invocation: false
