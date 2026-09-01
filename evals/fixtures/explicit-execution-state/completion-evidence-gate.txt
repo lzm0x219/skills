@@ -1,0 +1,1 @@
+当前不能标记任务 complete。必须先 resolve 或清空 pending action，并为全部 completion criteria 写入当前 evidence；之后再验证 blocker、状态不变量和必需检查。按要求我不会执行任何动作。

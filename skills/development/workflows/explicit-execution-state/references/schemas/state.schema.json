@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/explicit-execution-state/state.schema.json",
+  "title": "Explicit execution state",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "state_version",
+    "task",
+    "constraints",
+    "confirmed_facts",
+    "hypotheses",
+    "plan",
+    "pending_actions",
+    "failed_attempts",
+    "blockers",
+    "completion_evidence",
+    "evidence_refs",
+    "artifact_refs"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "state_version": { "type": "integer", "minimum": 0 },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "objective", "completion_criteria", "status"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "objective": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["active", "complete"] },
+        "completion_criteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "description"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "description": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "confirmed_facts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["value", "source_ref", "observed_at"],
+        "properties": {
+          "value": true,
+          "source_ref": { "type": "string", "minLength": 1 },
+          "observed_at": { "type": "string", "format": "date-time" },
+          "fresh_until": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "hypotheses": { "type": "object" },
+    "plan": { "type": "object" },
+    "pending_actions": { "type": "object" },
+    "failed_attempts": { "type": "object" },
+    "blockers": { "type": "object" },
+    "completion_evidence": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_ref", "observed_at"],
+        "properties": {
+          "source_ref": { "type": "string", "minLength": 1 },
+          "observed_at": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "evidence_refs": { "type": "object" },
+    "artifact_refs": { "type": "object" }
+  }
+}

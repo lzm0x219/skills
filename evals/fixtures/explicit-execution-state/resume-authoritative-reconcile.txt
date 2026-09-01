@@ -1,0 +1,1 @@
+先读取并验证 snapshot，但不把快照当作最新事实。随后以 Git 和真实测试结果作为 authoritative source：核对当前 Git HEAD，并在获准执行时重新运行测试。若与 snapshot 不同，先 reconcile 状态、标记旧测试证据失效，再决定后续动作。按要求现在不运行命令，后续动作等待核验结果。

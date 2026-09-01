@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "changes": {
+    "created": [
+      "work",
+      "work/agent-state",
+      "work/agent-state/release-1",
+      "work/agent-state/release-1/state.db",
+      "work/agent-state/release-1/state.snapshot.json"
+    ],
+    "modified": [],
+    "deleted": []
+  },
+  "optional_created": [
+    "work/agent-state/release-1/state.db-shm",
+    "work/agent-state/release-1/state.db-wal"
+  ]
+}

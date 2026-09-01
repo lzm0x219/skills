@@ -311,9 +311,19 @@ def main() -> int:
             check_count = sum(len(patterns) for patterns in assertions.values())
             print(
                 f"{entry['id']}\t{entry['category']}\t"
-                f"{check_count} assertion(s)"
+                f"{entry.get('runner', 'behavior')}\t{check_count} assertion(s)"
             )
         return 0
+
+    workspace_only = [
+        entry["id"] for entry in cases if entry.get("runner") == "workspace"
+    ]
+    if options.case_ids and workspace_only:
+        raise SystemExit(
+            "Workspace-only case(s) must use run_workspace_evals.py: "
+            + ", ".join(workspace_only)
+        )
+    cases = [entry for entry in cases if entry.get("runner") != "workspace"]
 
     answers_directory: Path | None = None
     if options.answers is not None:

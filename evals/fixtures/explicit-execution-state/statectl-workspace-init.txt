@@ -1,0 +1,1 @@
+已初始化规范状态存储并应用局部补丁。最终 `state_version` 为 1；`verify` 验证通过，scope 为 `internal-store`。

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/explicit-execution-state/action.schema.json",
+  "title": "Pending external action",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["idempotency_key", "tool", "args", "preconditions", "authorization_ref"],
+  "properties": {
+    "idempotency_key": { "type": "string", "minLength": 1 },
+    "tool": { "type": "string", "minLength": 1 },
+    "args": { "type": "object" },
+    "authorization_ref": { "type": "string", "minLength": 1 },
+    "preconditions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "operator"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^/(?:[^~/]|~[01])+(?:/(?:[^~/]|~[01])+)*$"
+          },
+          "operator": {
+            "enum": ["exists", "absent", "equals", "not_equals"]
+          },
+          "value": true
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "operator": { "enum": ["equals", "not_equals"] }
+              }
+            },
+            "then": { "required": ["value"] },
+            "else": { "not": { "required": ["value"] } }
+          }
+        ]
+      }
+    }
+  }
+}

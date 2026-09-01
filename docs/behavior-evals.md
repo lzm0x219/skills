@@ -22,6 +22,8 @@ Each scenario declares its invocation mode with `invocation`:
 
 Both modes only inspect the final visible output. An `implicit` scenario can verify that unrelated requests do not surface skill terminology, but it cannot prove that the skill was never loaded inside the model.
 
+A case with `runner: "workspace"` is excluded from the read-only behavior runner and must be run with `run_workspace_evals.py`. This keeps real mutation scenarios from being falsely evaluated under a read-only sandbox.
+
 A manual Skill with `disable-model-invocation: true` defines only `explicit` scenarios. Static validation keeps that frontmatter setting aligned with `policy.allow_implicit_invocation: false`.
 
 ## Run offline evaluations
@@ -39,6 +41,9 @@ python3 scripts/run_behavior_evals.py \
   --skill napi-rs --answers evals/fixtures/napi-rs
 python3 scripts/run_behavior_evals.py \
   --skill mise --answers evals/fixtures/mise
+python3 scripts/run_behavior_evals.py \
+  --skill explicit-execution-state \
+  --answers evals/fixtures/explicit-execution-state
 ```
 
 List scenarios or run only one:
@@ -59,6 +64,7 @@ python3 scripts/run_behavior_evals.py --skill china-commerce-asset-pack
 python3 scripts/run_behavior_evals.py --skill bootstrap-project
 python3 scripts/run_behavior_evals.py --skill napi-rs
 python3 scripts/run_behavior_evals.py --skill mise
+python3 scripts/run_behavior_evals.py --skill explicit-execution-state
 ```
 
 Live evaluation sends scenario prompts and skill content to the configured Codex service. Results only apply to the CLI, model, skill version, and scenario assertions used at runtime.
@@ -81,6 +87,7 @@ Use `run_workspace_evals.py` when the expected behavior is expressed by target f
 - The command, return code, stdout, and stderr;
 - Before and after manifests with type, mode, size, and SHA-256 evidence;
 - Created, modified, and deleted relative paths;
+- Optional created paths for runtime-dependent transient files such as SQLite WAL sidecars;
 - Final-answer assertion failures and mutation mismatches.
 
 ```sh
@@ -88,6 +95,10 @@ python3 scripts/run_workspace_evals.py \
   --skill bootstrap-project \
   --case existing-zig-planning \
   --report-dir /tmp/bootstrap-project-eval-reports
+python3 scripts/run_workspace_evals.py \
+  --skill explicit-execution-state \
+  --case statectl-workspace-init \
+  --report-dir /tmp/explicit-execution-state-eval-reports
 ```
 
 The fixture and isolated skill copy are deleted after the report is written. The current planning case expects an unchanged target. The writable sandbox and temporary directory reduce risk; they are evidence boundaries, not proof that arbitrary executed tools have no external side effects.
@@ -124,6 +135,15 @@ The dated five-stack evidence, platform limits, and tool side effects are record
 - Routine CRUD does not force multi-option comparison
 - Material Top-K decisions compare options and wait for a choice when unauthorized
 - Delegated user choices do not pause for option selection
+
+`explicit-execution-state` covers:
+
+- Short stateless requests do not surface execution-state machinery
+- Resumable, compressed-context tasks keep bounded facts, evidence references, and completion criteria
+- Side effects use pending state, idempotency keys, authoritative receipts, and reconciliation
+- Recovery rechecks drifting Git and test facts rather than trusting snapshots
+- Completion rejects pending actions and missing evidence
+- An isolated workspace case initializes SQLite state, applies one patch, and verifies the event-replayed result; this checks paths written by a live model run, not external evidence validity
 
 `china-commerce-asset-pack` covers:
 

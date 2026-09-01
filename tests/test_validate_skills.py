@@ -52,6 +52,26 @@ class ValidateSkillsTest(unittest.TestCase):
             expected_message="unapproved-release invocation must be explicit",
         )
 
+    def test_workspace_case_requires_its_expected_mutation_contract(self) -> None:
+        with self.copied_repo() as repo:
+            expected = (
+                repo
+                / "evals"
+                / "workspaces"
+                / "explicit-execution-state"
+                / "statectl-workspace-init"
+                / "expected.json"
+            )
+            expected.unlink()
+
+            completed = self.run_validator(repo)
+
+            self.assertNotEqual(0, completed.returncode)
+            self.assertIn(
+                "Workspace expectation not found",
+                completed.stdout + completed.stderr,
+            )
+
     def test_frontmatter_must_be_a_mapping(self) -> None:
         with self.copied_repo() as repo:
             skill_path = repo / NAPI_RS_SKILL / "SKILL.md"

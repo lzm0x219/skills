@@ -10,6 +10,8 @@ import sys
 from typing import Any
 from urllib.parse import unquote
 
+from run_workspace_evals import load_workspace_expectation
+
 
 ROOT = Path(__file__).resolve().parents[1]
 LICENSE_PATH = ROOT / "LICENSE"
@@ -29,7 +31,14 @@ ALLOWED_CONTRACT_KEYS = {
     "source_assertions",
 }
 ALLOWED_EXECUTION_KEYS = {"description", "mode", "runner"}
-ALLOWED_CASE_KEYS = {"category", "expected", "id", "invocation", "prompt"}
+ALLOWED_CASE_KEYS = {
+    "category",
+    "expected",
+    "id",
+    "invocation",
+    "prompt",
+    "runner",
+}
 ALLOWED_EXPECTED_KEYS = {"assertions"}
 ALLOWED_ASSERTION_KEYS = {"forbidden_regex", "required_regex"}
 ALLOWED_CAPABILITY_MAP_KEYS = {"capabilities", "schema_version"}
@@ -143,6 +152,33 @@ REQUIRED_CASES_BY_SKILL = {
         "delegated-choice-no-pause": {
             "category": "positive-trigger",
             "invocation": "explicit",
+        },
+    },
+    "explicit-execution-state": {
+        "short-stateless-no-trigger": {
+            "category": "out-of-scope",
+            "invocation": "implicit",
+        },
+        "resumable-context-trigger": {
+            "category": "positive-trigger",
+            "invocation": "implicit",
+        },
+        "side-effect-two-phase": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+        "resume-authoritative-reconcile": {
+            "category": "recovery",
+            "invocation": "explicit",
+        },
+        "completion-evidence-gate": {
+            "category": "completion-gate",
+            "invocation": "explicit",
+        },
+        "statectl-workspace-init": {
+            "category": "workspace-write",
+            "invocation": "explicit",
+            "runner": "workspace",
         },
     },
     "china-commerce-asset-pack": {
@@ -1106,6 +1142,23 @@ def validate_contracts(
                     f"{label}: manual Skill {skill_name} cannot define implicit "
                     "behavior cases"
                 )
+            runner = entry.get("runner", "behavior")
+            if runner not in {"behavior", "workspace"}:
+                errors.append(
+                    f'{case_label}.runner must be "behavior" or "workspace"'
+                )
+            elif runner == "workspace" and invocation != "explicit":
+                errors.append(f"{case_label}: workspace runner requires explicit invocation")
+            elif (
+                runner == "workspace"
+                and isinstance(skill_name, str)
+                and isinstance(case_id, str)
+                and case_id
+            ):
+                try:
+                    load_workspace_expectation(skill_name, case_id)
+                except SystemExit as error:
+                    errors.append(f"{case_label}: {error}")
             if skill_name and isinstance(case_id, str) and case_id:
                 fixture_path = (
                     EVALS_DIR / "fixtures" / skill_name / f"{case_id}.txt"

@@ -1,0 +1,11 @@
+[
+  {
+    "op": "add",
+    "path": "/confirmed_facts/head",
+    "value": {
+      "value": "abc123",
+      "source_ref": "fixture://git/head",
+      "observed_at": "2026-09-01T00:00:00Z"
+    }
+  }
+]

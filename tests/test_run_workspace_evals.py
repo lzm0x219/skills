@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+import runpy
 import subprocess
 import sys
 import tempfile
@@ -17,6 +18,33 @@ RUNNER = ROOT / "scripts" / "run_workspace_evals.py"
 
 
 class RunWorkspaceEvalsTest(unittest.TestCase):
+    def test_optional_created_paths_allow_transient_runtime_files(self) -> None:
+        changes_match = runpy.run_path(str(RUNNER))["changes_match"]
+        expected = {"created": ["state.db"], "modified": [], "deleted": []}
+
+        self.assertTrue(
+            changes_match(
+                {
+                    "created": ["state.db", "state.db-wal"],
+                    "modified": [],
+                    "deleted": [],
+                },
+                expected,
+                ["state.db-wal", "state.db-shm"],
+            )
+        )
+        self.assertFalse(
+            changes_match(
+                {
+                    "created": ["state.db", "unexpected.txt"],
+                    "modified": [],
+                    "deleted": [],
+                },
+                expected,
+                ["state.db-wal", "state.db-shm"],
+            )
+        )
+
     def test_read_only_plan_records_an_unchanged_workspace(self) -> None:
         result = self.run_case(mutate=False)
 

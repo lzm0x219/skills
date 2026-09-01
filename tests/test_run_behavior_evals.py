@@ -16,6 +16,47 @@ RUNNER = ROOT / "scripts" / "run_behavior_evals.py"
 
 
 class RunBehaviorEvalsTest(unittest.TestCase):
+    def test_workspace_only_case_is_excluded_from_read_only_runner(self) -> None:
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--skill",
+                "explicit-execution-state",
+                "--answers",
+                "evals/fixtures/explicit-execution-state",
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, completed.returncode, completed.stderr)
+        self.assertIn("PASS: 6 behavior case(s).", completed.stdout)
+        self.assertNotIn("statectl-workspace-init", completed.stdout)
+
+    def test_workspace_only_case_rejects_direct_behavior_selection(self) -> None:
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--skill",
+                "explicit-execution-state",
+                "--case",
+                "statectl-workspace-init",
+                "--answers",
+                "evals/fixtures/explicit-execution-state",
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertNotEqual(0, completed.returncode)
+        self.assertIn("must use run_workspace_evals.py", completed.stderr)
+
     def test_out_of_scope_case_does_not_explicitly_invoke_the_skill(self) -> None:
         result = self.run_case(
             "out-of-scope-direct-answer",

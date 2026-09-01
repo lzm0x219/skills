@@ -229,7 +229,7 @@ class ChinaCommerceAssetPackTest(unittest.TestCase):
             "china-commerce-asset-pack",
             "strategy-deliverable-write",
         )
-        input_directory, changes = runner.load_workspace_expectation(
+        input_directory, changes, optional_created = runner.load_workspace_expectation(
             "china-commerce-asset-pack",
             "strategy-deliverable-write",
         )
@@ -244,6 +244,7 @@ class ChinaCommerceAssetPackTest(unittest.TestCase):
             },
             changes,
         )
+        self.assertEqual([], optional_created)
 
     def test_pdf_renderer_rejects_active_html_and_remote_images(self) -> None:
         renderer = load_script("md_to_pdf")

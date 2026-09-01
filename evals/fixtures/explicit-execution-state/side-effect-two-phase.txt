@@ -1,0 +1,1 @@
+先由宿主授权验证器把真实批准绑定到发布请求 hash；没有 trusted-verifier 就停止并请求授权。验证通过后把发布请求写成 pending action，并绑定唯一 idempotency key、当前 state version 和前置条件；提交 pending 后才允许调用发布 API。API 返回后保存权威 receipt，再 reconcile 状态并确认真实发布结果。若调用 timeout，先用幂等键或外部版本 ID 查询结果，不能直接重试制造重复版本。我只说明协议，不实际执行发布。

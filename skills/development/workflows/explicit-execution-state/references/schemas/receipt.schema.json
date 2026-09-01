@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/explicit-execution-state/receipt.schema.json",
+  "title": "Authoritative action receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status", "idempotency_key", "source_ref", "observed_at", "details"],
+  "properties": {
+    "status": { "enum": ["succeeded", "failed", "partial", "unknown"] },
+    "idempotency_key": { "type": "string", "minLength": 1 },
+    "source_ref": { "type": "string", "minLength": 1 },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "details": { "type": "object" }
+  }
+}

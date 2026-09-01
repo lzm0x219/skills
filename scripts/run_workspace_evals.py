@@ -97,7 +97,7 @@ def load_behavior_case(skill_name: str, case_id: str) -> dict[str, Any]:
 def load_workspace_expectation(
     skill_name: str,
     case_id: str,
-) -> tuple[Path, dict[str, list[str]]]:
+) -> tuple[Path, dict[str, list[str]], list[str]]:
     case_directory = EVALS_DIR / "workspaces" / skill_name / case_id
     input_directory = case_directory / "input"
     expected_path = case_directory / "expected.json"
@@ -126,7 +126,21 @@ def load_workspace_expectation(
         if len(set(paths)) != len(paths):
             raise SystemExit(f"Workspace expectation {kind} contains duplicates")
         parsed[kind] = sorted(paths)
-    return input_directory, parsed
+    optional_created = expected.get("optional_created", [])
+    if not isinstance(optional_created, list) or any(
+        not isinstance(path, str) or not safe_relative_path(path)
+        for path in optional_created
+    ):
+        raise SystemExit(
+            "Workspace expectation optional_created must contain safe relative paths"
+        )
+    if len(set(optional_created)) != len(optional_created):
+        raise SystemExit("Workspace expectation optional_created contains duplicates")
+    if set(optional_created) & set(parsed["created"]):
+        raise SystemExit(
+            "Workspace expectation optional_created overlaps required created paths"
+        )
+    return input_directory, parsed, sorted(optional_created)
 
 
 def safe_relative_path(value: str) -> bool:
@@ -207,6 +221,21 @@ def workspace_changes(
     }
 
 
+def changes_match(
+    actual: dict[str, list[str]],
+    expected: dict[str, list[str]],
+    optional_created: list[str],
+) -> bool:
+    actual_created = set(actual["created"])
+    required_created = set(expected["created"])
+    allowed_created = required_created | set(optional_created)
+    return (
+        required_created <= actual_created <= allowed_created
+        and actual["modified"] == expected["modified"]
+        and actual["deleted"] == expected["deleted"]
+    )
+
+
 def compile_patterns(patterns: object, label: str) -> list[re.Pattern[str]]:
     if not isinstance(patterns, list) or any(
         not isinstance(pattern, str) or not pattern for pattern in patterns
@@ -255,7 +284,7 @@ def run_case(options: argparse.Namespace) -> tuple[dict[str, object], int]:
         raise SystemExit(f"Codex executable not found: {options.codex}")
     skill_path = find_skill_path(options.skill)
     entry = load_behavior_case(options.skill, options.case_id)
-    input_directory, expected_changes = load_workspace_expectation(
+    input_directory, expected_changes, optional_created = load_workspace_expectation(
         options.skill,
         options.case_id,
     )
@@ -338,10 +367,11 @@ def run_case(options: argparse.Namespace) -> tuple[dict[str, object], int]:
         elif returncode != 0:
             failures.append(f"Codex exited with status {returncode}")
         failures.extend(answer_failures(entry, answer))
-        if actual_changes != expected_changes:
+        if not changes_match(actual_changes, expected_changes, optional_created):
             failures.append(
                 "unexpected workspace changes: "
-                f"expected {expected_changes}, got {actual_changes}"
+                f"expected {expected_changes} with optional_created "
+                f"{optional_created}, got {actual_changes}"
             )
 
         report: dict[str, object] = {
@@ -353,6 +383,7 @@ def run_case(options: argparse.Namespace) -> tuple[dict[str, object], int]:
                 "before": before,
                 "after": after,
                 "changes": actual_changes,
+                "optional_created": optional_created,
             },
             "execution": {
                 "command": command,
