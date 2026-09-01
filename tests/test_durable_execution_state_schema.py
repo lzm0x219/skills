@@ -15,7 +15,7 @@ SKILL = (
     / "skills"
     / "development"
     / "workflows"
-    / "explicit-execution-state"
+    / "durable-execution-state"
 )
 SCRIPTS = SKILL / "scripts"
 if str(SCRIPTS) not in sys.path:
@@ -25,7 +25,7 @@ from statectl_runtime.errors import StateError
 from statectl_runtime.model import pointer_parts
 
 
-class ExplicitExecutionStateSchemaTest(unittest.TestCase):
+class DurableExecutionStateSchemaTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         action_schema = json.loads(

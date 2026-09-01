@@ -154,7 +154,7 @@ REQUIRED_CASES_BY_SKILL = {
             "invocation": "explicit",
         },
     },
-    "explicit-execution-state": {
+    "durable-execution-state": {
         "short-stateless-no-trigger": {
             "category": "out-of-scope",
             "invocation": "implicit",

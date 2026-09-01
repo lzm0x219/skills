@@ -58,7 +58,7 @@ class ValidateSkillsTest(unittest.TestCase):
                 repo
                 / "evals"
                 / "workspaces"
-                / "explicit-execution-state"
+                / "durable-execution-state"
                 / "statectl-workspace-init"
                 / "expected.json"
             )

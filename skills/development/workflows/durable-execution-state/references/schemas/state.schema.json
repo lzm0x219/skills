@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.invalid/explicit-execution-state/state.schema.json",
+  "$id": "https://example.invalid/durable-execution-state/state.schema.json",
   "title": "Explicit execution state",
   "type": "object",
   "additionalProperties": false,

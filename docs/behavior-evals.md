@@ -42,8 +42,8 @@ python3 scripts/run_behavior_evals.py \
 python3 scripts/run_behavior_evals.py \
   --skill mise --answers evals/fixtures/mise
 python3 scripts/run_behavior_evals.py \
-  --skill explicit-execution-state \
-  --answers evals/fixtures/explicit-execution-state
+  --skill durable-execution-state \
+  --answers evals/fixtures/durable-execution-state
 ```
 
 List scenarios or run only one:
@@ -64,7 +64,7 @@ python3 scripts/run_behavior_evals.py --skill china-commerce-asset-pack
 python3 scripts/run_behavior_evals.py --skill bootstrap-project
 python3 scripts/run_behavior_evals.py --skill napi-rs
 python3 scripts/run_behavior_evals.py --skill mise
-python3 scripts/run_behavior_evals.py --skill explicit-execution-state
+python3 scripts/run_behavior_evals.py --skill durable-execution-state
 ```
 
 Live evaluation sends scenario prompts and skill content to the configured Codex service. Results only apply to the CLI, model, skill version, and scenario assertions used at runtime.
@@ -96,9 +96,9 @@ python3 scripts/run_workspace_evals.py \
   --case existing-zig-planning \
   --report-dir /tmp/bootstrap-project-eval-reports
 python3 scripts/run_workspace_evals.py \
-  --skill explicit-execution-state \
+  --skill durable-execution-state \
   --case statectl-workspace-init \
-  --report-dir /tmp/explicit-execution-state-eval-reports
+  --report-dir /tmp/durable-execution-state-eval-reports
 ```
 
 The fixture and isolated skill copy are deleted after the report is written. The current planning case expects an unchanged target. The writable sandbox and temporary directory reduce risk; they are evidence boundaries, not proof that arbitrary executed tools have no external side effects.
@@ -136,7 +136,7 @@ The dated five-stack evidence, platform limits, and tool side effects are record
 - Material Top-K decisions compare options and wait for a choice when unauthorized
 - Delegated user choices do not pause for option selection
 
-`explicit-execution-state` covers:
+`durable-execution-state` covers:
 
 - Short stateless requests do not surface execution-state machinery
 - Resumable, compressed-context tasks keep bounded facts, evidence references, and completion criteria

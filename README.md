@@ -95,17 +95,17 @@ npx skills use lzm0x219/skills@napi-rs
 
 ## 按目标选择 Skill
 
-| 你要做什么           | Skill                                                                                        | 适用任务                                                           | 会得到什么                                                  |
-| -------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------- |
-| 设计数据结构与算法   | [`dsa-design`](skills/development/engineering/dsa-design/SKILL.md)                           | 正确性、性能或资源边界取决于 DSA 选择                              | 根据数据形态、规模和约束比较方案，说明取舍                  |
-| 构建 Rust Node addon | [`napi-rs`](skills/development/framework/napi-rs/SKILL.md)                                   | napi-rs 接入、迁移、异步、生命周期、打包与排障                     | JavaScript contract、薄绑定层和测试边界                     |
-| 开发 Zig 项目        | [`zig`](skills/development/languages/zig/SKILL.md)                                           | Zig 源码、`build.zig`、依赖、C 互操作、性能或迁移                  | 匹配目标 Zig 版本的方案，以及构建和运行时验证矩阵           |
-| 管理开发环境         | [`mise`](skills/development/tools/mise/SKILL.md)                                             | mise 工具版本、环境变量、tasks、lockfile、CI 或 IDE                | 可复现的工具链、任务入口和版本约束                          |
-| 建立项目基线         | [`bootstrap-project`](skills/development/workflows/bootstrap-project/SKILL.md)               | 受支持的 Zig、Rust、TypeScript/Node.js、Python 或 Go 项目          | 初始化计划，或带质量门的受支持项目基线                      |
-| 维护长程执行状态     | [`explicit-execution-state`](skills/development/workflows/explicit-execution-state/SKILL.md) | 需要恢复、压缩、多步可变事实或可恢复副作用的长程 Agent 任务        | 有界状态、局部补丁、可信授权、幂等动作和证据完成门          |
-| 制作中国电商素材     | [`china-commerce-asset-pack`](skills/commerce/china-commerce-asset-pack/SKILL.md)            | 非服饰新品上市、商品页优化、种草与私域推广                         | 面向品牌决策、商品页成交和多渠道传播的素材包                |
-| 重构多风格图文插画   | [`reference-style-reframe`](skills/creative/reference-style-reframe/SKILL.md)                | 已授权参考图的十种插画风格改造，以及人物、商品、密集叙事的专项取证 | 保留题材、构图、关键细节和场景路由不变量的图像方案与视觉 QA |
-| 制作卷卷插图         | [`juanjuan-illustrations`](skills/creative/juanjuan-illustrations/SKILL.md)                  | 中文文章、情绪内容与概念隐喻的怀旧手绘插图                         | 配图计划、生成或编辑提示，以及 PNG 交付校验                 |
+| 你要做什么           | Skill                                                                                      | 适用任务                                                           | 会得到什么                                                  |
+| -------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | ----------------------------------------------------------- |
+| 设计数据结构与算法   | [`dsa-design`](skills/development/engineering/dsa-design/SKILL.md)                         | 正确性、性能或资源边界取决于 DSA 选择                              | 根据数据形态、规模和约束比较方案，说明取舍                  |
+| 构建 Rust Node addon | [`napi-rs`](skills/development/framework/napi-rs/SKILL.md)                                 | napi-rs 接入、迁移、异步、生命周期、打包与排障                     | JavaScript contract、薄绑定层和测试边界                     |
+| 开发 Zig 项目        | [`zig`](skills/development/languages/zig/SKILL.md)                                         | Zig 源码、`build.zig`、依赖、C 互操作、性能或迁移                  | 匹配目标 Zig 版本的方案，以及构建和运行时验证矩阵           |
+| 管理开发环境         | [`mise`](skills/development/tools/mise/SKILL.md)                                           | mise 工具版本、环境变量、tasks、lockfile、CI 或 IDE                | 可复现的工具链、任务入口和版本约束                          |
+| 建立项目基线         | [`bootstrap-project`](skills/development/workflows/bootstrap-project/SKILL.md)             | 受支持的 Zig、Rust、TypeScript/Node.js、Python 或 Go 项目          | 初始化计划，或带质量门的受支持项目基线                      |
+| 维护持久执行状态     | [`durable-execution-state`](skills/development/workflows/durable-execution-state/SKILL.md) | 需要恢复、压缩、多步可变事实或可恢复副作用的长程 Agent 任务        | 有界状态、局部补丁、可信授权、幂等动作和证据完成门          |
+| 制作中国电商素材     | [`china-commerce-asset-pack`](skills/commerce/china-commerce-asset-pack/SKILL.md)          | 非服饰新品上市、商品页优化、种草与私域推广                         | 面向品牌决策、商品页成交和多渠道传播的素材包                |
+| 重构多风格图文插画   | [`reference-style-reframe`](skills/creative/reference-style-reframe/SKILL.md)              | 已授权参考图的十种插画风格改造，以及人物、商品、密集叙事的专项取证 | 保留题材、构图、关键细节和场景路由不变量的图像方案与视觉 QA |
+| 制作卷卷插图         | [`juanjuan-illustrations`](skills/creative/juanjuan-illustrations/SKILL.md)                | 中文文章、情绪内容与概念隐喻的怀旧手绘插图                         | 配图计划、生成或编辑提示，以及 PNG 交付校验                 |
 
 `bootstrap-project`、`reference-style-reframe` 与 `juanjuan-illustrations` 仅限显式手动调用。详情以各 Skill 的 `SKILL.md` 为准。
 
@@ -128,7 +128,7 @@ npx skills use lzm0x219/skills@napi-rs
 ```text
 $dsa-design 为这个百万级日志查询接口比较倒排索引、B+ 树和缓存策略。
 $mise 为此项目设计可复现的工具、环境变量和测试任务，不修改文件。
-$explicit-execution-state 为这个需要跨上下文压缩继续的发布任务维护显式执行状态。
+$durable-execution-state 为这个需要跨上下文压缩继续的发布任务维护持久执行状态。
 $juanjuan-illustrations 为这篇中文文章规划三张卷卷插图，暂不生成图像。
 ```
 
@@ -165,7 +165,7 @@ $juanjuan-illustrations 为这篇中文文章规划三张卷卷插图，暂不�
 │       ├── framework/napi-rs/
 │       ├── languages/zig/
 │       ├── tools/mise/
-│       └── workflows/{bootstrap-project,explicit-execution-state}/
+│       └── workflows/{bootstrap-project,durable-execution-state}/
 ├── capabilities/map.json
 ├── evals/
 │   ├── fixtures/<skill>/

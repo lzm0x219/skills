@@ -16,16 +16,16 @@ STATECTL = (
     / "skills"
     / "development"
     / "workflows"
-    / "explicit-execution-state"
+    / "durable-execution-state"
     / "scripts"
     / "statectl.py"
 )
 
 
-class ExplicitExecutionStateLongHorizonTest(unittest.TestCase):
+class DurableExecutionStateLongHorizonTest(unittest.TestCase):
     def test_one_hundred_transitions_keep_only_the_current_plan_value(self) -> None:
         with tempfile.TemporaryDirectory(
-            prefix="explicit-execution-state-long-horizon-"
+            prefix="durable-execution-state-long-horizon-"
         ) as temporary:
             root = Path(temporary)
             store = root / "store"

@@ -1,0 +1,7 @@
+interface:
+  display_name: "持久执行状态"
+  short_description: "为长程 Agent 任务维护有界、可恢复且可验证的执行状态"
+  default_prompt: "使用 $durable-execution-state 为这个长程任务建立并维护可恢复的持久执行状态。"
+
+policy:
+  allow_implicit_invocation: true

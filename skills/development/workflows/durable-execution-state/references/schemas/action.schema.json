@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.invalid/explicit-execution-state/action.schema.json",
+  "$id": "https://example.invalid/durable-execution-state/action.schema.json",
   "title": "Pending external action",
   "type": "object",
   "additionalProperties": false,

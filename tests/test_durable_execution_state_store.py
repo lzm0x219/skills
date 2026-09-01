@@ -19,7 +19,7 @@ STATECTL = (
     / "skills"
     / "development"
     / "workflows"
-    / "explicit-execution-state"
+    / "durable-execution-state"
     / "scripts"
     / "statectl.py"
 )
@@ -61,10 +61,10 @@ class StreamingEventConnection:
         return cursor
 
 
-class ExplicitExecutionStateStoreTest(unittest.TestCase):
+class DurableExecutionStateStoreTest(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory(
-            prefix="explicit-execution-state-store-test-"
+            prefix="durable-execution-state-store-test-"
         )
         self.root = Path(self.temporary.name)
         self.store = self.root / "store"

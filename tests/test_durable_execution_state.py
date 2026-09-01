@@ -21,16 +21,16 @@ STATECTL = (
     / "skills"
     / "development"
     / "workflows"
-    / "explicit-execution-state"
+    / "durable-execution-state"
     / "scripts"
     / "statectl.py"
 )
 
 
-class ExplicitExecutionStateTest(unittest.TestCase):
+class DurableExecutionStateTest(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory(
-            prefix="explicit-execution-state-test-"
+            prefix="durable-execution-state-test-"
         )
         self.root = Path(self.temporary.name)
         self.store = self.root / "store"
@@ -1107,7 +1107,7 @@ print(json.dumps({
             ROOT
             / "evals"
             / "workspaces"
-            / "explicit-execution-state"
+            / "durable-execution-state"
             / "statectl-workspace-init"
         )
         workspace = self.root / "workspace"
@@ -1214,7 +1214,7 @@ print(json.dumps({
     @staticmethod
     def run_statectl_raw(*arguments: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
-            ExplicitExecutionStateTest.statectl_command(*arguments),
+            DurableExecutionStateTest.statectl_command(*arguments),
             cwd=ROOT,
             capture_output=True,
             text=True,

@@ -17,16 +17,16 @@ STATECTL = (
     / "skills"
     / "development"
     / "workflows"
-    / "explicit-execution-state"
+    / "durable-execution-state"
     / "scripts"
     / "statectl.py"
 )
 
 
-class ExplicitExecutionStateAuthorizationTest(unittest.TestCase):
+class DurableExecutionStateAuthorizationTest(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory(
-            prefix="explicit-execution-state-authorization-test-"
+            prefix="durable-execution-state-authorization-test-"
         )
         self.root = Path(self.temporary.name)
         self.store = self.root / "store"

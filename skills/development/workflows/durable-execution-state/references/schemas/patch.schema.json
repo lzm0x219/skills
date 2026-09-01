@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.invalid/explicit-execution-state/patch.schema.json",
+  "$id": "https://example.invalid/durable-execution-state/patch.schema.json",
   "title": "Execution state patch",
   "type": "array",
   "minItems": 1,
