@@ -14,9 +14,9 @@ scene_mode: <standard | portrait-figure | product-still-life | dense-narrative�
 p0_core_structure: <2–4 个不能丢失的结构，例如河道-拱桥-岸边建筑的关系>
 p1_recognition_details: <0–5 个必须可辨的中层细节；例如屋檐节奏、门框台阶、桥面砌块分组、倒影带；极简图可写 none>
 p2_remove: <仅列出未进入 P0/P1 的微纹理、杂物、厚重光影等>
-text_title: <exact English title | none>
-text_subtitle: <exact English short sentence | none>
-text_area: <none | reserved | overlay；两段精确英文都有时默认 reserved；只有明确要求时才用 overlay>
+text_title: <exact user-provided title | none；独立可选，保留原文字体系>
+text_subtitle: <exact user-provided short sentence | none；独立可选，不补写缺失行>
+text_area: <none | reserved | overlay；按入口规则选择，任一文案已提供时默认 reserved，明确无字时 none>
 ```
 
 ## 无字底图模板
@@ -32,20 +32,20 @@ Scene route: <copy the selected section's prompt constraints from references/sce
 Style profile: <copy the selected Prompt addendum from references/style-profiles.md exactly; use one profile only>
 Style intensity: <style_intensity>. Restrained follows the source closely; balanced gives the profile clear presence; pronounced makes the selected profile's material, edge, and layer rules unmistakable while preserving P0/P1 and composition.
 Structure and detail: preserve every P0 core structure. Preserve every item in p1_recognition_details and the selected scene route's required invariants as a legible profile-appropriate secondary shape, color cluster, layered paper shape, pastel mass, or limited hatch group. Do not flatten P1 into one generic silhouette. Obey the selected profile's edge budget; do not add universal outlines.
-Composition: when scene_mode=standard, place the main subject centered slightly above the midpoint and keep expansive, intentional negative space. For every other scene route, preserve the recorded people, products, or event-zone layout; never move, crop, or merge P0/P1 just to center the subject or create negative space. For text_area=reserved, reserve the lower <20–28>% as a clean, quiet, low-contrast, unobstructed typography-safe area. For text_area=overlay, use only existing quiet negative space and never cover P0 or P1. For text_area=none, do not intentionally create a lower typography-safe band.
+Composition: preserve the fact card's subject positions and spatial relationships in every scene route, including standard. Centering slightly above the midpoint is only a default when it does not change recorded relationships; never move, crop, or merge P0/P1 to center the subject or create negative space. For text_area=reserved, use the approved clean, quiet, low-contrast typography-safe area; a lower 20–28% area is a starting suggestion only if it fits without displacing P0/P1. For text_area=overlay, use only existing quiet negative space and never cover P0 or P1. For text_area=none, do not intentionally create a lower typography-safe band.
 Constraints: simplify scenery without changing P0 or p1_recognition_details. Remove only P2 microtexture, incidental clutter, heavy lighting, and hard cast shadows. Do not import another profile's texture, stroke, palette system, or edge treatment.
 Avoid: photorealism, 3D rendering, decorative borders, seals, calligraphy, unrequested Chinese motifs, text, watermark, signature, logo, extra ornaments, artist imitation, and mixing style profiles.
 ```
 
 ## 后期文字规格
 
-只在 `text_title` 与 `text_subtitle` 都由用户明确提供时使用。
+只排用户明确提供的非 `none` 字段；标题和短句独立可选，缺失字段不生成占位行。`text_area=none` 时保持无字。字体应覆盖原文全部字形。
 
 ```text
 Canvas: keep the approved base image dimensions and aspect ratio.
-Placement: for text_area=reserved, use the lower reserved area, horizontally centered. For text_area=overlay, use the approved existing negative space. Do not cover P0 or P1.
-Title: exact text “<text_title>”; use the selected profile's typography direction; centered; medium visual weight.
-Subtitle: exact text “<text_subtitle>”; use the selected profile's typography direction at small size; centered below the title with restrained spacing.
+Placement: for text_area=reserved, use the approved reserved area, horizontally centered within it. For text_area=overlay, use the approved existing negative space. Do not cover P0 or P1.
+Title, if supplied: exact text “<text_title>”; use the selected profile's typography direction; centered; medium visual weight.
+Subtitle, if supplied: exact text “<text_subtitle>”; use the selected profile's typography direction at small size; centered below the title when present, otherwise place it alone in the approved area.
 Color: sample a quiet dark neutral from the approved palette; no glow, outline, shadow, badge, or ornament.
 ```
 
@@ -59,8 +59,9 @@ Color: sample a quiet dark neutral from the approved palette; no glow, outline, 
 - [ ] `style_intensity` 与结果一致；`pronounced` 的档案差异清晰可见，仍不牺牲 P0/P1 或构图关系。
 - [ ] P1 遵守所选档案的次要边缘预算；没有不属于该档案的连续深色闭合描边或密集纹理。
 - [ ] 没有厚重光影、P2 以外的细碎纹理、杂物、印章、题跋、边框或多余装饰。
-- [ ] `standard` 主体居中偏上；其他场景路由保留取证卡中的人、产品或事件分区布局，且没有为了居中或留白移动、裁掉或合并 P0/P1。`reserved` 的文字安全区完整、`overlay` 没有碰撞 P0/P1、`none` 没有被人为切出底部文字带。
-- [ ] 若有文字，标题和短句都与用户提供的字符串逐字一致；否则图片无文字。
+- [ ] 所有场景路由（包括 `standard`）均保留取证卡中的主体位置和空间关系，没有为了居中或留白移动、裁掉或合并 P0/P1。`reserved` 的文字安全区完整、`overlay` 没有碰撞 P0/P1、`none` 没有被人为切出底部文字带。
+- [ ] 若有文字，实际提供的各行与用户字符串逐字一致，字形完整；未提供的标题或短句没有被补造。`text_area=none` 时图片无文字。
+- [ ] 局部编辑已比较修改前后图片，未修改区域、P0/P1 和未涉及的风格参数保持一致，且新版本未覆盖既有资产。
 - [ ] 没有签名、水印、Logo、原作特有角色或未经请求的作者模仿。
 
 失败处理：结构问题重做事实卡；细节丢失时只补回 P1 的缺项；边缘或纹理问题只按所选档案修正；文字区问题只调整 `text_area` 或排版；风格问题只调整所选档案的材质、色层或光影。不要同时改动场景、配色和文字来掩盖失败。

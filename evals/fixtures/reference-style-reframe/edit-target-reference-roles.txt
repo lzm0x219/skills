@@ -1,0 +1,1 @@
+Use A as the edit target and its valid fact card for P0/P1. Use B only as the texture reference. Preserve A's scene, palette, composition and exact text while changing only the requested paper texture. Save a new version, compare before and after, and report any unintended drift.

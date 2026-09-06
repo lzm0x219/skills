@@ -1,0 +1,1 @@
+Preserve the bridge on the far left and open river on the right, matching the fact card's P0 relationships. The standard route's centering default is conditional and cannot override this composition. Keep text_area=none with no added text strip.

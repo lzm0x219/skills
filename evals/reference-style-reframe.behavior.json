@@ -40,6 +40,57 @@
   },
   "cases": [
     {
+      "id": "offcenter-standard-preserved",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "The inspected reference and completed fact card place a bridge on the far left and an open river on the right. Both are P0; scene_mode is standard and text_area is none. Should the generation prompt move the bridge upward to the center? Give the corrected composition instruction only.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:左|left)",
+            "(?:右|right)",
+            "(?:保留|preserv|keep)",
+            "(?:P0|关系|relationship)"
+          ],
+          "forbidden_regex": ["(?:move the bridge to the center|将桥移到居中位置)"]
+        }
+      }
+    },
+    {
+      "id": "single-title-preserved",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "For an already inspected reference, I supplied only the exact title 'Quiet Canal', no subtitle, and requested a finished image with that title. Plan typography without generating images. Must a subtitle be requested or invented?",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "Quiet Canal",
+            "(?:无字底图|text.free|textless|base image)",
+            "(?:不补|不编|不需要|no subtitle|without.*subtitle|omit.*subtitle|neither.*subtitle)"
+          ],
+          "forbidden_regex": ["(?:please supply a subtitle before proceeding|必须补充副标题)"]
+        }
+      }
+    },
+    {
+      "id": "edit-target-reference-roles",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "Image A is an approved reframed illustration with an existing fact card. Image B is only a paper-texture reference. Change A's paper texture to resemble B, retaining A's scene, palette and text. Describe inputs, invariants and output without generating images.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:A|编辑目标)",
+            "(?:B|纹理参考)",
+            "(?:纹理|texture)",
+            "(?:保留|preserv|keep)",
+            "(?:新版本|new version|new output)"
+          ],
+          "forbidden_regex": ["(?:merge the scenes|拼接两图场景)"]
+        }
+      }
+    },
+    {
       "id": "audit-without-image-generation",
       "category": "safety-boundary",
       "invocation": "explicit",
