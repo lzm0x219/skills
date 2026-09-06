@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -33,7 +34,7 @@ class RunBehaviorEvalsTest(unittest.TestCase):
         )
 
         self.assertEqual(0, completed.returncode, completed.stderr)
-        self.assertIn("PASS: 6 behavior case(s).", completed.stdout)
+        self.assertIn("PASS: 7 behavior case(s).", completed.stdout)
         self.assertNotIn("statectl-workspace-init", completed.stdout)
 
     def test_workspace_only_case_rejects_direct_behavior_selection(self) -> None:
@@ -87,10 +88,42 @@ class RunBehaviorEvalsTest(unittest.TestCase):
         self.assertFalse(result["eval_codex_home"].exists())
         self.assertFalse(result["eval_user_home"].exists())
 
-    def run_case(self, case_id: str, response: str) -> dict[str, object]:
+    def test_model_and_effort_flags_override_environment_defaults(self) -> None:
+        result = self.run_case(
+            "out-of-scope-direct-answer",
+            'Change README to "Toolset".',
+            extra_args=["--model", "gpt-6-astra", "--reasoning-effort", "high"],
+            overrides={"CODEX_EVAL_MODEL": "other-model", "CODEX_EVAL_REASONING_EFFORT": "low"},
+        )
+        command = result["command"]
+        self.assertEqual("gpt-6-astra", command[command.index("--model") + 1])
+        self.assertEqual('model_reasoning_effort="high"', command[command.index("--config") + 1])
+
+    def test_effort_environment_default_is_forwarded(self) -> None:
+        result = self.run_case(
+            "out-of-scope-direct-answer",
+            'Change README to "Toolset".',
+            overrides={"CODEX_EVAL_REASONING_EFFORT": "medium"},
+        )
+        self.assertIn('model_reasoning_effort="medium"', result["command"])
+
+    def test_omitted_model_and_effort_preserve_cli_defaults(self) -> None:
+        result = self.run_case("out-of-scope-direct-answer", 'Change README to "Toolset".')
+        self.assertNotIn("--model", result["command"])
+        self.assertNotIn("--config", result["command"])
+
+    def run_case(
+        self,
+        case_id: str,
+        response: str,
+        *,
+        extra_args: list[str] | None = None,
+        overrides: dict[str, str] | None = None,
+    ) -> dict[str, object]:
         with tempfile.TemporaryDirectory(prefix="run-behavior-evals-test-") as directory:
             directory_path = Path(directory)
             prompt_path = directory_path / "prompt.txt"
+            command_path = directory_path / "command.json"
             codex_home_capture_path = directory_path / "codex-home.txt"
             source_codex_home = directory_path / "source-codex-home"
             source_user_home = directory_path / "source-user-home"
@@ -110,10 +143,14 @@ class RunBehaviorEvalsTest(unittest.TestCase):
                 textwrap.dedent(
                     f"""\
                     #!{sys.executable}
+                    import json
                     import os
                     from pathlib import Path
                     import sys
 
+                    Path(os.environ["COMMAND_CAPTURE_PATH"]).write_text(
+                        json.dumps(sys.argv), encoding="utf-8"
+                    )
                     try:
                         output_index = sys.argv.index("--output-last-message")
                     except ValueError:
@@ -147,15 +184,19 @@ class RunBehaviorEvalsTest(unittest.TestCase):
             fake_codex_path.chmod(0o755)
 
             environment = os.environ.copy()
+            environment.pop("CODEX_EVAL_MODEL", None)
+            environment.pop("CODEX_EVAL_REASONING_EFFORT", None)
             environment.update(
                 {
                     "CODEX_HOME": str(source_codex_home),
                     "CODEX_HOME_CAPTURE_PATH": str(codex_home_capture_path),
                     "HOME": str(source_user_home),
                     "PROMPT_CAPTURE_PATH": str(prompt_path),
+                    "COMMAND_CAPTURE_PATH": str(command_path),
                     "EVAL_RESPONSE": response,
                 }
             )
+            environment.update(overrides or {})
             completed = subprocess.run(
                 [
                     sys.executable,
@@ -168,6 +209,7 @@ class RunBehaviorEvalsTest(unittest.TestCase):
                     str(fake_codex_path),
                     "--timeout",
                     "5",
+                    *(extra_args or []),
                 ],
                 cwd=ROOT,
                 env=environment,
@@ -185,6 +227,7 @@ class RunBehaviorEvalsTest(unittest.TestCase):
                 eval_user_skills_exist,
             ) = codex_home_capture_path.read_text(encoding="utf-8").splitlines()
             return {
+                "command": json.loads(command_path.read_text(encoding="utf-8")),
                 "prompt": prompt_path.read_text(encoding="utf-8"),
                 "source_codex_home": source_codex_home,
                 "source_user_home": source_user_home,

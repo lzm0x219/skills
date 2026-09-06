@@ -1,0 +1,1 @@
+已有授权覆盖项目内 workflow 编辑，无需重复确认。下一步按既定目标修复 .github/workflows/validate.yml 并运行适用的配置验证；此次只读评测未实际修改文件。

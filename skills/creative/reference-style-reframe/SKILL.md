@@ -40,7 +40,9 @@ disable-model-invocation: true
 
 ## 测试风格横向对照
 
-仅当用户明确要求比较风格，或正在评估/修订本 Skill 时，执行一次**完整档案横向对照**：以同一张参考图、同一份画面取证卡、同一个 `text_area`、相同的 `scene_mode`、完全相同的 P0/P1/P2 与 `style_intensity=pronounced`，同时生成 `ink-wash-flat`、`gongbi-traditional`、`gouache-matte`、`paper-collage`、`soft-pastel`、`linocut-editorial`、`risograph-editorial`、`colored-pencil-storybook`、`folk-papercut` 与 `minimal-vector-poster` 十张无字图。逐张标明档案名，再检查每张的结构保留、P1 可辨性、所选档案的标志性材料，以及是否混入其他档案。
+用户明确要求测试全部风格时，执行一次**完整档案横向对照**：以同一张参考图、同一份画面取证卡、同一个 `text_area`、相同的 `scene_mode`、完全相同的 P0/P1/P2 与 `style_intensity=pronounced`，生成十个档案各一张无字图。逐张标明档案名，再检查每张的结构保留、P1 可辨性、所选档案的标志性材料，以及是否混入其他档案。
+
+用户只比较指定档案时，仅生成这些档案；只要方案时，仅给测试方案。审计或修订 Skill 本身不授权生成测试图。已授权的视觉回归先覆盖受影响档案与失败项，仅在共用约束变化或发现跨档案问题时扩大范围。
 
 横向对照只验证同一题材中的档案区分，不能替代每档适配题材的视觉验证。测试时读取 [视觉测试矩阵](references/visual-test-matrix.md)，另用其中的适配题材检查该档案的核心技法。不要把完整档案横向对照用于普通的单档交付，也不要为凑齐风格而使用不同参考图、改变取证卡或添加画外元素。测试发现的问题按“一个档案、一个失败项”单独返工。
 

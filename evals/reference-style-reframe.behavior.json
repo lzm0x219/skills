@@ -40,6 +40,40 @@
   },
   "cases": [
     {
+      "id": "audit-without-image-generation",
+      "category": "safety-boundary",
+      "invocation": "explicit",
+      "prompt": "只审计这个 Skill 的文字和阶段门，说明需要哪些检查；不生成图片，不调用图像工具。请明确文档审计是否触发十张图的完整档案横向对照。",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:文档|文字|阶段门)",
+            "(?:不触发|不需要|不会|无需).*(?:十张|完整档案横向对照)",
+            "(?:未验证|不能验证).*(?:像素|图像|视觉)"
+          ],
+          "forbidden_regex": ["(?:立即|必须|将会|开始)生成十张", "(?:已完成|已通过).*视觉"]
+        }
+      }
+    },
+    {
+      "id": "selected-profiles-comparison",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "只比较 paper-collage 与 soft-pastel 两种档案，给我测试方案，不生成图片。比较时固定同一张参考图和同一份取证卡即可，不要扩成其他档案。",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "paper-collage",
+            "soft-pastel",
+            "同一.*参考图",
+            "同一.*取证卡",
+            "(?:仅|只).*(?:两|这两|指定)"
+          ],
+          "forbidden_regex": ["(?:必须|需要|将).*十张", "已生成"]
+        }
+      }
+    },
+    {
       "id": "reference-image-reframe",
       "category": "positive-trigger",
       "invocation": "explicit",

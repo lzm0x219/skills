@@ -20,6 +20,23 @@
   },
   "cases": [
     {
+      "id": "documentation-only-verification",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "napi-rs 项目只修正 README 里的使用说明错字，没有修改代码、示例、绑定或打包；仓库只要求 Markdown 检查。用两句话给出适用的验证范围，不执行命令。",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:Markdown|文档).*(?:检查|验证)",
+            "(?:无需|不需要|不运行|不触发).*(?:构建|Clippy|Rust tests|集成测试)"
+          ],
+          "forbidden_regex": [
+            "(?:必须|仍需|还需|随后运行).*(?:Clippy|Node integration tests|跨平台)"
+          ]
+        }
+      }
+    },
+    {
       "id": "out-of-scope-direct-answer",
       "category": "out-of-scope",
       "invocation": "implicit",

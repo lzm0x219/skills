@@ -69,6 +69,23 @@ python3 scripts/run_behavior_evals.py --skill durable-execution-state
 
 Live evaluation sends scenario prompts and skill content to the configured Codex service. Results only apply to the CLI, model, skill version, and scenario assertions used at runtime.
 
+### Compare a model or prompt change
+
+Both runners accept `--model` and `--reasoning-effort`, with defaults from `CODEX_EVAL_MODEL` and `CODEX_EVAL_REASONING_EFFORT`. Explicit flags override these environment defaults. Omitting both preserves the Codex defaults; the runners do not select a new model automatically. Codex validates whether the requested effort is supported by the chosen model.
+
+For a reproducible comparison, use the same CLI version, explicit model and effort, case IDs, fixture inputs, and evaluation harness on both Skill revisions. Change either the model or the Skill prompt at a time. Record both revisions and save the final answers, assertion failures, wall time, and any available usage data. Repeat representative cases before making quality or performance claims; one passing answer is not a measured improvement.
+
+```sh
+python3 scripts/run_behavior_evals.py --skill mise \
+  --case approved-project-ci --model gpt-6-astra \
+  --reasoning-effort high --show-output
+python3 scripts/run_workspace_evals.py --skill bootstrap-project \
+  --case existing-zig-planning --model gpt-6-astra \
+  --reasoning-effort high --report-dir /tmp/astra-workspace-eval
+```
+
+These are live runs, not offline validation. The workspace report records the requested CLI arguments, not proof of the effective backend model. The [Astra guide](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra#update-api-and-model-parameters) advises retaining the effective effort when migrating, or starting at `low` from `none`/`minimal`. The `high` above is an example comparison setting, not a repository default. The CLI override uses [`model_reasoning_effort`](https://learn.chatgpt.com/docs/config-file/config-basic).
+
 ## Isolate installed skills with the same name
 
 Live evaluation first copies the target skill from the working tree into a temporary workspace and renames it to a unique evaluation name. The subprocess also uses temporary `CODEX_HOME` and `HOME` values, so it does not inherit these user-level skills:
@@ -195,3 +212,15 @@ The `strategy-deliverable-write` workspace case separately evaluates creation of
 - Official latest-stable release metadata and link verification
 
 These scenarios are a regression baseline, not exhaustive verification across all prompts, models, and runtimes.
+
+## Instruction-boundary regressions
+
+The Astra instruction audit adds paired coverage for authorization, scope, and verification:
+
+- `mise`: already-authorized project CI edits reuse approval; existing planning and untrusted-config cases still stop at their declared boundaries.
+- `napi-rs` and `zig`: documentation-only work and completed targeted checks avoid unrelated build or compatibility matrices.
+- `china-commerce-asset-pack`: automatic stage progression, later scope reduction, and existing publication authorization are distinct from unapproved publication. The latter prompt explicitly withholds authorization; it must not penalize a model for recognizing a user's direct authorization.
+- `durable-execution-state`: missing host verification capability blocks the external action even when user authorization exists; repeated consent cannot repair missing infrastructure.
+- `reference-style-reframe`: textual audits do not generate images, and selected-profile comparisons remain scoped. The existing all-profile case still requires the complete requested comparison.
+
+CI runs saved-answer checks for all nine Skills, including `durable-execution-state`, `reference-style-reframe`, and `juanjuan-illustrations`. Creative cases inspect decisions expressed in text; visual QA remains separate. The new runner unit tests use a fake Codex executable to verify CLI and environment precedence without a live model request.

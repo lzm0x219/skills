@@ -33,6 +33,22 @@
   },
   "cases": [
     {
+      "id": "targeted-verification-stop",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "Zig 项目中一个局部错误消息修复已经通过定向测试、格式检查和全部仓库必需检查，未改 API、依赖、版本范围、target 或性能，当前没有失败或未解疑点。现在应该交付，还是继续跑全量跨版本与跨平台矩阵？只说明决定和证据边界。",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:交付|完成)",
+            "(?:无需|不再|不必).*(?:矩阵|扩大|重复)",
+            "(?:未验证|不能声称|不代表).*(?:平台|兼容|矩阵)"
+          ],
+          "forbidden_regex": ["(?:必须|还需|仍需).*全量.*矩阵"]
+        }
+      }
+    },
+    {
       "id": "out-of-scope-direct-answer",
       "category": "out-of-scope",
       "invocation": "implicit",

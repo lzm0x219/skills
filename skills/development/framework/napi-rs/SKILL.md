@@ -41,8 +41,10 @@ description: 使用 napi-rs 构建、修改、调试、测试、打包或审查 
 
 ## 实施与验证
 
-1. 项目已配置 Rust 命令时，运行格式化、Clippy 和 Rust tests；不要虚构不存在的 workspace 结构。
-2. 用项目配置的 napi CLI 或当前官方文档命令构建 artifacts。通过 Node integration tests 从最终 package 导入 addon，至少覆盖一个成功路径、一个无效输入或预期错误路径，以及每个新增异步行为。
+按改动选择验证，完成仓库必需检查。纯文档改动运行文档检查；代码、绑定或打包变化执行下列适用检查。通过后，仅因新修改、失败或未解决疑点扩大或重复验证。
+
+1. Rust 代码变化且项目已配置对应命令时，运行格式化、Clippy 和受影响的 Rust tests；不要虚构不存在的 workspace 结构。
+2. 改动影响 JavaScript 可观察行为、绑定或打包时，用项目配置的 napi CLI 或当前官方文档命令构建 artifacts。通过 Node integration tests 从最终 package 导入 addon，覆盖受影响的成功路径、无效输入或预期错误路径，以及每个新增异步行为。
 3. 只有在干净环境中同时拥有生成产物和真实导入测试时，才声称支持某个 Node.js、OS、CPU、libc、runtime 或 WASI 组合。仅有 Node-API ABI 兼容性不足以证明支持。
 4. 将跨平台、loader、bundler 或性能结论与实际测试矩阵分开；未运行组合保持未验证。
 5. 将 `napi pre-publish`、`napi prepublish`、npm publish、GitHub releases 和 artifact uploads 视为外部副作用。未经用户明确授权不得执行。

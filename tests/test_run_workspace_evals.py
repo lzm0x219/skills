@@ -82,7 +82,37 @@ class RunWorkspaceEvalsTest(unittest.TestCase):
             any("unexpected workspace changes" in failure for failure in report["failures"])
         )
 
-    def run_case(self, *, mutate: bool) -> dict[str, object]:
+    def test_model_and_effort_flags_override_environment_defaults(self) -> None:
+        result = self.run_case(
+            mutate=False,
+            extra_args=["--model", "gpt-6-astra", "--reasoning-effort", "high"],
+            overrides={"CODEX_EVAL_MODEL": "other-model", "CODEX_EVAL_REASONING_EFFORT": "low"},
+        )
+        self.assertEqual(0, result["completed"].returncode, result["completed"].stderr)
+        command = result["report"]["execution"]["command"]
+        self.assertEqual("gpt-6-astra", command[command.index("--model") + 1])
+        self.assertEqual('model_reasoning_effort="high"', command[command.index("--config") + 1])
+
+    def test_effort_environment_default_is_forwarded(self) -> None:
+        result = self.run_case(
+            mutate=False, overrides={"CODEX_EVAL_REASONING_EFFORT": "medium"}
+        )
+        self.assertEqual(0, result["completed"].returncode, result["completed"].stderr)
+        self.assertIn('model_reasoning_effort="medium"', result["report"]["execution"]["command"])
+
+    def test_omitted_model_and_effort_preserve_cli_defaults(self) -> None:
+        result = self.run_case(mutate=False)
+        command = result["report"]["execution"]["command"]
+        self.assertNotIn("--model", command)
+        self.assertNotIn("--config", command)
+
+    def run_case(
+        self,
+        *,
+        mutate: bool,
+        extra_args: list[str] | None = None,
+        overrides: dict[str, str] | None = None,
+    ) -> dict[str, object]:
         with tempfile.TemporaryDirectory(prefix="workspace-eval-test-") as directory:
             directory_path = Path(directory)
             prompt_path = directory_path / "prompt.txt"
@@ -127,6 +157,8 @@ class RunWorkspaceEvalsTest(unittest.TestCase):
             fake_codex_path.chmod(0o755)
 
             environment = os.environ.copy()
+            environment.pop("CODEX_EVAL_MODEL", None)
+            environment.pop("CODEX_EVAL_REASONING_EFFORT", None)
             environment.update(
                 {
                     "EVAL_MUTATE": str(mutate).lower(),
@@ -138,6 +170,7 @@ class RunWorkspaceEvalsTest(unittest.TestCase):
                     "PROMPT_CAPTURE_PATH": str(prompt_path),
                 }
             )
+            environment.update(overrides or {})
             completed = subprocess.run(
                 [
                     sys.executable,
@@ -152,6 +185,7 @@ class RunWorkspaceEvalsTest(unittest.TestCase):
                     str(report_directory),
                     "--timeout",
                     "5",
+                    *(extra_args or []),
                 ],
                 cwd=ROOT,
                 env=environment,

@@ -65,6 +65,12 @@ def parse_args() -> argparse.Namespace:
         help="override the Codex model",
     )
     parser.add_argument(
+        "--reasoning-effort",
+        default=os.environ.get("CODEX_EVAL_REASONING_EFFORT"),
+        metavar="LEVEL",
+        help="override reasoning effort; the Codex CLI and selected model validate support",
+    )
+    parser.add_argument(
         "--codex",
         default=os.environ.get("CODEX_BIN", "codex"),
         metavar="PATH",
@@ -223,6 +229,10 @@ def read_live_answer(
     ]
     if options.model:
         command.extend(["--model", options.model])
+    if options.reasoning_effort:
+        command.extend(
+            ["--config", f"model_reasoning_effort={json.dumps(options.reasoning_effort)}"]
+        )
     command.append("-")
 
     environment = os.environ.copy()

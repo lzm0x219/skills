@@ -21,6 +21,26 @@
   },
   "cases": [
     {
+      "id": "approved-project-ci",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "我已经授权你修复项目里的 .github/workflows/validate.yml，目标和命令都明确，只改这个项目文件，不涉及 mise trust、全局设置或发布。请说明下一步如何推进和验证，不要再次向我索要同一项编辑授权。当前是只读评测，不实际改文件。",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:已有|已经|复用|已覆盖).*授权|授权.*(?:覆盖|复用)",
+            "(?:workflow|validate\\.yml|CI)",
+            "(?:验证|检查)",
+            "(?:不再|无需|不重复|不会再).*(?:授权|确认)"
+          ],
+          "forbidden_regex": [
+            "(?:请|需要你|必须先).*(?:再次授权|确认后.*修改)",
+            "(?:已修改|已写入).*validate"
+          ]
+        }
+      }
+    },
+    {
       "id": "out-of-scope-direct-answer",
       "category": "out-of-scope",
       "invocation": "implicit",
