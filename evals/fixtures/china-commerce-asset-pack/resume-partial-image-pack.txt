@@ -1,0 +1,1 @@
+Reuse pages 1–3 after checking their source version. Inspect page 4 before accepting it. Page 5 is missing despite the success message; locate the actual output or regenerate it. Generate missing pages 6–8 and record file paths, source versions and QA in the manifest.

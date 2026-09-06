@@ -55,6 +55,7 @@ description: 将面向中国市场的非服装商品资料转化为「电商素�
 - 用户未指定成交平台时，直接使用通用电商底座，不追问渠道。
 - 用户明确指定成交平台或要求「按某平台可直接上架」时，读取 [platform-overlays.md](references/platform-overlays.md)，只叠加平台差异，不重做通用资产。
 - 需要写入文件、制作清单、补做某阶段或验收整包时，读取 [deliverable-pack.md](references/deliverable-pack.md)。
+- 用户改动商品事实、价格、活动或定稿，或要求从中断处继续时，按 [版本变更与恢复](references/deliverable-pack.md#版本变更与恢复) 核对依赖和失效资产，再继续受影响部分。
 - 使用 helper、联网研究、云端图像、Markdown 转 PDF 或真实发布前，读取 [operation-boundaries.md](references/operation-boundaries.md)。
 
 ## 共同约束

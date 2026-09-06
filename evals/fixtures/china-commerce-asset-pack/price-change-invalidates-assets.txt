@@ -1,0 +1,8 @@
+I’ll continue under your existing production authorization, using ¥89 as the current price.
+
+- **Reusable:** Approved product facts, positioning, messaging, layouts, and images unaffected by price, provided their source versions remain valid.
+- **Must change:** The price record and strategy master, affected product-page and channel copy, CTAs, pricing calculations, and pack manifest. Save updated copy before rebuilding affected images.
+- **Must regenerate:** The PDF from the updated report and every affected price image. Updating Markdown or filenames alone won’t fix them.
+- **Versioning and checks:** Mark the ¥99 assets invalid and remove them from the current delivery list. Preserve originals and use new version paths unless replacement is already authorized. Check the regenerated PDF page by page and verify price consistency across text and visuals before marking the revised pack passed.
+
+This read-only evaluation has changed no files.

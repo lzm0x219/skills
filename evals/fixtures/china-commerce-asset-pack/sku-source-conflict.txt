@@ -1,0 +1,1 @@
+The specification conflict is unresolved: verify SKU, region and batch against the supplied label and webpage. Hold dependent copy and images pending confirmation; continue unaffected research.
