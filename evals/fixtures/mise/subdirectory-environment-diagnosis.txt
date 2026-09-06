@@ -1,0 +1,1 @@
+Compare effective configuration files, environment selection, current Node version and executable path from each working directory. Inspect local overrides and the task cwd and relative input path. Fix only the responsible project configuration; record non-sensitive evidence and rerun the original subdirectory entry point.

@@ -1,0 +1,12 @@
+No. `depends` is a prerequisite set, not an ordered sequence; `generate` and `test` can run concurrently. [Official docs](https://mise.jdx.dev/tasks/task-configuration.html#depends)
+
+Smallest correction: add this to the existing `test` task:
+
+```toml
+[tasks.test]
+depends = ["generate"]
+```
+
+Keep its existing command. `ci` can retain both dependencies; simplifying it to `depends = ["test"]` is optional.
+
+Verification plan, not executed: make `generate` exit nonzero, ensure caching/freshness cannot skip it, then invoke `ci`. Confirm `test` never starts and the top-level command exits nonzero. Restore generation and confirm it finishes before testing begins. Ensure scripts do not swallow the failure.

@@ -21,6 +21,57 @@
   },
   "cases": [
     {
+      "id": "dependency-list-is-not-sequence",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "mise task ci has depends = [\"generate\", \"test\"]. test reads files written by generate. Does this guarantee generation finishes first? Give the smallest design correction and failure verification without executing anything.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "depends",
+            "(?:并行|并发|parallel|concurren)",
+            "(?:依赖|dependency|顺序|sequen)",
+            "(?:失败|fail)"
+          ],
+          "forbidden_regex": ["(?:the list order guarantees execution order|列表顺序保证串行)"]
+        }
+      }
+    },
+    {
+      "id": "cached-check-is-not-executed",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "mise run test exits 0 but says the task was skipped because its outputs were fresh. A test configuration file changed but is not included in sources. Can we report this run as tests passed? Explain the fix and verification.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "sources",
+            "(?:跳过|skipped|skip)",
+            "(?:实际|execut|run)",
+            "(?:配置|config)"
+          ],
+          "forbidden_regex": ["(?:this proves the tests executed|本轮测试已执行通过)"]
+        }
+      }
+    },
+    {
+      "id": "subdirectory-environment-diagnosis",
+      "category": "positive-trigger",
+      "invocation": "explicit",
+      "prompt": "A mise task passes from the repository root but selects a different Node version and cannot find its input under packages/app. The root mise.toml looks correct. Diagnose without editing global defaults or exposing secrets.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:目录|directory|cwd)",
+            "(?:配置|config)",
+            "(?:版本|version)",
+            "(?:路径|path)"
+          ],
+          "forbidden_regex": ["(?:dump all environment values|打印全部环境变量值)"]
+        }
+      }
+    },
+    {
       "id": "approved-project-ci",
       "category": "positive-trigger",
       "invocation": "explicit",

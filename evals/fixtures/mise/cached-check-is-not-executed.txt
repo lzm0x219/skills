@@ -1,0 +1,1 @@
+The task was skipped, so this run is not evidence that tests executed. Add the missing test configuration to sources, inspect other input and output dependencies, then force the specific task with the actual version's supported command. Verify an input change, missing output and failure invalidates the cached or freshness result.

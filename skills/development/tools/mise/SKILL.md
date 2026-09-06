@@ -13,10 +13,13 @@ description: 使用 mise 管理项目开发工具、版本、环境变量、任�
 2. 先界定要解决的问题：一次性执行、项目级可复现环境、个人全局默认值、交互式 shell、CI／IDE 或任务编排。优先选择可审阅的项目级配置；仅在用户明确要求时修改全局配置或 shell rc 文件。
 3. 从用户请求和项目证据确定配置范围、支持平台、工具来源、版本策略与 `mise.lock` 提交策略。只有无法推断且会改变结果的缺口才提问；已授权的项目内修改直接推进。不要把本机已安装的版本视为团队兼容性承诺。
 
+任务编排、缓存跳过或“本地能跑、CI／子目录不能跑”的问题，读取 [任务与环境验收](references/task-contracts.md)，核对实际生效配置和执行路径。
+
 ## 使用当前官方文档
 
 1. 先阅读 [官方文档任务路由](references/official-documentation-inventory.md)，再打开与当前工作直接相关的官方页面。
 2. 当精确 CLI 参数、工具后端、设置、任务属性或版本兼容性重要时，始终以当前官方页面为准。不要从本 Skill 推断精确参数、默认值或支持矩阵。
+   同时核对实际 mise 版本；当前页面新增的语法不一定适用于项目固定版本。遇到不支持的属性，查对应版本帮助／发布记录并采用兼容写法，不自动升级全局 mise。
 3. 只有在刷新路由清单或声称本地链接仍有效时，才在本 Skill 目录运行 `node scripts/verify-official-docs-inventory.mjs --check`；发布前或刷新后再加 `--verify-links`。从仓库根目录运行时使用 `node skills/development/tools/mise/scripts/verify-official-docs-inventory.mjs --check`。
 
 | 工作                                   | 优先查阅的官方主题                                                                                                                       |
