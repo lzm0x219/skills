@@ -11,6 +11,7 @@ description: 使用 napi-rs 构建、修改、调试、测试、打包或审查 
 
 1. 检查既有 Rust crates、Node packages、构建脚本、支持矩阵和用户授权。不要只因使用本 Skill 就脚手架化、迁移、发布或改变公开 API。
 2. 先定义 JavaScript 契约：导出名称、参数与返回值、同步或异步语义、错误形状、生成的 `.d.ts`、模块加载和兼容性承诺。
+   同时从 Cargo manifest／lockfile 与 Node package／lockfile 确定 `napi`、`napi-derive`、`@napi-rs/cli` 和 Node 版本；官网当前示例与项目版本不匹配时，查对应发布记录、版本源码或已安装包，不自动升级来迁就示例。
 3. 项目已有独立 core crate 时，让 Node-API 代码保持为薄适配层。不要把业务规则、I/O 策略或领域模型复制进绑定层；独立 addon 不需要为此额外拆 crate。
 
 ## 使用当前官方文档
@@ -31,11 +32,13 @@ description: 使用 napi-rs 构建、修改、调试、测试、打包或审查 
 
 只读取实际触及能力对应的页面。例如，导出异步 `TypedArray` 时，还应读取异步、typed array、生命周期、错误处理和导出／类型转换页面。
 
+涉及大整数转换、共享 Buffer、取消／背压，或最终 package 的验收时，读取 [边界决策与回归](references/boundary-decisions.md) 中对应小节。
+
 ## 保持边界安全
 
 - 在 JavaScript 边界验证输入、路径、选项组合和资源上限，并保持导出名、`.d.ts`、loader 与 `package.json` 一致。
 - 将预期错误映射为稳定、可操作、机器可读的 JavaScript errors；默认不暴露凭据、绝对路径或原始内部错误。
-- Node-API handles 与借用的 JavaScript values 仅在其 `Env` 和生命周期内使用；不存入长期 Rust state，也不跨 workers 或 threads 传递。
+- scoped Node-API handles 与借用的 JavaScript values 仅在其 `Env` 和生命周期内使用；跨调用保留值时选择版本支持的 reference wrapper，并在所属环境释放。保持存活不等于隔离可变内存；跨线程前另行证明所有权与同步，不能把 `Send` 当作共享字节安全证明。
 - 不在 JavaScript main thread 上进行昂贵的 CPU、文件系统、网络或外部进程工作。按当前官方指引选择 `async fn`、`AsyncTask` 或 `ThreadsafeFunction`，并只将拥有所有权的 Rust 数据交给后台工作。
 - 除非公开契约另有说明，不要在绑定层改变 core layer 提供的确定性顺序、精度或错误分类。
 

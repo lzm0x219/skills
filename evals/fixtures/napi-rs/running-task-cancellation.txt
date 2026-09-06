@@ -1,0 +1,1 @@
+No. Running compute needs cooperative cancellation with an owned flag or channel and cleanup. Promise completion is not proof the native work stopped. Test queued and running cancellation, actual worker exit, repeated close and slow-consumer shutdown under a bounded timeout.

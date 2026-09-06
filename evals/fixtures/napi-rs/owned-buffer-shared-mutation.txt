@@ -1,0 +1,1 @@
+Send and reference retention do not synchronize shared bytes. JavaScript can mutate the backing store and race with Rust. Copy into independent Rust data at a safe boundary, or prove an ownership protocol excludes every concurrent accessor; a Rust-only mutex is insufficient.

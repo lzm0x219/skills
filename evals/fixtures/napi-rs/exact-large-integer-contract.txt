@@ -1,0 +1,1 @@
+A TypeScript declaration cannot change runtime conversion or restore lost precision. Choose a compatible bigint or validated decimal string contract, verify the target version conversion and narrowing behavior, and test safe-integer boundaries, 9007199254740993, negative values and invalid inputs.

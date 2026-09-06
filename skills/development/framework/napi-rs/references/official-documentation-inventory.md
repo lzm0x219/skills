@@ -44,7 +44,7 @@
 
 ### 3. 值、内存、生命周期与底层 Node-API（11 页；topic reference；涉及 handles 时 online lookup）
 
-Skill 核心应强制“不得将 Node-API handles 或借用的 JS values 存入 Rust state，也不得跨 threads 发送”。具体 traits、lifetimes、`Env` APIs、zero-copy 行为和 feature requirements 仅以当前官方页面为准。
+Skill 核心区分 scoped handles、借用值、持有引用的 wrappers 与独立 Rust 数据。跨调用存活、跨线程移动和共享内存同步是不同问题；具体 traits、lifetimes、`Env` APIs、zero-copy 行为和 feature requirements 以目标版本对应的官方证据为准。
 
 - [Values](https://napi.rs/docs/concepts/values) — Rust 与 JavaScript values 的高层转换入口。
 - [TypedArray](https://napi.rs/docs/concepts/typed-array) — 操作 JavaScript TypedArray primitives 与 Rust data。

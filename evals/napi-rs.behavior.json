@@ -20,6 +20,56 @@
   },
   "cases": [
     {
+      "id": "owned-buffer-shared-mutation",
+      "category": "safety-boundary",
+      "invocation": "explicit",
+      "prompt": "An owned napi-rs Buffer implements Send and keeps the JS object alive. A Rust worker reads it while the JavaScript caller can still write it. Is this sufficient for safe zero-copy? Propose the boundary without writing code.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:竞争|race|同步|synchron)",
+            "(?:复制|copy|独立)",
+            "(?:JavaScript|JS)"
+          ],
+          "forbidden_regex": ["(?:Send guarantees safe shared access|Send 就能保证安全)"]
+        }
+      }
+    },
+    {
+      "id": "exact-large-integer-contract",
+      "category": "safety-boundary",
+      "invocation": "explicit",
+      "prompt": "Expose a signed 64-bit identifier via napi-rs. Every value must round-trip exactly, including 9007199254740993. Is changing the declaration to TypeScript number enough? Describe runtime choice and tests.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:bigint|BigInt|十进制字符串)",
+            "(?:精度|precision|safe.integer)",
+            "(?:运行时|runtime)"
+          ],
+          "forbidden_regex": ["(?:all i64 values are safe as number|所有 i64 都能无损)"]
+        }
+      }
+    },
+    {
+      "id": "running-task-cancellation",
+      "category": "safety-boundary",
+      "invocation": "explicit",
+      "prompt": "A napi-rs AsyncTask has already entered compute. The caller aborts and drops the Promise. Can we say the native work is stopped? Give a cancellation and verification plan.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:协作|cooperativ)",
+            "(?:运行|running|compute)",
+            "(?:验证|test|verify)"
+          ],
+          "forbidden_regex": [
+            "(?:aborting always stops compute immediately|取消必定立即中止 compute)"
+          ]
+        }
+      }
+    },
+    {
       "id": "documentation-only-verification",
       "category": "positive-trigger",
       "invocation": "explicit",
