@@ -33,6 +33,59 @@
   },
   "cases": [
     {
+      "id": "returned-allocation-cleanup",
+      "category": "safety-boundary",
+      "invocation": "explicit",
+      "prompt": "A Zig function allocates a slice, registers defer allocator.free(slice), performs fallible parsing, then returns that same slice as caller-owned data. Review the lifetime and smallest correction, including success and failure tests.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "errdefer",
+            "(?:调用者|caller)",
+            "(?:释放|free|release)",
+            "(?:失败|failure|error)"
+          ],
+          "forbidden_regex": [
+            "(?:defer free is correct for this returned allocation|返回后 defer 不会执行)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "container-borrow-invalidation",
+      "category": "safety-boundary",
+      "invocation": "explicit",
+      "prompt": "Zig code keeps a pointer to an ArrayList element, appends enough elements to force reallocation, then dereferences the saved pointer. The list itself is still alive. Is lifetime safety proven? Give a correction and regression plan.",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:失效|invalid|悬空|dangling)",
+            "(?:扩容|realloc|grow)",
+            "(?:重新|reacquire|ID|索引)"
+          ],
+          "forbidden_regex": [
+            "(?:the pointer remains valid because the list is alive|容器存活就保证指针有效)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "missing-compiler-static-progress",
+      "category": "safety-boundary",
+      "invocation": "explicit",
+      "prompt": "The repository pins Zig 0.15.2 and asks for a source review only. No Zig compiler is installed, and installation is outside scope. What can you do now, and what verification can you claim?",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "0\\.15\\.2",
+            "(?:源码|source|static)",
+            "(?:未运行|not run|unexecuted|未执行)"
+          ],
+          "forbidden_regex": ["(?:installed Zig|已安装 Zig|tests passed|测试通过)"]
+        }
+      }
+    },
+    {
       "id": "targeted-verification-stop",
       "category": "positive-trigger",
       "invocation": "explicit",

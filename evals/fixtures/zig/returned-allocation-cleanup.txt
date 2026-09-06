@@ -1,0 +1,1 @@
+The unconditional defer frees the returned storage on success. Use errdefer for construction failure, transfer ownership to the caller on success, and keep defer for temporary resources. Test successful caller use and release plus each allocation failure without leaks or double free.

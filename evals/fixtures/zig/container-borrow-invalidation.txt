@@ -1,0 +1,1 @@
+Reallocation invalidates the saved pointer even while the list is alive. Reacquire the borrow after mutation using a valid index or stable ID, and account for deletion/reordering. Test a forced growth boundary and subsequent access through the corrected ownership path; do not dereference the stale pointer in a passing test.

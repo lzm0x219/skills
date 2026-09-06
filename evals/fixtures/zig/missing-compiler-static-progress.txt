@@ -1,0 +1,1 @@
+Review the source now against Zig 0.15.2 documentation and repository contracts. Compilation and runtime tests are not run. Report source findings and exact follow-up verification commands; no installation or migration is needed for this read-only review.
