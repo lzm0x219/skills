@@ -153,6 +153,38 @@ REQUIRED_CASES_BY_SKILL = {
             "category": "positive-trigger",
             "invocation": "explicit",
         },
+        "cache-byte-budget-and-invalidation": {
+            "category": "correctness-boundary",
+            "invocation": "explicit",
+        },
+        "dependency-cycle-before-execution": {
+            "category": "correctness-boundary",
+            "invocation": "explicit",
+        },
+        "external-memory-exact-dedup": {
+            "category": "resource-boundary",
+            "invocation": "explicit",
+        },
+        "concurrent-bounded-queue": {
+            "category": "correctness-boundary",
+            "invocation": "explicit",
+        },
+        "sliding-window-boundary-counterexample": {
+            "category": "correctness-boundary",
+            "invocation": "explicit",
+        },
+        "score-versus-frequency": {
+            "category": "correctness-boundary",
+            "invocation": "explicit",
+        },
+        "exact-stream-without-storage": {
+            "category": "resource-boundary",
+            "invocation": "explicit",
+        },
+        "benchmark-evidence-boundary": {
+            "category": "verification-boundary",
+            "invocation": "explicit",
+        },
     },
     "durable-execution-state": {
         "short-stateless-no-trigger": {

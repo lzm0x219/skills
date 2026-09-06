@@ -17,7 +17,7 @@
 | 有序遍历或范围查询         | Sorted array 或数据库索引           | Balanced tree 或 B-tree                   |
 | 重复取最小／最大值         | Heap                                | Balanced tree 或 bucket queue             |
 | 高频优先级更新或取消       | Heap 加 key map                     | Indexed heap 或 balanced tree             |
-| Top-K 获取                 | 大小为 K 的 heap                    | Quickselect、bucketing 或数据库聚合       |
+| 按分数取 Top-K（无过期）   | 大小为 K 的 heap                    | 可变批量数据用 Quickselect；数据库排序    |
 | 前缀搜索                   | Sorted array                        | Trie 或数据库文本索引                     |
 | 固定且稠密的关系           | Matrix 或预计算表                   | Bitset rows                               |
 | 稀疏且动态的关系           | Adjacency list                      | 专用图索引                                |
@@ -44,6 +44,8 @@
 - 只有能证明重叠子问题和可复用状态定义时，才使用动态规划。
 - 只有能论证局部最优性质时，才使用贪心算法。
 - cache 只用于键稳定、失效策略可接受、内存有界且复用率可信的情况。
+
+缓存、依赖、外存、并发与窗口 Top-K 的具体正确性条件见 [场景检查](scenario-checks.md)。按分数取记录与按频次取热门键是不同问题；有过期或删除时，先证明被丢弃数据不会再影响答案。
 
 ## 非渐近检查
 

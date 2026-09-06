@@ -1,7 +1,7 @@
-There are two viable directions for Top-K.
+Two viable Top-K designs differ in window semantics and maintenance cost.
 
-Option 1 is an exact sliding window: store records in time buckets, maintain a min-heap of capacity 100 per bucket, and merge active buckets on query. Writes are O(log 100). Memory has a clear upper bound, but late events, bucket rotation, and score ties need handling; if it depends on a database or disk-backed external state, I/O and operations cost are higher.
+An exact sliding window stores records in a database or disk-backed external state. Filter by the precise time interval, scan the matching N records and use a min-heap: O(N log K) query time and O(K) selection memory. RAM stays bounded with limited buffers; retained data and indexes still require storage. A score index can reduce query work for some workloads but increases write and operations cost.
 
-Option 2 is a Space-Saving approximate sketch: writes and memory are more stable and implementation complexity is lower, but results allow error. If the product must return exact records, recommend the exact option; if quantifiable error is acceptable and throughput comes first, the approximate option is better.
+A bucket summary stores each minute's highest-scoring K records. It can answer windows made of complete buckets, but a partial boundary bucket loses candidates when earlier, higher-scoring records expire. An exact arbitrary window must retain raw boundary data or equivalent exact state. A minute-aligned query is a product-semantic change, not a frequency sketch.
 
-Before continuing to implementation, you need to decide whether the result semantics allow approximation error.
+Recommend the exact external-state baseline if precise rolling windows are required. If minute-aligned windows are acceptable and query cost dominates, bounded bucket summaries may be better. You need to decide whether that window semantic change is acceptable; keep implementation pending that decision. Verify expiration, ties, late events and memory limits against a full-sort baseline.

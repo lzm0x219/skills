@@ -1,0 +1,2 @@
+These constraints cannot all hold. Exact membership state must distinguish an unbounded number of distinct keys, so its required storage can grow beyond fixed RAM; arbitrary key lengths add another bound violation.
+Possible changes are an upper bound on distinct keys and key length, a finite window instead of all history, or disk/external storage. Approximate membership permits false positives and would lose first occurrences, so it requires an explicit semantic change. Do not silently choose it.

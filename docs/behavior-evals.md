@@ -152,6 +152,14 @@ The dated five-stack evidence, platform limits, and tool side effects are record
 - Routine CRUD does not force multi-option comparison
 - Material Top-K decisions compare options and wait for a choice when unauthorized
 - Delegated user choices do not pause for option selection
+- Score ranking stays distinct from frequency estimation; partial-window expiration includes a concrete lost-candidate counterexample
+- Cache decisions separate byte capacity, TTL, same-key loading and invalidation races
+- Dependency graphs validate missing nodes, duplicate edges and cycles before execution, with deterministic ready-task ordering
+- Exact deduplication accounts for external-memory buffers and disk limits; impossible fixed-memory constraints are stated explicitly
+- Concurrent queues protect compound operations and bound both queued and in-flight work
+- Benchmark plans require equivalent results and reproducible conditions without inventing measured gains
+
+These are response contracts. Negative-answer tests and the executable two-record window counterexample strengthen the checks but do not validate production cache, scheduler or storage implementations. See the [optimization record](research/dsa-design-optimization.md) for the sampled live evaluation and its limits.
 
 `durable-execution-state` covers:
 

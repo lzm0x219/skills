@@ -11,7 +11,9 @@
     "required_regex": [
       "先运行适用性门槛",
       "不存在实质性 DSA 选择",
-      "只有用户明确要求编写或修改代码时才实施"
+      "只有用户明确要求编写或修改代码时才实施",
+      "scenario-checks\\.md",
+      "未运行的测试列为计划"
     ],
     "forbidden_regex": [
       "(?i:repolex|analysistarget|analysisoptions|analysisreport|languagestat|resolvedmode)"
@@ -55,12 +57,13 @@
           "required_regex": [
             "Top\\s*-?\\s*(?:K|100)",
             "(?:精确|exact)",
-            "(?:近似|approximate|Space-Saving|Count-Min)",
+            "(?:窗口|window)",
+            "(?:边界|boundary|partial)",
             "O\\(",
             "(?:内存|空间|memory|space).*(?:有界|上限|无界|bound|limit|unbounded)",
             "(?:I/O|IO|disk|database|external state)",
             "(?:维护|实现复杂度|操作|maintain|implementation complexity|operations)",
-            "(?:建议|推荐|recommend|prefer).*(?:精确|近似|exact|approximate|Space-Saving|Count-Min)",
+            "(?:建议|推荐|recommend|prefer)",
             "(?:当|如果|when|if).*(?:更好|优先|反超|切换|better|prefer|overtake|switch)",
             "(?:需要|请|need|please).*(?:决定|选择|decide|choose)|choose.*semantic"
           ],
@@ -75,11 +78,13 @@
       "id": "delegated-choice-no-pause",
       "category": "positive-trigger",
       "invocation": "explicit",
-      "prompt": "设计一个查询：从数千万级事件流中返回最近一小时得分最高的前 100 条记录。在这些约束下选择最合适方案；内部数据结构和算法由你决定。先给出最终设计和验证计划，不给代码，也不要再要求我选择。",
+      "prompt": "设计一个查询：从数千万级事件流中返回任意查询时刻最近一小时得分最高的前 100 条记录，必须精确。RAM 上限 256 MiB，可以使用持久化数据库或磁盘，写入远多于读取。内部数据结构和算法由你决定。先给出最终设计和验证计划，不给代码，也不要再要求我选择。",
       "expected": {
         "assertions": {
           "required_regex": [
-            "(?:Space-Saving|Count-Min|ring bucket|min-?heap)",
+            "(?:数据库|磁盘|database|disk|external)",
+            "(?:精确|exact)",
+            "(?:窗口|window)",
             "O\\(",
             "(?:最终设计|建议|采用|使用|final design|recommend|adopt|use)",
             "(?:内存|空间|memory|space).*(?:有界|上限|bound|limit)",
@@ -90,6 +95,174 @@
             "(?:等待|wait).*(?:决定|选择|decision|choice)",
             "(?:方案|Option)\\s*[123]"
           ]
+        }
+      }
+    },
+    {
+      "id": "cache-byte-budget-and-invalidation",
+      "category": "correctness-boundary",
+      "invocation": "explicit",
+      "prompt": "设计进程内缓存，值从 1 KiB 到 20 MiB 不等，缓存相关内存预算 64 MiB，TTL 5 分钟，多线程回源。产品要求失效后旧加载不能重新写回。只给最终设计和关键验证，不写代码。请解释容量限制与 TTL、超大值、同键并发加载和失效竞争。",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:字节|bytes?)",
+            "TTL",
+            "(?:元数据|metadata|overhead)",
+            "(?:超大|超限|oversiz|too large)",
+            "(?:版本|generation|version|epoch)",
+            "(?:同键|single.?flight|same.?key)",
+            "(?:验证|test|verif)"
+          ],
+          "forbidden_regex": [
+            "^\\s*(?:TTL alone guarantees bounded memory|只靠 TTL 就能保证内存有界)[。.!]?\\s*$"
+          ]
+        }
+      }
+    },
+    {
+      "id": "dependency-cycle-before-execution",
+      "category": "correctness-boundary",
+      "invocation": "explicit",
+      "prompt": "设计任务依赖调度：A depends on B 表示 B 必须先完成；输入可含重复边、缺失任务和环。有环时任何任务都不能执行；无环时每次选就绪任务中字典序最小 ID。请给设计、复杂度和测试，准确区分环中节点与被环阻塞的下游节点。不写代码。",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "B\\s*(?:→|->|先于|before)\\s*A",
+            "(?:缺失|missing)",
+            "(?:重复|duplicate)",
+            "(?:执行前|before.*execut|preflight|先(?:完整|全图)(?:校验|验证|检查)|(?:校验|验证|检查)通过前不执行)",
+            "(?:DFS|强连通|SCC|cycle witness)",
+            "(?:heap|堆|有序)",
+            "O\\(",
+            "(?:log|对数)"
+          ],
+          "forbidden_regex": [
+            "^\\s*(?:全部剩余节点都是环中节点|all remaining nodes are in cycles)[。.!]?\\s*$"
+          ]
+        }
+      }
+    },
+    {
+      "id": "external-memory-exact-dedup",
+      "category": "resource-boundary",
+      "invocation": "explicit",
+      "prompt": "100 GB 文件按完整记录精确去重，RAM 上限 128 MiB，允许临时磁盘，输出不要求原顺序，单条记录最大 1 MiB。零漏项。只给设计和验证计划；说明分块、归并预算、倾斜分区、磁盘不足，以及 Bloom filter 阳性如何处理。",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:外部排序|外排序|external sort|数据库|database)",
+            "(?:归并|merge)",
+            "(?:缓冲|buffer)",
+            "(?:磁盘|disk)",
+            "(?:倾斜|skew)",
+            "(?:精确|exact)",
+            "(?:阳性|positive)",
+            "(?:基线|baseline|oracle)"
+          ],
+          "forbidden_regex": ["^\\s*(?:直接丢弃所有阳性|discard all positives)[。.!]?\\s*$"]
+        }
+      }
+    },
+    {
+      "id": "concurrent-bounded-queue",
+      "category": "correctness-boundary",
+      "invocation": "explicit",
+      "prompt": "已有线程安全 deque。多个生产者先检查 len < 1000 再入队，多个消费者异步处理；有人说 deque 线程安全所以容量不会超限。请审查并给最终改进设计，不写代码。要求排队和在途任务都有内存上限，过载可超时拒绝，取消和关闭必须正常收尾。",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:原子|atomic)",
+            "(?:锁|lock|semaphore|信号量)",
+            "(?:在途|in.flight)",
+            "(?:字节|bytes?|大小|size)",
+            "(?:超时|timeout|time out)",
+            "(?:取消|cancel)",
+            "(?:关闭|shutdown|close)",
+            "(?:交错|interleav|竞争|race)"
+          ],
+          "forbidden_regex": [
+            "^\\s*(?:deque 线程安全所以容量不会超限|thread-safe deque guarantees capacity)[。.!]?\\s*$"
+          ]
+        }
+      }
+    },
+    {
+      "id": "sliding-window-boundary-counterexample",
+      "category": "correctness-boundary",
+      "invocation": "explicit",
+      "prompt": "审查精确滚动窗口 Top-1：每分钟只保留最高分记录，查询时合并最近一小时的桶。窗口为 (now-3600s, now]。同一分钟有 A=(t=0s,score=10)、B=(t=30s,score=9)，其余没有记录。now=3601s 时正确答案是什么？该方案是否精确，如何修正和验证？只给设计。",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:正确答案|答案|answer|result)(?:\\s|[*`：:=]|is|为|是){0,20}B\\b",
+            "\\bA\\b(?:\\s|[*`：:]|已|已经){0,10}(?:过期|expired)",
+            "(?:丢失|丢弃|discard|lost|不可恢复|无法恢复|未保留)",
+            "(?:边界|boundary|partial)",
+            "(?:原始记录|完整记录|raw records|all records)",
+            "(?:全量排序|full sort|baseline|基线)"
+          ],
+          "forbidden_regex": ["(?:该方案精确无误|this scheme is exact)"]
+        }
+      }
+    },
+    {
+      "id": "score-versus-frequency",
+      "category": "correctness-boundary",
+      "invocation": "explicit",
+      "prompt": "只处理一批不可变记录、没有时间窗口，找 score 最大的 10 条，不是找出现次数最多的 key。有人建议用 Count-Min Sketch 或 Space-Saving，是否适合？给一个最简单精确方案、复杂度和理由，不给代码。",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:频次|频率|frequency|frequent)",
+            "(?:得分|分数|score)",
+            "(?:min.heap|最小堆|小顶堆)",
+            "O\\(",
+            "(?:精确|exact)"
+          ],
+          "forbidden_regex": ["^\\s*(?:采用|推荐|use|recommend)\\s+(?:Count-Min|Space-Saving)"]
+        }
+      }
+    },
+    {
+      "id": "exact-stream-without-storage",
+      "category": "resource-boundary",
+      "invocation": "explicit",
+      "prompt": "对无限长度、任意长的新 key 流做全历史精确去重：仅 64 MiB RAM，不允许磁盘、数据库或其他外部存储，每条首次出现的 key 都必须输出，重复的必须丢弃。请判断能否满足，给出需要改变的约束；不要自行改成近似语义，也不写代码。",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:不能|无法|不可能|impossible|cannot)",
+            "(?:唯一|distinct|unique)",
+            "(?:增长|grow|unbounded|无界)",
+            "(?:外部存储|磁盘|external storage|disk)",
+            "(?:窗口|window|上限|bound)",
+            "(?:误判|false positive|近似|approximate)"
+          ],
+          "forbidden_regex": ["(?:Bloom filter 保证精确|Bloom filter guarantees exact)"]
+        }
+      }
+    },
+    {
+      "id": "benchmark-evidence-boundary",
+      "category": "verification-boundary",
+      "invocation": "explicit",
+      "prompt": "当前线性扫描是否要改成哈希索引？已知有 100 到 100000 条记录、读写混合，尚无性能测量。只给选择原则与可复现验证计划；你现在不能运行代码。请覆盖结果等价、输入分布、更新开销、median/P95 和峰值内存，不要把理论复杂度当实测收益。",
+      "expected": {
+        "assertions": {
+          "required_regex": [
+            "(?:基线|baseline)",
+            "(?:等价|equival|差分|differential)",
+            "(?:分布|distribution)",
+            "(?:预热|warm)",
+            "(?:重复|repeat)",
+            "(?:运行时|runtime|硬件|hardware)",
+            "(?:median|中位)",
+            "P95",
+            "(?:峰值内存|peak memory)",
+            "(?:未运行|未测量|not run|not measured|unmeasured)"
+          ],
+          "forbidden_regex": ["(?:实测提升|measured speedup|benchmarks show)"]
         }
       }
     }

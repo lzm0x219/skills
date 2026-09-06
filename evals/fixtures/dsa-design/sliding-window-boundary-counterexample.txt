@@ -1,0 +1,2 @@
+The correct answer is B. At now=3601 the lower boundary is 1s: A expired, while B at 30s remains valid. The bucket retained only A and discarded B, so filtering A cannot recover the answer.
+Keep raw records or equivalent exact state for the partial boundary bucket, or use an external exact store and precise time filtering. Complete bucket summaries alone do not satisfy arbitrary rolling windows. Verify expiration and ties against a full sort baseline after filtering the same interval.
