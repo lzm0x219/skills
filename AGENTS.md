@@ -40,6 +40,10 @@ Pull Request 应说明受影响的 Skill 或工具、用户可见行为和已运
 
 ## Agent Skills
 
+### Skill 行为维护
+
+新增或修改 Skill 指令、阶段门、工具路由或输出契约时，读取 [Skill 编写约定](docs/agents/skill-authoring.md)，同步检查入口与 references 中的适用条件。
+
 ### Issue tracker
 
 Issue 和规格使用本仓库 GitHub Issues 跟踪。参见 `docs/agents/issue-tracker.md`。
