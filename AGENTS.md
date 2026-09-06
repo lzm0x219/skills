@@ -22,7 +22,7 @@ python3 scripts/run_behavior_evals.py \
   --skill dsa-design --answers evals/fixtures/dsa-design
 ```
 
-`oxfmt .` 使用 Oxc 格式化支持的文件；`oxfmt --check .` 在不写入时验证格式。将 `dsa-design` 换成改动的 Skill。行为命令未传 `--answers` 时会调用已认证的 Codex 服务。只在刷新官方文档覆盖率时，使用 `README.md` 记录的 Skill 专用 Node.js 清单脚本。
+`oxfmt .` 使用 Oxc 格式化支持的文件；`oxfmt --check .` 在不写入时验证格式。将 `dsa-design` 换成改动的 Skill。行为命令未传 `--answers` 时会调用已认证的 Codex 服务。只在刷新官方文档覆盖率时，使用 [维护说明](docs/usage-and-maintenance.md#官方文档与发行检查) 记录的 Skill 专用 Node.js 清单脚本。
 
 ## 编码风格与命名
 
