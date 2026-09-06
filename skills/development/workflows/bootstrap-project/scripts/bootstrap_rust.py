@@ -18,6 +18,7 @@ from bootstrap_zig import (
     render_text,
     run_command,
     write_report,
+    report_path_error,
 )
 
 
@@ -564,9 +565,9 @@ def bootstrap_existing(options: argparse.Namespace, report: dict[str, Any]) -> N
 def main() -> int:
     options = parse_args()
     target = options.target.expanduser().absolute().resolve(strict=False)
-    report_path = options.report.expanduser().absolute().resolve(strict=False)
-    if report_path == target or target in report_path.parents:
-        print("--report must be outside the target", file=sys.stderr)
+    report_error = report_path_error(options.report, target)
+    if report_error:
+        print(report_error, file=sys.stderr)
         return 2
     report: dict[str, Any] = {
         "schema_version": 1,

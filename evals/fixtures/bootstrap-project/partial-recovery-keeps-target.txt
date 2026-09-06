@@ -1,0 +1,1 @@
+Status: partial. Preserve the files and old report, inspect the failed command, recover the hook step and then run the remaining CI gates. The original new-project adapter needs an empty directory; do not rerun it blindly on partial output. Hook success alone is insufficient.

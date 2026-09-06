@@ -1,0 +1,1 @@
+Preserve the existing report and evidence. Choose a new report path outside the target, then run the adapter.

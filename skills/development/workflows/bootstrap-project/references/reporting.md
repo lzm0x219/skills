@@ -21,7 +21,7 @@
 - 新建模式不创建 Git commit；已有模式保留选定参考承诺保留的每个文件；
 - caches 与 build artifacts 保持未跟踪，而预期副作用被准确报告。
 
-在 `partial` 时，保留证据、报告恢复步骤，并将清理留给用户。在 `blocked` 时，区分 inspection 和 execution。失败或未运行的质量门不能产生 `completed`。
+在 `partial` 时，按入口的恢复规则保留证据、报告恢复步骤，并将清理留给用户。重新运行单个失败命令成功，不代表其后的 lock、hook 或 CI 步骤已完成；逐项核对剩余完成门，并把恢复证据写入新报告。在 `blocked` 时，区分 inspection 和 execution。失败或未运行的质量门不能产生 `completed`。
 
 ## 返回结果
 

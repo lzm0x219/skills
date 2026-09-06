@@ -348,21 +348,29 @@ def initialize(options: argparse.Namespace, report: dict[str, Any]) -> None:
     )
 
 
+def report_path_error(path: Path, target: Path) -> str | None:
+    path = path.expanduser().absolute()
+    if path.exists() or path.is_symlink():
+        return "--report must use a new path; preserve existing reports and files"
+    resolved = path.resolve(strict=False)
+    if resolved == target or target in resolved.parents:
+        return "--report must be outside the target directory"
+    return None
+
+
 def write_report(path: Path, report: dict[str, Any]) -> None:
-    path = path.expanduser().resolve()
+    path = path.expanduser().absolute()
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    with path.open("x", encoding="utf-8") as stream:
+        stream.write(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
 
 
 def main() -> int:
     options = parse_args()
     target = options.target.expanduser().absolute().resolve(strict=False)
-    report_path = options.report.expanduser().absolute().resolve(strict=False)
-    if report_path == target or target in report_path.parents:
-        print("--report must be outside the target directory", file=sys.stderr)
+    report_error = report_path_error(options.report, target)
+    if report_error:
+        print(report_error, file=sys.stderr)
         return 2
     report: dict[str, Any] = {
         "schema_version": 1,
