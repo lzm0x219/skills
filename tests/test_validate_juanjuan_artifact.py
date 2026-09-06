@@ -24,6 +24,70 @@ VALIDATOR = (
 
 
 class ValidateJuanjuanArtifactTest(unittest.TestCase):
+    def test_truncated_or_corrupt_png_fails(self) -> None:
+        for mutation in ("header-only", "missing-iend", "bad-crc", "trailing-data", "missing-idat"):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as directory:
+                image = Path(directory) / "image.png"
+                self.write_png(image, width=160, height=90)
+                self.write_record(image.with_suffix(".prompt.md"), image)
+                data = image.read_bytes()
+                if mutation == "header-only":
+                    data = data[:24]
+                elif mutation == "missing-iend":
+                    data = data[:-12]
+                elif mutation == "bad-crc":
+                    data = data[:29] + bytes([data[29] ^ 1]) + data[30:]
+                elif mutation == "trailing-data":
+                    data += b"unexpected"
+                else:
+                    data = data[:33] + data[-12:]
+                image.write_bytes(data)
+                result = self.run_validator(image)
+                self.assertEqual(1, result.returncode, result.stdout + result.stderr)
+                self.assertIn("FAIL", result.stdout)
+
+    def test_nonfinite_or_negative_tolerance_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            image = Path(directory) / "image.png"
+            self.write_png(image, width=120, height=90)
+            self.write_record(image.with_suffix(".prompt.md"), image)
+            for value in ("nan", "inf", "-0.01"):
+                with self.subTest(value=value):
+                    result = subprocess.run(
+                        [sys.executable, str(VALIDATOR), str(image), "--tolerance", value],
+                        capture_output=True, text=True, check=False,
+                    )
+                    self.assertEqual(2, result.returncode)
+                    self.assertIn("tolerance", result.stderr)
+
+    def test_consecutive_split_idat_chunks_pass(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            image = Path(directory) / "image.png"
+            self.write_png(image, width=160, height=90)
+            self.write_record(image.with_suffix(".prompt.md"), image)
+            data = image.read_bytes()
+            payload = data[41:-16]
+            chunks = []
+            for part in (payload[:3], payload[3:]):
+                chunks.append(
+                    struct.pack(">I", len(part)) + b"IDAT" + part
+                    + struct.pack(">I", binascii.crc32(b"IDAT" + part) & 0xFFFFFFFF)
+                )
+            image.write_bytes(data[:33] + b"".join(chunks) + data[-12:])
+            result = self.run_validator(image)
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def test_empty_prompt_section_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            image = Path(directory) / "image.png"
+            record = image.with_suffix(".prompt.md")
+            self.write_png(image, width=160, height=90)
+            self.write_record(record, image)
+            record.write_text(record.read_text().replace("Test prompt\n", ""), encoding="utf-8")
+            result = self.run_validator(image)
+            self.assertEqual(1, result.returncode, result.stdout + result.stderr)
+            self.assertIn("最终提示词", result.stdout)
+
     def test_valid_png_and_prompt_record_pass(self) -> None:
         with tempfile.TemporaryDirectory(prefix="juanjuan-artifact-test-") as directory:
             directory_path = Path(directory)

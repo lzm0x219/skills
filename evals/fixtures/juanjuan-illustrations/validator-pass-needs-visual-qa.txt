@@ -1,0 +1,1 @@
+It is not ready. Open and decode the actual final image, then inspect identity, action, source relationships and exact text. The validator checks PNG chunk framing, CRC, ratio and record fields; it neither validates pixel decoding nor proves visual QA. Update the record only after those checks.

@@ -1,0 +1,1 @@
+Inspect the existing image as the edit target and the character reference as identity guidance. Reuse its source card and fix only the exact label, preserving pose, objects, composition and other text. Save a new version and prompt record, compare before and after, and do not generate in this planning-only evaluation.

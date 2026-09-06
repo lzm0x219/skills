@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import binascii
+import math
 from pathlib import Path
 import re
 import struct
@@ -46,18 +48,66 @@ def parse_args() -> argparse.Namespace:
         default=0.01,
         help="maximum relative aspect-ratio error (default: 0.01)",
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    if not math.isfinite(args.tolerance) or args.tolerance < 0:
+        parser.error("--tolerance must be finite and non-negative")
+    return args
 
 
 def png_dimensions(path: Path) -> tuple[int, int]:
+    """Check chunk framing and CRCs; pixel decoding remains a separate check."""
     with path.open("rb") as image_file:
-        header = image_file.read(24)
-    if len(header) < 24 or header[:8] != PNG_SIGNATURE or header[12:16] != b"IHDR":
-        raise ValueError("not a PNG with an IHDR header")
-    width, height = struct.unpack(">II", header[16:24])
-    if width == 0 or height == 0:
-        raise ValueError("PNG dimensions must be positive")
-    return width, height
+        if image_file.read(8) != PNG_SIGNATURE:
+            raise ValueError("not a PNG signature")
+        dimensions = None
+        idat_bytes = 0
+        idat_ended = False
+        while True:
+            chunk_header = image_file.read(8)
+            if len(chunk_header) != 8:
+                raise ValueError("truncated PNG or missing IEND")
+            length, kind = struct.unpack(">I4s", chunk_header)
+            if length > 0x7FFFFFFF:
+                raise ValueError("invalid PNG chunk length")
+            if dimensions is None and (kind != b"IHDR" or length != 13):
+                raise ValueError("PNG must begin with a 13-byte IHDR")
+            if dimensions is not None and kind == b"IHDR":
+                raise ValueError("duplicate PNG IHDR")
+            checksum = binascii.crc32(kind)
+            remaining = length
+            header = b""
+            while remaining:
+                # Do not allocate from an untrusted chunk length.
+                data = image_file.read(min(remaining, 65536))
+                if not data:
+                    raise ValueError("truncated PNG chunk")
+                checksum = binascii.crc32(data, checksum)
+                remaining -= len(data)
+                if kind == b"IHDR":
+                    header += data
+            stored_crc = image_file.read(4)
+            if len(stored_crc) != 4 or struct.unpack(">I", stored_crc)[0] != checksum & 0xFFFFFFFF:
+                raise ValueError("invalid PNG chunk CRC")
+            if kind == b"IHDR":
+                width, height, depth, color, compression, filtering, interlace = struct.unpack(
+                    ">IIBBBBB", header
+                )
+                depths = {0: (1, 2, 4, 8, 16), 2: (8, 16), 3: (1, 2, 4, 8), 4: (8, 16), 6: (8, 16)}
+                if not (0 < width <= 0x7FFFFFFF and 0 < height <= 0x7FFFFFFF):
+                    raise ValueError("PNG dimensions must be positive 31-bit integers")
+                if depth not in depths.get(color, ()) or compression != 0 or filtering != 0 or interlace not in (0, 1):
+                    raise ValueError("invalid PNG IHDR fields")
+                dimensions = (width, height)
+            elif kind == b"IDAT":
+                if idat_ended:
+                    raise ValueError("PNG IDAT chunks must be consecutive")
+                idat_bytes += length
+            elif kind == b"IEND":
+                if length or not idat_bytes or image_file.read(1):
+                    raise ValueError("PNG requires image data and a final empty IEND")
+                return dimensions
+            elif idat_bytes:
+                idat_ended = True
 
 
 def markdown_section(record: str, title: str) -> str | None:
@@ -80,6 +130,8 @@ def validate_prompt_record(record_path: Path, image_path: Path) -> list[str]:
         content = markdown_section(record, section)
         if content is None:
             errors.append(f"prompt record is missing section: {section}")
+        elif not content.strip():
+            errors.append(f"prompt record section is empty: {section}")
         else:
             sections[section] = content
 
