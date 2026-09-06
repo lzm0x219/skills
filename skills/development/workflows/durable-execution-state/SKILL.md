@@ -30,6 +30,8 @@ description: 为需要跨上下文压缩、恢复或交接的长程任务维护�
 
 调用本 Skill 目录下的 `scripts/statectl.py`，通过 `init` 创建 SQLite 存储。Agent 只读取生成的 `state.snapshot.json`；该状态存储的所有写入都通过 `statectl.py` 完成。
 
+首次接入、需要可运行示例或宿主能力不清时，读取 [宿主接入与恢复](references/host-integration.md)。普通状态维护不要求授权验证器；只有真实外部动作才进入第 4 步的验证器门槛。初始化已固定的目标、完成条件或约束若发生实质变化，按接入说明交接到关联新任务，不能手改存储。
+
 `verify` 只检查数据库、snapshot、版本和 pending action 的内部一致性，不访问外部证据。完成条件：`verify` 成功，且已另外确认 snapshot 中的目标、完成条件和约束与当前请求一致。
 
 ## 3. 维护有界观察
@@ -44,9 +46,11 @@ description: 为需要跨上下文压缩、恢复或交接的长程任务维护�
 
 首次执行有副作用的动作前，完整读取 [状态转换协议](references/transition-protocol.md)。先取得真实授权引用；宿主必须在模型不可修改的信任域中选择并固定验证器，再调用 `begin-action`。CLI 对路径和权限的检查不是信任根。没有宿主固定的验证器时停止外部动作，报告缺少可信验证能力并请求宿主配置。已有用户授权不能替代验证器；仅缺少授权本身时才请求授权，继续不依赖该阻塞的准备工作。
 
-`--allow-reference-authorization` 仅用于不会调用外部副作用的演练或隔离测试；它会把授权明确记录为 `reference-only`，不能作为生产授权。随后执行工具，并使用权威回执调用 `resolve-action`；只有已观察到的效果才能写入确认事实。
+`--allow-reference-authorization` 仅用于不会调用外部副作用的演练或隔离测试；它会把授权明确记录为 `reference-only`，不能作为生产授权。真实动作只有通过宿主门槛后才能执行工具，并使用权威回执调用 `resolve-action`；演练只能使用标明模拟来源的回执。只有已观察到的效果才能写入确认事实。
 
 失败或部分成功时记录真实结果，并选择明确的重试、补偿或升级路径。本地协议只去重动作登记；真实副作用必须由外部系统接受同一幂等键，或由宿主 outbox/executor 保证。结果未知且缺少该保证时先对账，不盲目重试。状态冲突或无效补丁只做有界重试；重复失败后改用确定性替代或请求用户输入。
+
+`reused=true` 只表示找到原登记，不是再次派发指令；pending 先对账，已确认或失败的动作复用终态结果。真正派发前仍由宿主核验授权未被撤销且仍适用。
 
 完成条件：真实副作用具有 `trusted-verifier` 授权记录和权威回执；确定结果已转为 confirmed 或 failed，部分或未知结果仍明确保持 pending；状态与环境一致。
 
@@ -57,6 +61,8 @@ description: 为需要跨上下文压缩、恢复或交接的长程任务维护�
 若用户只要求说明恢复顺序，必须明确这是未执行的顺序，不得声称已经运行 `show`、`verify` 或测试。
 
 多 Agent、版本冲突、工具超时、部分成功或迟到回执按 [状态转换协议](references/transition-protocol.md) 处理。
+
+命令报错后先区分提交前与提交后失败：核对当前版本和实际效果，再决定是否重试。snapshot 可重建；事件账本与数据库不一致时停止依赖该状态的写入并诊断，不用旧快照覆盖权威存储。
 
 完成条件：当前 snapshot 通过验证，所有漂移事实均已确认或明确标为 blocker/hypothesis。
 
@@ -73,5 +79,7 @@ description: 为需要跨上下文压缩、恢复或交接的长程任务维护�
 - [状态模型](references/state-model.md)：首次初始化、设计字段、状态超限或事实/假设边界不清时读取。
 - [状态转换协议](references/transition-protocol.md)：副作用、恢复、冲突、并发或部分失败时读取。
 - [评测协议](references/evaluation.md)：基准测试、回归评测或声称长程收益时读取。
+- [宿主接入与恢复](references/host-integration.md)：首次接入、验证器配置、无副作用演练与恢复故障分流。
+- `scripts/rehearse_recovery.py`：临时目录内的离线协议演练；不执行真实外部动作，不验证生产信任根。
 - `references/schemas/`：集成其他运行时或检查 JSON 接口时使用。
 - `scripts/statectl.py`：稳定 CLI 和状态存储的唯一写入口；内部 `statectl_runtime/` 模块不是 Agent 调用接口。运行 `--help` 查看当前命令。

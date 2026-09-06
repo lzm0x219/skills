@@ -21,6 +21,12 @@ STATECTL = (
     / "scripts"
     / "statectl.py"
 )
+sys.path.insert(0, str(STATECTL.parent))
+from statectl_runtime.authorization import (  # noqa: E402
+    reference_authorization,
+    validate_recorded_authorization,
+)
+from statectl_runtime.errors import StateError  # noqa: E402
 
 
 class DurableExecutionStateAuthorizationTest(unittest.TestCase):
@@ -231,6 +237,105 @@ print(json.dumps({
             "reference-only authorization does not authorize external execution",
             completed.stderr,
         )
+
+    def test_unicode_authorization_reference_survives_begin_and_replay(self) -> None:
+        action = self.write_json(
+            "unicode-action.json",
+            {
+                "idempotency_key": "演练:发布一",
+                "tool": "rehearsal",
+                "args": {"名称": "样例"},
+                "authorization_ref": "approval://用户/确认一",
+                "preconditions": [],
+            },
+        )
+        verifier = self.write_verifier(
+            "unicode-verifier.py",
+            """
+payload = json.load(sys.stdin)
+print(json.dumps({
+    "authorized": True,
+    "authorization_ref": payload["request"]["authorization_ref"],
+    "request_sha256": payload["request_sha256"],
+    "verifier_ref": "host-policy://test-only",
+    "verified_at": "2026-09-01T00:00:00Z"
+}))
+""",
+        )
+        self.run_statectl(
+            "begin-action", "--store", str(self.store), "--expected-version", "0",
+            "--action-file", str(action), "--authorization-verifier", str(verifier),
+        )
+        self.assertTrue(self.run_statectl("verify", "--store", str(self.store))["verified"])
+
+    def test_missing_verifier_field_with_optional_expiry_is_cleanly_rejected(self) -> None:
+        action = self.write_json(
+            "missing-field-action.json",
+            {
+                "idempotency_key": "rehearsal:missing-field",
+                "tool": "rehearsal", "args": {},
+                "authorization_ref": "approval://test", "preconditions": [],
+            },
+        )
+        for missing in (
+            "authorized", "authorization_ref", "request_sha256", "verifier_ref", "verified_at"
+        ):
+            with self.subTest(missing=missing):
+                verifier = self.write_verifier(
+                    "missing-field-verifier.py",
+                    """
+payload = json.load(sys.stdin)
+response = {
+    "authorized": True,
+    "authorization_ref": payload["request"]["authorization_ref"],
+    "request_sha256": payload["request_sha256"],
+    "verifier_ref": "host-policy://test-only",
+    "verified_at": "2026-09-01T00:00:00Z",
+    "expires_at": "2099-09-01T00:00:00Z"
+}
+""" + f"del response[{missing!r}]\nprint(json.dumps(response))\n",
+                )
+                result = self.run_statectl_raw(
+                    "begin-action", "--store", str(self.store), "--expected-version", "0",
+                    "--action-file", str(action), "--authorization-verifier", str(verifier),
+                )
+                self.assertEqual(2, result.returncode, result.stderr)
+                self.assertIn("response keys must include", result.stderr)
+                self.assertNotIn("Traceback", result.stderr)
+                state = self.run_statectl("show", "--store", str(self.store))
+                self.assertEqual(0, state["state_version"])
+                self.assertEqual({}, state["pending_actions"])
+
+    def test_recorded_proof_requires_every_field_even_with_expiry(self) -> None:
+        request = {
+            "idempotency_key": "演练", "tool": "rehearsal", "args": {},
+            "authorization_ref": "授权://测试", "preconditions": [],
+        }
+        proof = reference_authorization(request)
+        proof["expires_at"] = "2099-09-01T00:00:00Z"
+        self.assertEqual(proof, validate_recorded_authorization(proof, request))
+        for missing in set(proof) - {"expires_at"}:
+            with self.subTest(missing=missing):
+                malformed = {key: value for key, value in proof.items() if key != missing}
+                with self.assertRaisesRegex(StateError, "keys must include"):
+                    validate_recorded_authorization(malformed, request)
+        with self.assertRaisesRegex(StateError, "mode is invalid"):
+            validate_recorded_authorization({**proof, "mode": []}, request)
+
+    def test_verifier_invalid_utf8_is_cleanly_rejected(self) -> None:
+        action = self.write_json("invalid-utf8-action.json", {
+            "idempotency_key": "rehearsal:utf8", "tool": "rehearsal", "args": {},
+            "authorization_ref": "approval://test", "preconditions": [],
+        })
+        verifier = self.write_verifier("invalid-utf8-verifier.py", "sys.stdout.buffer.write(bytes([255]))\n")
+        result = self.run_statectl_raw(
+            "begin-action", "--store", str(self.store), "--expected-version", "0",
+            "--action-file", str(action), "--authorization-verifier", str(verifier),
+        )
+        self.assertEqual(2, result.returncode, result.stderr)
+        self.assertIn("response must be UTF-8", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+        self.assertEqual({}, self.run_statectl("show", "--store", str(self.store))["pending_actions"])
 
     def test_cli_states_that_a_verifier_path_is_not_a_host_trust_boundary(self) -> None:
         completed = self.run_statectl_raw("begin-action", "--help")

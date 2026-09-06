@@ -168,7 +168,13 @@ These are response contracts. Negative-answer tests and the executable two-recor
 - Side effects use pending state, idempotency keys, authoritative receipts, and reconciliation
 - Recovery rechecks drifting Git and test facts rather than trusting snapshots
 - Completion rejects pending actions and missing evidence
+- Ordinary state maintenance works without an external-action verifier; a model-created verifier cannot establish host trust
+- Reused pending actions require reconciliation rather than redispatch, and postcommit failures preserve committed state
+- Internal verification does not prove external evidence; changed objectives require a linked handoff without clearing unresolved actions
+- Local rehearsal timings and bounded state do not establish model token or long-horizon success improvements
 - An isolated workspace case initializes SQLite state, applies one patch, and verifies the event-replayed result; this checks paths written by a live model run, not external evidence validity
+
+The packaged `rehearse_recovery.py` exercises disposable local recovery through the public CLI. The approval-file verifier example is tested against exact requests and invalid approvals; its deployment still requires host-controlled trust boundaries. See the [host integration guide](../skills/development/workflows/durable-execution-state/references/host-integration.md).
 
 `china-commerce-asset-pack` covers:
 

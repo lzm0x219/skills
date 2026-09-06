@@ -17,6 +17,8 @@
 
 重复提交同一幂等键和相同请求时先返回原动作，不重新要求授权或创建登记；相同幂等键配不同请求时拒绝。这个约束只保证本地登记去重：执行器必须把同一幂等键传给支持幂等的外部系统，或通过宿主 outbox 把一次登记对应到至多一次派发。两者都没有时，不得声称 exactly-once；意图中的效果在权威回执出现前保持 pending/unknown。
 
+`reused=true` 无论原状态为 pending、confirmed 或 failed，都不是新的派发许可。先查询原动作与外部结果；当前授权已撤销或过期时，宿主不能仅凭旧登记执行尚未派发的动作。
+
 动作请求中的 `preconditions` 使用可判定 JSON Pointer 条件，operator 仅为 `exists`、`absent`、`equals` 或 `not_equals`。`authorization_ref` 必须指向真实用户授权或既有策略；不得由模型虚构。
 
 ```json
@@ -46,7 +48,13 @@
 
 ```json
 {
-  "request": { "tool": "deploy", "args": {} },
+  "request": {
+    "idempotency_key": "deploy:release-1",
+    "tool": "deploy",
+    "args": { "release": "1" },
+    "authorization_ref": "user-request://turn-42",
+    "preconditions": [{ "path": "/completion_evidence/tests-pass", "operator": "exists" }]
+  },
   "request_sha256": "sha256-of-canonical-request"
 }
 ```
@@ -56,7 +64,7 @@
 ```json
 {
   "authorized": true,
-  "authorization_ref": "approval://release-1",
+  "authorization_ref": "user-request://turn-42",
   "request_sha256": "sha256-of-canonical-request",
   "verifier_ref": "host-policy://production-release/v3",
   "verified_at": "2026-09-01T00:00:00Z",
@@ -67,6 +75,8 @@
 `expires_at` 可省略；提供时必须晚于验证时间且在验证时尚未过期。运行时要求授权引用和请求 hash 精确匹配，并把证明写入 pending action 与事件账本。验证器必须由宿主选择并固定在模型不可修改的信任域；模型自行创建、修改或选择的程序不构成可信授权。CLI 只执行防误配检查，不能判断调用者是否真正处于该信任域。
 
 `--allow-reference-authorization` 是显式降级，只允许不会实际调用外部动作的演练或隔离测试。它记录 `reference-only` 与 `unverified://explicit-downgrade`；一旦选择该模式，后续执行器也必须保持无副作用，不能用它绕过生产授权。
+
+可运行的批准文件验证器、固定参数 wrapper 和恢复演练见 [宿主接入与恢复](host-integration.md)。验证器输入／输出采用 UTF-8；中文授权引用参与完整请求 hash 与精确匹配，不需要改为英文。
 
 ## 并发和恢复
 

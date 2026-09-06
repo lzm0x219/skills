@@ -52,21 +52,23 @@ def validate_recorded_authorization(
         "verified_at",
     }
     allowed_keys = required_keys | {"expires_at"}
-    if set(value) < required_keys or not set(value) <= allowed_keys:
+    if not required_keys <= set(value) or not set(value) <= allowed_keys:
         raise StateError(
             "authorization verification keys must include "
             f"{sorted(required_keys)} and optional expires_at"
         )
-    if value["mode"] not in {"trusted-verifier", "reference-only"}:
+    if not isinstance(value["mode"], str) or value["mode"] not in {
+        "trusted-verifier", "reference-only"
+    }:
         raise StateError("authorization verification mode is invalid")
     authorization_ref = value["authorization_ref"]
     if not isinstance(authorization_ref, str) or not hmac.compare_digest(
-        authorization_ref, request["authorization_ref"]
+        authorization_ref.encode("utf-8"), request["authorization_ref"].encode("utf-8")
     ):
         raise StateError("authorization reference does not match the request")
     digest = value["request_sha256"]
     if not isinstance(digest, str) or not hmac.compare_digest(
-        digest, request_sha256(request)
+        digest.encode("utf-8"), request_sha256(request).encode("utf-8")
     ):
         raise StateError("authorization request hash does not match")
     verifier_ref = value["verifier_ref"]
@@ -119,7 +121,7 @@ def _parse_verifier_response(
     if not isinstance(response, dict):
         raise StateError("authorization verifier response must be an object")
     allowed_keys = VERIFIER_RESPONSE_KEYS | {"expires_at"}
-    if set(response) < VERIFIER_RESPONSE_KEYS or not set(response) <= allowed_keys:
+    if not VERIFIER_RESPONSE_KEYS <= set(response) or not set(response) <= allowed_keys:
         raise StateError(
             "authorization verifier response keys must include "
             f"{sorted(VERIFIER_RESPONSE_KEYS)} and optional expires_at"
@@ -129,12 +131,14 @@ def _parse_verifier_response(
     authorization_ref = response["authorization_ref"]
     if not isinstance(authorization_ref, str):
         raise StateError("authorization verifier authorization_ref must be a string")
-    if not hmac.compare_digest(authorization_ref, request["authorization_ref"]):
+    if not hmac.compare_digest(
+        authorization_ref.encode("utf-8"), request["authorization_ref"].encode("utf-8")
+    ):
         raise StateError("authorization reference does not match the request")
     response_digest = response["request_sha256"]
     if not isinstance(response_digest, str):
         raise StateError("authorization verifier request_sha256 must be a string")
-    if not hmac.compare_digest(response_digest, digest):
+    if not hmac.compare_digest(response_digest.encode("utf-8"), digest.encode("utf-8")):
         raise StateError("authorization verifier request hash does not match")
     verifier_ref = response["verifier_ref"]
     if not isinstance(verifier_ref, str) or not verifier_ref.strip():
@@ -181,12 +185,15 @@ def verify_authorization(
             input=payload,
             capture_output=True,
             text=True,
+            encoding="utf-8",
             check=False,
             timeout=5,
             env={"LANG": "C.UTF-8", "PATH": os.defpath},
         )
     except subprocess.TimeoutExpired as error:
         raise StateError("authorization verifier timed out") from error
+    except UnicodeError as error:
+        raise StateError("authorization verifier response must be UTF-8") from error
     except OSError as error:
         raise StateError(f"authorization verifier could not run: {error}") from error
     if completed.returncode != 0:

@@ -1,0 +1,95 @@
+{
+  "base_revision": "a7fbbd836ba4652bff9cca99c8a617ef28cd4511",
+  "version_under_test": "working tree",
+  "source_sha256": [
+    {
+      "path": "skills/development/workflows/durable-execution-state/scripts/rehearse_recovery.py",
+      "sha256": "deb2a2254b64d8f1e15c2300345c597c55b83e39d33857d724c739fe7099c37a"
+    },
+    {
+      "path": "skills/development/workflows/durable-execution-state/scripts/statectl_runtime/authorization.py",
+      "sha256": "94a9b9d42bac86af7fae4498839f10e8364434efb233730bb37e287081129934"
+    }
+  ],
+  "command": "python3 skills/development/workflows/durable-execution-state/scripts/rehearse_recovery.py --steps 100",
+  "runs": [
+    {
+      "checks": [
+        "precommit-rollback",
+        "postcommit-action-recovery",
+        "snapshot-rebuild",
+        "registration-reuse",
+        "postcommit-receipt-recovery",
+        "receipt-reuse"
+      ],
+      "cli_patch_median_ms": 36.98,
+      "cli_patch_p95_ms": 57.461,
+      "cli_replay_ms": 37.218,
+      "event_count": 105,
+      "final_state_bytes": 611,
+      "final_state_version": 104,
+      "host_trust_verified": false,
+      "measurement_scope": "CLI wall time includes interpreter startup; not model tokens or process RAM",
+      "peak_patch_state_bytes": 425,
+      "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+      "python": "3.14.7",
+      "real_external_actions": 0,
+      "scope": "disposable-local-protocol-rehearsal",
+      "steps": 100,
+      "task_status": "complete",
+      "verified": true
+    },
+    {
+      "checks": [
+        "precommit-rollback",
+        "postcommit-action-recovery",
+        "snapshot-rebuild",
+        "registration-reuse",
+        "postcommit-receipt-recovery",
+        "receipt-reuse"
+      ],
+      "cli_patch_median_ms": 37.256,
+      "cli_patch_p95_ms": 38.725,
+      "cli_replay_ms": 35.459,
+      "event_count": 105,
+      "final_state_bytes": 611,
+      "final_state_version": 104,
+      "host_trust_verified": false,
+      "measurement_scope": "CLI wall time includes interpreter startup; not model tokens or process RAM",
+      "peak_patch_state_bytes": 425,
+      "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+      "python": "3.14.7",
+      "real_external_actions": 0,
+      "scope": "disposable-local-protocol-rehearsal",
+      "steps": 100,
+      "task_status": "complete",
+      "verified": true
+    },
+    {
+      "checks": [
+        "precommit-rollback",
+        "postcommit-action-recovery",
+        "snapshot-rebuild",
+        "registration-reuse",
+        "postcommit-receipt-recovery",
+        "receipt-reuse"
+      ],
+      "cli_patch_median_ms": 36.151,
+      "cli_patch_p95_ms": 38.027,
+      "cli_replay_ms": 36.99,
+      "event_count": 105,
+      "final_state_bytes": 611,
+      "final_state_version": 104,
+      "host_trust_verified": false,
+      "measurement_scope": "CLI wall time includes interpreter startup; not model tokens or process RAM",
+      "peak_patch_state_bytes": 425,
+      "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+      "python": "3.14.7",
+      "real_external_actions": 0,
+      "scope": "disposable-local-protocol-rehearsal",
+      "steps": 100,
+      "task_status": "complete",
+      "verified": true
+    }
+  ]
+}

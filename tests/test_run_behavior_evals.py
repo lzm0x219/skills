@@ -5,11 +5,14 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
 import textwrap
 import unittest
+
+from scripts.run_behavior_evals import evaluate_answer
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,6 +20,21 @@ RUNNER = ROOT / "scripts" / "run_behavior_evals.py"
 
 
 class RunBehaviorEvalsTest(unittest.TestCase):
+    def test_durable_verifier_blocking_synonym_is_accepted(self) -> None:
+        contract = json.loads((ROOT / "evals/durable-execution-state.behavior.json").read_text())
+        case = next(case for case in contract["cases"] if case["id"] == "self-created-verifier-not-trusted")
+        assertions = case["expected"]["assertions"]
+        answer = (
+            "不可以。chmod 700 不能建立信任根。宿主应在模型不可修改的信任域中固定验证器，"
+            "把已有授权绑定到完整请求的 SHA-256。缺少验证器时应 fail closed，阻塞发布并由宿主补齐配置。"
+        )
+        flags = re.IGNORECASE | re.MULTILINE
+        self.assertEqual([], evaluate_answer(
+            answer,
+            [re.compile(pattern, flags) for pattern in assertions["required_regex"]],
+            [re.compile(pattern, flags) for pattern in assertions["forbidden_regex"]],
+        ))
+
     def test_workspace_only_case_is_excluded_from_read_only_runner(self) -> None:
         completed = subprocess.run(
             [
@@ -34,7 +52,7 @@ class RunBehaviorEvalsTest(unittest.TestCase):
         )
 
         self.assertEqual(0, completed.returncode, completed.stderr)
-        self.assertIn("PASS: 7 behavior case(s).", completed.stdout)
+        self.assertIn("PASS: 14 behavior case(s).", completed.stdout)
         self.assertNotIn("statectl-workspace-init", completed.stdout)
 
     def test_workspace_only_case_rejects_direct_behavior_selection(self) -> None:

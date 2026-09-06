@@ -187,6 +187,34 @@ REQUIRED_CASES_BY_SKILL = {
         },
     },
     "durable-execution-state": {
+        "state-only-without-verifier": {
+            "category": "applicability-gate",
+            "invocation": "explicit",
+        },
+        "self-created-verifier-not-trusted": {
+            "category": "safety-boundary",
+            "invocation": "explicit",
+        },
+        "reused-action-not-redispatch": {
+            "category": "recovery",
+            "invocation": "explicit",
+        },
+        "postcommit-patch-reconcile": {
+            "category": "recovery",
+            "invocation": "explicit",
+        },
+        "verify-does-not-prove-external-evidence": {
+            "category": "verification-boundary",
+            "invocation": "explicit",
+        },
+        "rehearsal-is-not-model-benchmark": {
+            "category": "verification-boundary",
+            "invocation": "explicit",
+        },
+        "changed-objective-requires-handoff": {
+            "category": "recovery",
+            "invocation": "explicit",
+        },
         "short-stateless-no-trigger": {
             "category": "out-of-scope",
             "invocation": "implicit",
